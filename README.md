@@ -3,15 +3,36 @@
 `supabase_rs` is light Supabase SDK for interacting with it's database
 
 [![Crates.io][crates-badge]][crates-url]
-[![MIT licensed][mit-badge]][mit-url]
-[![Build Status][actions-badge]][actions-url]
-
-[crates-badge]: https://img.shields.io/crates/v/supabase_rs.svg
-[crates-url]: https://crates.io/crates/supabase_rs
 
 ## Database Features
 
-- [x] Client creation
+- [x] Updating
+- [ ] Inserting
+- [ ] Bulk Inserting
+- [ ] Upserting
+- [ ] Bulk Upserting
+- [ ] Delete
+- [ ] Select
+- [ ] Applying Filters
+
+## Advanced Filtering over `select()`
+
+- [ ] Column is equal to a value
+- [ ] Column is not equal to a value
+- [ ] Column is greater than a value
+- [ ] Column is less than a value
+- [ ] Column is less than or equal to a value
+- [ ] Order the results
+- [ ] Limit the number of rows returned
+- [ ] Retrieve as a CSV
+
+## Auth
+
+// coming soon //
+
+## Storage
+
+// coming soon //
 
 
 ### Quickstart
