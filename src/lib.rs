@@ -1,6 +1,7 @@
 use uuid::Uuid;
 
 pub mod update;
+pub mod search;
 
 
 pub struct SupabaseClient {
@@ -22,7 +23,7 @@ impl SupabaseClient {
     }
 }
 
-
+/// Generates a random UUID to be passed as `id` when desired
 pub fn generate_id() -> String {
     Uuid::new_v4().to_string()
 }

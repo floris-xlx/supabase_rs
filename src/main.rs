@@ -2,7 +2,6 @@ use supabase_rs::SupabaseClient;
 
 use dotenv::dotenv;
 use std::env::var;
-use serde_json::json;
 
 
 #[tokio::main]
@@ -10,7 +9,7 @@ async fn main() {
     println!("Hello, world!");
 
     let supabase_client: SupabaseClient = initialize_supabase_client().await;
-    let response = update(supabase_client).await;
+    let response = select_test(supabase_client).await;
 
     println!("Response: {:?}", response);
 }
@@ -27,22 +26,26 @@ async fn initialize_supabase_client() -> SupabaseClient {
 }
 
 // update beta table set email_address = 'test' where id = '1
-async fn update(
+async fn select_test(
     supabase_client: SupabaseClient
-) {
+)-> Result<(), String>{
 
-    let response: Result<(), String> = supabase_client
-        .update(
-            "beta",
-            "1",
-            json!({
-                "email_address": "test"
-            })
-        )
-        .await;
+    let response = supabase_client
+    .select(
+        "beta",
+        "email_address",
+        "eq.test"
+    ).await;
+
 
     match response {
-        Ok(_) => println!("Update successful!"),
-        Err(error) => println!("Error: {}", error)
+        Ok(response) => {
+            println!("Response: {:?}", response);
+            Ok(())
+        },
+        Err(error) => {
+            println!("Error: {:?}", error);
+            Err(error)
+        }
     }
 }

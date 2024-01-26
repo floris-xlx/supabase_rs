@@ -11,7 +11,7 @@ use crate::SupabaseClient;
 
 
 impl SupabaseClient {
-    // here we're gonna construct the request for the update
+    /// Updates a row in the table, based on the id
     pub async fn update(
         &self,
         table_name: &str,
@@ -45,8 +45,8 @@ impl SupabaseClient {
         }
     }
 
-    
-    // creates or updates if the id already exists
+
+    /// Creates a row in the table, or updates if the id already exists
     pub async fn upsert(
         &self,
         table_name: &str,
