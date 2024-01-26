@@ -1,9 +1,44 @@
+//! Supabase SDK for Rust
+//!
+//! This is an unofficial Rust SDK for [Supabase](https://supabase.io/), since there is no official SDK for Rust yet.
+//!
+//! ## Cargo.toml
+//! ```toml
+//! [dependencies]
+//! supabase-rs = "0.2.0"
+//! ```
+//!
+//! ## Initialize the Supabase Client
+//!  ```rust
+//! use supabase_rs::SupabaseClient;
+//!
+//! use dotenv::dotenv;
+//! use std::env::var;
+//!
+//! async fn initialize_supabase_client() -> SupabaseClient {
+//!     dotenv().ok();
+//!     let supabase_client: SupabaseClient = SupabaseClient::new(
+//!         var("SUPABASE_URL").unwrap(),
+//!         var("SUPABASE_KEY").unwrap()
+//!         );
+//!
+//!         supabase_client
+//!    }
+//! ```
+//! This will initialize the Supabase Client with the Supabase URL and the Supabase Key, and return the Supabase Client to be passed to other methods.
+//!
+//! ## Tree of contents
+//! - [Update](#update)
+//! - [Select](#select)
+//!
+//! ## Update
+//! I'll be adding more methods and enriching the SDK over the next few days, for now!
 use uuid::Uuid;
 
 pub mod update;
-pub mod search;
+pub mod select;
 
-
+#[derive(Clone)]
 pub struct SupabaseClient {
     pub url: String,
     pub api_key: String

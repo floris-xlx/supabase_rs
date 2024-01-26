@@ -2,12 +2,11 @@ use supabase_rs::SupabaseClient;
 
 use dotenv::dotenv;
 use std::env::var;
+use serde_json::Value;
 
 
 #[tokio::main]
 async fn main() {
-    println!("Hello, world!");
-
     let supabase_client: SupabaseClient = initialize_supabase_client().await;
     let response = select_test(supabase_client).await;
 
@@ -30,13 +29,12 @@ async fn select_test(
     supabase_client: SupabaseClient
 )-> Result<(), String>{
 
-    let response = supabase_client
-    .select(
-        "beta",
-        "email_address",
-        "eq.test"
-    ).await;
-
+    // Usage example
+    let response: Result<Vec<Value>, String> = supabase_client
+        .select("beta")
+        .gte("numba", "1000")
+        .execute()
+        .await;
 
     match response {
         Ok(response) => {

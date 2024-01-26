@@ -12,16 +12,17 @@
 - [ ] Upserting
 - [ ] Bulk Upserting
 - [ ] Delete
-- [ ] Select
+- [x] Select
 - [ ] Applying Filters
 
 ## Advanced Filtering over `select()`
 
-- [ ] Column is equal to a value
-- [ ] Column is not equal to a value
-- [ ] Column is greater than a value
-- [ ] Column is less than a value
-- [ ] Column is less than or equal to a value
+- [x] Column is equal to a value
+- [x] Column is not equal to a value
+- [x] Column is greater than a value
+- [x] Column is less than a value
+- [x] Column is greater than or equal to a value
+- [x] Column is less than or equal to a value
 - [ ] Order the results
 - [ ] Limit the number of rows returned
 - [ ] Retrieve as a CSV
