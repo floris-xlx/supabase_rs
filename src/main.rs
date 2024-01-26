@@ -2,13 +2,13 @@ use supabase_rs::SupabaseClient;
 
 use dotenv::dotenv;
 use std::env::var;
-use serde_json::Value;
+use serde_json::json;
 
 
 #[tokio::main]
 async fn main() {
     let supabase_client: SupabaseClient = initialize_supabase_client().await;
-    let response = select_test(supabase_client).await;
+    let response = insert_test(supabase_client).await;
 
     println!("Response: {:?}", response);
 }
@@ -25,15 +25,43 @@ async fn initialize_supabase_client() -> SupabaseClient {
 }
 
 // update beta table set email_address = 'test' where id = '1
-async fn select_test(
+// async fn select_test(
+//     supabase_client: SupabaseClient
+// )-> Result<(), String>{
+
+//     // Usage example
+//     let response: Result<Vec<Value>, String> = supabase_client
+//         .select("beta")
+//         .gte("numba", "1000")
+//         .execute()
+//         .await;
+
+//     match response {
+//         Ok(response) => {
+//             println!("Response: {:?}", response);
+//             Ok(())
+//         },
+//         Err(error) => {
+//             println!("Error: {:?}", error);
+//             Err(error)
+//         }
+//     }
+// }
+
+
+async fn insert_test(
     supabase_client: SupabaseClient
 )-> Result<(), String>{
 
     // Usage example
-    let response: Result<Vec<Value>, String> = supabase_client
-        .select("beta")
-        .gte("numba", "1000")
-        .execute()
+    let response: Result<String, String> = supabase_client
+        .insert(
+            "beta",
+            json!({
+                "numba": 1000,
+                "email_address": "tes555155t"
+            })
+        )
         .await;
 
     match response {

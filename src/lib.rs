@@ -33,10 +33,12 @@
 //!
 //! ## Update
 //! I'll be adding more methods and enriching the SDK over the next few days, for now!
-use uuid::Uuid;
+
+use rand::Rng;
 
 pub mod update;
 pub mod select;
+pub mod insert;
 
 #[derive(Clone)]
 pub struct SupabaseClient {
@@ -58,7 +60,8 @@ impl SupabaseClient {
     }
 }
 
-/// Generates a random UUID to be passed as `id` when desired
-pub fn generate_id() -> String {
-    Uuid::new_v4().to_string()
+/// Generates a random 64-bit signed integer within a larger range
+pub fn generate_random_id() -> i64 {
+    let mut rng = rand::thread_rng();
+    rng.gen_range(0..i64::MAX)
 }

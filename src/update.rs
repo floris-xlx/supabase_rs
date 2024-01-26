@@ -1,3 +1,4 @@
+use crate::SupabaseClient;
 use serde_json::{
     json,
     Value
@@ -6,8 +7,6 @@ use reqwest::{
     Client,
     Response
 };
-
-use crate::SupabaseClient;
 
 
 impl SupabaseClient {

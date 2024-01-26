@@ -88,17 +88,13 @@
 //!     .execute()
 //!     .await;
 //! ```
-
+use crate::SupabaseClient;
 use reqwest;
 use serde_json::Value;
 use reqwest::Client;
 use reqwest::Response;
 use std::collections::HashMap;
 
-use crate::SupabaseClient;
-
-// here we're gonna construct the request for the update
-// building the Query builder
 
 pub enum Operator {
     Equals,
@@ -140,7 +136,11 @@ pub struct QueryBuilder {
 }
 
 impl QueryBuilder {
-    pub fn new(client: SupabaseClient, table_name: &str) -> Self {
+    pub fn new(
+        client: SupabaseClient,
+        table_name: &str
+    ) -> Self {
+
         QueryBuilder {
             client,
             query: Query::new(),
@@ -149,44 +149,98 @@ impl QueryBuilder {
     }
 
     /// This method checks if the Column is equal to a value
-    pub fn eq(mut self, column: &str, value: &str) -> Self {
-        self.query.add_param(column, &format!("eq.{}", value));
+    pub fn eq(
+        mut self,
+        column: &str,
+        value: &str
+    ) -> Self {
+
+        self.query.add_param(
+            column,
+            &format!("eq.{}", value)
+        );
         self
     }
 
     /// This method checks if the Column is not equal to a value
-    pub fn neq(mut self, column: &str, value: &str) -> Self {
-        self.query.add_param(column, &format!("neq.{}", value));
+    pub fn neq(
+        mut self,
+        column: &str,
+        value: &str
+    ) -> Self {
+
+        self.query.add_param(
+            column,
+            &format!("neq.{}", value)
+        );
         self
     }
 
     /// This method checks if the Column is greater than a value
-    pub fn gt(mut self, column: &str, value: &str) -> Self {
-        self.query.add_param(column, &format!("gt.{}", value));
+    pub fn gt(
+        mut self,
+        column: &str,
+        value: &str
+    ) -> Self {
+
+        self.query.add_param(
+            column,
+            &format!("gt.{}", value)
+        );
         self
     }
 
     /// This method checks if the Column is less than a value
-    pub fn lt(mut self, column: &str, value: &str) -> Self {
-        self.query.add_param(column, &format!("lt.{}", value));
+    pub fn lt(
+        mut self,
+        column: &str,
+        value: &str
+    ) -> Self {
+
+        self.query.add_param(
+            column,
+            &format!("lt.{}", value)
+        );
         self
     }
 
     /// This method checks if the Column is greater than or equal to a value
-    pub fn gte(mut self, column: &str, value: &str) -> Self {
-        self.query.add_param(column, &format!("gte.{}", value));
+    pub fn gte(
+        mut self,
+        column: &str,
+        value: &str
+    ) -> Self {
+
+        self.query.add_param(
+            column,
+            &format!("gte.{}", value)
+        );
         self
     }
 
     /// This method checks if the Column is less than or equal to a value
-    pub fn lte(mut self, column: &str, value: &str) -> Self {
-        self.query.add_param(column, &format!("lte.{}", value));
+    pub fn lte(
+        mut self,
+        column: &str,
+        value: &str
+    ) -> Self {
+
+        self.query.add_param(
+            column,
+            &format!("lte.{}", value)
+        );
         self
     }
 
     /// This is a mandatory method to execute the select query
-    pub async fn execute(self) -> Result<Vec<Value>, String> {
-        self.client.execute(&self.table_name, self.query.build().as_str()).await
+    pub async fn execute(
+        self
+    ) -> Result<Vec<Value>, String> {
+
+        self.client.execute(
+            &self.table_name,
+            self.query.build().as_str()
+        ).await
     }
 }
 
@@ -235,12 +289,22 @@ impl Query {
     }
 
     // Method to add a key-value pair to the query
-    pub fn add_param(&mut self, key: &str, value: &str) {
-        self.params.insert(key.to_string(), value.to_string());
+    pub fn add_param(
+        &mut self,
+        key: &str,
+        value: &str
+    ) {
+
+        self.params.insert(
+            key.to_string(),
+            value.to_string()
+        );
     }
 
     // Method to build the query string
-    pub fn build(&self) -> String {
+    pub fn build(
+        &self
+    ) -> String {
         let mut query_string = String::new();
         for (key, value) in &self.params {
             query_string.push_str(&format!("{}={}&", key, value));
@@ -252,8 +316,15 @@ impl Query {
 
 // Modify your select function
 impl SupabaseClient {
-    pub fn select(&self, table_name: &str) -> QueryBuilder {
-        QueryBuilder::new(self.clone(), table_name)
+    pub fn select(
+        &self,
+        table_name: &str
+    ) -> QueryBuilder {
+
+        QueryBuilder::new(
+            self.clone(),
+            table_name
+        )
     }
 
     // Updated execute function
@@ -262,6 +333,7 @@ impl SupabaseClient {
         table_name: &str,
         query_string: &str,
     ) -> Result<Vec<Value>, String> {
+
         // Build the client and the endpoint
         let endpoint: String = format!("{}/rest/v1/{}?{}", self.url, table_name, query_string);
         let client: Client = Client::new();

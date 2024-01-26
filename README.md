@@ -7,7 +7,7 @@ I'm actively covering the entire Supabase API including Auth, Realtime, Storage 
 ## Database Features
 
 - [x] Updating
-- [ ] Inserting
+- [x] Inserting
 - [ ] Bulk Inserting
 - [ ] Upserting
 - [ ] Bulk Upserting
@@ -38,6 +38,7 @@ I'm actively covering the entire Supabase API including Auth, Realtime, Storage 
 ## Realtime
 
 // coming soon //
+
 
 
 ### Quickstart
