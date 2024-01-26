@@ -39,10 +39,6 @@ I'm actively covering the entire Supabase API including Auth, Realtime, Storage 
 
 // coming soon //
 
-## Edge Functions
-
-// coming soon //
-
 
 ### Quickstart
 Add the following dependency to your toml file:
