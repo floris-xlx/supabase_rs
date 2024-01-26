@@ -1,8 +1,8 @@
 # supabase_rs
 
-`supabase_rs` is light Supabase SDK for interacting with it's database
+`supabase_rs` is light Supabase SDK for interacting with it's database.
 
-[![Crates.io][crates-badge]][crates-url]
+I'm actively covering the entire Supabase API including Auth, Realtime, Storage etc
 
 ## Database Features
 
@@ -35,12 +35,20 @@
 
 // coming soon //
 
+## Realtime
+
+// coming soon //
+
+## Edge Functions
+
+// coming soon //
+
 
 ### Quickstart
 Add the following dependency to your toml file:
 ```
 [dependencies]
-supabase_rs = "0.1.0"
+supabase_rs = "0.2.1"
 ```
 
 ## Support
