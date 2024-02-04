@@ -8,6 +8,7 @@ I'm actively covering the entire Supabase API including Auth, Realtime, Storage 
 
 - [x] Updating
 - [x] Inserting
+- [x] Inserting if unique
 - [ ] Bulk Inserting
 - [ ] Upserting
 - [ ] Bulk Upserting
@@ -45,7 +46,7 @@ I'm actively covering the entire Supabase API including Auth, Realtime, Storage 
 Add the following dependency to your toml file:
 ```
 [dependencies]
-supabase_rs = "0.2.1"
+supabase_rs = "0.2.2"
 ```
 
 ## Support

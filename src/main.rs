@@ -54,15 +54,25 @@ async fn insert_test(
 )-> Result<(), String>{
 
     // Usage example
+    // let response: Result<String, String> = supabase_client
+    //     .insert(
+    //         "beta",
+    //         json!({
+    //             "numba": 1000,
+    //             "email_address": "tes555155t"
+    //         })
+    //     )
+    //     .await;
+
     let response: Result<String, String> = supabase_client
-        .insert(
+        .insert_if_unique(
             "beta",
             json!({
-                "numba": 1000,
-                "email_address": "tes555155t"
+                "numba": 100011
             })
         )
         .await;
+
 
     match response {
         Ok(response) => {

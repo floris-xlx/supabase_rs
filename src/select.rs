@@ -88,6 +88,11 @@
 //!     .execute()
 //!     .await;
 //! ```
+//!
+#![allow(clippy::inherent_to_string)]
+#![allow(clippy::derivable_impls)]
+
+
 use crate::SupabaseClient;
 use reqwest;
 use serde_json::Value;
@@ -125,15 +130,19 @@ pub struct Sort {
 }
 
 
+// #[derive(Debug)]
 pub struct Query {
     params: HashMap<String, String>,
 }
 
+
+// #[derive(Debug)]
 pub struct QueryBuilder {
     client: SupabaseClient,
     query: Query,
     table_name: String,
 }
+
 
 impl QueryBuilder {
     pub fn new(
@@ -279,13 +288,20 @@ impl Filter {
     }
 }
 
+
 // implementation of the query builder
-impl Query {
-    // Constructs a new query
-    pub fn new() -> Query {
-        Query {
+impl Default for Query {
+    fn default() -> Self {
+        Self {
             params: HashMap::new(),
         }
+    }
+}
+
+impl Query {
+    // Constructs a new query using the default implementation
+    pub fn new() -> Query {
+        Query::default()
     }
 
     // Method to add a key-value pair to the query

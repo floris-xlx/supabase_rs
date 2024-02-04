@@ -38,9 +38,9 @@ impl SupabaseClient {
             };
 
         if response.status().is_success() {
-            return Ok(())
+            Ok(())
         } else {
-            return Err(response.status().to_string())
+            Err(response.status().to_string())
         }
     }
 
@@ -73,9 +73,9 @@ impl SupabaseClient {
             };
 
         if response.status().is_success() {
-            return Ok(())
+            Ok(())
         } else {
-            return Err(response.status().to_string())
+            Err(response.status().to_string())
         }
     }
 }

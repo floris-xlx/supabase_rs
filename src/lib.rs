@@ -40,6 +40,8 @@ pub mod update;
 pub mod select;
 pub mod insert;
 
+
+// #[derive(Debug)]
 #[derive(Clone)]
 pub struct SupabaseClient {
     pub url: String,
@@ -53,6 +55,7 @@ impl SupabaseClient {
         supabase_url: String,
         private_key: String
     ) -> Self {
+
         Self {
             url: supabase_url,
             api_key: private_key
