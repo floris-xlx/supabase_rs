@@ -1,6 +1,19 @@
-//! This module contains the `select()` function
+//! ## This module contains the `select()` function
 //!
-//! ## Usage
+//! ### Conditional filtering
+//! The `select()` function allows you to filter the rows you want to retrieve from the table.
+//! You can filter the rows based on the column values or their relationships.
+//! 
+//! ### Filter operators
+//! - [`eq`](#eq) - Equal to the column value
+//! - [`neq`](#neq) - Not equal to the column value
+//! - [`gt`](#gt) - Greater than the column value
+//! - [`lt`](#lt) - Less than the column value
+//! - [`gte`](#gte) - Greater than or equal to the column value
+//! - [`lte`](#lte) - Less than or equal to the column value
+//! 
+//! 
+//! ### Usage
 //! First make sure you have initialized the Supabase Client
 //! [Initalizing the SupabaseClient](#lib)
 //!

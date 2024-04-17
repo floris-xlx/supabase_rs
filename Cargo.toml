@@ -1,19 +1,15 @@
 [package]
 name = "supabase_rs"
-version = "0.2.2"
+version = "0.2.3"
 edition = "2021"
 authors = ["Floris floris@xylex.ai"]
-description = "A Rust SDK client for Supabase"
+description = "Lightweight Rust client for Supabase"
 license = "MIT"
 readme = "README.md"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-chrono = "0.4.33"
-dotenv = "0.15.0"
-reqwest = { version = "0.11.23", features = ["json"] }
+reqwest = { version = "0.12.3", features = ["json"] }
 rand = "0.8.5"
 serde_json = "1.0.111"
-tokio = { version = "1.35.1", features = ["full"] }
-uuid = { version = "1.7.0", features = ["v4", "fast-rng",  "macro-diagnostics"] }

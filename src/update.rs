@@ -1,3 +1,45 @@
+//! ## Update and Upsert Operations
+//!
+//! This module provides functionalities to update or upsert (update or insert) rows in a Supabase table.
+//! It leverages the Supabase REST API for performing these operations.
+//!
+//! ## Features
+//!
+//! - **Update**: Modify existing rows in a table based on a unique identifier.
+//! - **Upsert**: Insert a new row into a table if it does not exist, or update it if it does.
+//!
+//! ## Usage
+//!
+//! Before using these operations, ensure you have a valid `SupabaseClient` instance.
+//! You can then use the `update` or `upsert` methods provided by the client to perform the desired operation.
+//!
+//! ### Update Example
+//!
+//! ```ignore
+//! let client = SupabaseClient::new(
+//!     "your_supabase_url", "your_supabase_key"
+//! );
+//! let update_result = client.update(
+//!     "your_table_name", "row_id", json!({"column_name": "new_value"})
+//! ).await;
+//! ```
+//!
+//! ### Upsert Example
+//!
+//! ```ignore
+//! let client = SupabaseClient::new(
+//!     "your_supabase_url", "your_supabase_key"
+//! );
+//! let upsert_result = client.upsert(
+//!     "your_table_name", "row_id", json!({"column_name": "value"})
+//! ).await;
+//! ```
+//!
+//! ## Error Handling
+//!
+//! Both `update` and `upsert` methods return a `Result<(), String>`, where `Ok(())` indicates a successful operation,
+//! and `Err(String)` contains an error message in case of failure.
+//!
 use crate::SupabaseClient;
 use serde_json::{
     json,

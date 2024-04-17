@@ -1,8 +1,12 @@
 # supabase_rs
 
-`supabase_rs` is light Supabase SDK for interacting with it's database.
+`supabase_rs` is an extremely light weight Supabase SDK for interacting with it's database.
 
 I'm actively covering the entire Supabase API including Auth, Realtime, Storage etc
+
+## Feature flags
+- **`storage`**: Enables the `Storage` module to interact with Supabase Storage.
+
 
 ## Database Features
 
@@ -14,7 +18,7 @@ I'm actively covering the entire Supabase API including Auth, Realtime, Storage 
 - [ ] Bulk Upserting
 - [ ] Delete
 - [x] Select
-- [ ] Applying Filters
+- [*] Applying Filters
 
 ## Advanced Filtering over `select()`
 
@@ -28,11 +32,17 @@ I'm actively covering the entire Supabase API including Auth, Realtime, Storage 
 - [ ] Limit the number of rows returned
 - [ ] Retrieve as a CSV
 
-## Auth
-
-// coming soon //
-
 ## Storage
+
+- [x] Downloading a file from a public bucket
+- [x] Saving a file
+- [ ] Saving a file to a private bucket
+- [ ] Uploading a file
+- [ ] Generating a signed url
+- [ ] Deleting a file
+
+
+## Auth
 
 // coming soon //
 
@@ -46,8 +56,14 @@ I'm actively covering the entire Supabase API including Auth, Realtime, Storage 
 Add the following dependency to your toml file:
 ```
 [dependencies]
-supabase_rs = "0.2.2"
+supabase_rs = "0.2.3"
+
+// With the [storage] feature flag
+supabase-rs = { version = "0.2.3", features = ["storage"] }
 ```
+
+### Docs
+[Docs](https://docs.rs/supabase_rs/latest/supabase_rs/)
 
 ## Support
 If you need any specific features added or have any requests either contact me on
