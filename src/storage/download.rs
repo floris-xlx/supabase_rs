@@ -13,9 +13,11 @@
 
 #![cfg(feature = "storage")]
 
-use reqwest::Client;
+use reqwest::{Client, Response, Error as ReqwestError};
 use std::fs::File;
 use std::io::prelude::*;
+use std::io::Error;
+use std::std::Error as dynError;
 
 use crate::storage::SupabaseStorage;
 
@@ -40,13 +42,13 @@ impl SupabaseStorage {
     /// ```
     pub async fn download(
         &self
-    ) -> Result<Vec<u8>, reqwest::Error> {
+    ) -> Result<Vec<u8>, ReqwestError> {
 
 
         let url: String = format!("{}/storage/v1/object/public/{}/{}", self.supabase_url, self.bucket_name, self.filename);
         println!("URL: {:?}", url);
         let client: Client = Client::new();
-        let response: reqwest::Response = client.get(&url).send().await?;
+        let response: Response = client.get(&url).send().await?;
         let bytes = response.bytes().await?;
         Ok(bytes.to_vec())
                 
@@ -70,10 +72,10 @@ impl SupabaseStorage {
     pub async fn save(
         &self, 
         file_path: &str
-    ) -> Result<(), Box<dyn std::error::Error>> {
+    ) -> Result<(), Box<dyn dynError>> {
 
         let bytes: Vec<u8> = self.download().await.map_err(|e| {
-            std::io::Error::new(std::io::ErrorKind::Other, e)
+            Error::new(ErrorKind::Other, e)
         })?;
 
         let mut file: File = File::create(file_path)?;

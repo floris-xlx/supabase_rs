@@ -16,9 +16,9 @@ I'm actively covering the entire Supabase API including Auth, Realtime, Storage 
 - [ ] Bulk Inserting
 - [ ] Upserting
 - [ ] Bulk Upserting
-- [ ] Delete
+- [x] Delete (only per ID)
 - [x] Select
-- [*] Applying Filters
+- [x] Applying Filters
 
 ## Advanced Filtering over `select()`
 
@@ -56,10 +56,10 @@ I'm actively covering the entire Supabase API including Auth, Realtime, Storage 
 Add the following dependency to your toml file:
 ```
 [dependencies]
-supabase_rs = "0.2.3"
+supabase_rs = "0.2.4"
 
 // With the [storage] feature flag
-supabase-rs = { version = "0.2.3", features = ["storage"] }
+supabase-rs = { version = "0.2.4", features = ["storage"] }
 ```
 
 ### Docs

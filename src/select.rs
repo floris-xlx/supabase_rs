@@ -3,7 +3,7 @@
 //! ### Conditional filtering
 //! The `select()` function allows you to filter the rows you want to retrieve from the table.
 //! You can filter the rows based on the column values or their relationships.
-//! 
+//!
 //! ### Filter operators
 //! - [`eq`](#eq) - Equal to the column value
 //! - [`neq`](#neq) - Not equal to the column value
@@ -11,8 +11,8 @@
 //! - [`lt`](#lt) - Less than the column value
 //! - [`gte`](#gte) - Greater than or equal to the column value
 //! - [`lte`](#lte) - Less than or equal to the column value
-//! 
-//! 
+//!
+//!
 //! ### Usage
 //! First make sure you have initialized the Supabase Client
 //! [Initalizing the SupabaseClient](#lib)
@@ -42,7 +42,7 @@
 //!        println!("Error: {:?}", error);
 //!        Err(error)
 //!    }
-//!}
+//! }
 //! ```
 //!
 //! ## Methods / Operators
@@ -104,265 +104,46 @@
 //!
 #![allow(clippy::inherent_to_string)]
 #![allow(clippy::derivable_impls)]
+#![allow(rustdoc::invalid_rust_codeblocks)]
+
 
 
 use crate::SupabaseClient;
 use reqwest;
-use serde_json::Value;
 use reqwest::Client;
 use reqwest::Response;
-use std::collections::HashMap;
+use serde_json::Value;
+
+use crate::query::QueryBuilder;
 
 
-pub enum Operator {
-    Equals,
-    NotEquals,
-    GreaterThan,
-    LessThan,
-    GreaterThanOrEquals,
-    LessThanOrEquals
-}
 
-
-pub enum SortOrder {
-    Ascending,
-    Descending
-}
-
-
-pub struct Filter {
-    column: String,
-    operator: Operator,
-    value: String
-}
-
-
-pub struct Sort {
-    _column: String,
-    _order: SortOrder
-}
-
-
-// #[derive(Debug)]
-pub struct Query {
-    params: HashMap<String, String>,
-}
-
-
-// #[derive(Debug)]
-pub struct QueryBuilder {
-    client: SupabaseClient,
-    query: Query,
-    table_name: String,
-}
-
-
-impl QueryBuilder {
-    pub fn new(
-        client: SupabaseClient,
-        table_name: &str
-    ) -> Self {
-
-        QueryBuilder {
-            client,
-            query: Query::new(),
-            table_name: table_name.to_string(),
-        }
-    }
-
-    /// This method checks if the Column is equal to a value
-    pub fn eq(
-        mut self,
-        column: &str,
-        value: &str
-    ) -> Self {
-
-        self.query.add_param(
-            column,
-            &format!("eq.{}", value)
-        );
-        self
-    }
-
-    /// This method checks if the Column is not equal to a value
-    pub fn neq(
-        mut self,
-        column: &str,
-        value: &str
-    ) -> Self {
-
-        self.query.add_param(
-            column,
-            &format!("neq.{}", value)
-        );
-        self
-    }
-
-    /// This method checks if the Column is greater than a value
-    pub fn gt(
-        mut self,
-        column: &str,
-        value: &str
-    ) -> Self {
-
-        self.query.add_param(
-            column,
-            &format!("gt.{}", value)
-        );
-        self
-    }
-
-    /// This method checks if the Column is less than a value
-    pub fn lt(
-        mut self,
-        column: &str,
-        value: &str
-    ) -> Self {
-
-        self.query.add_param(
-            column,
-            &format!("lt.{}", value)
-        );
-        self
-    }
-
-    /// This method checks if the Column is greater than or equal to a value
-    pub fn gte(
-        mut self,
-        column: &str,
-        value: &str
-    ) -> Self {
-
-        self.query.add_param(
-            column,
-            &format!("gte.{}", value)
-        );
-        self
-    }
-
-    /// This method checks if the Column is less than or equal to a value
-    pub fn lte(
-        mut self,
-        column: &str,
-        value: &str
-    ) -> Self {
-
-        self.query.add_param(
-            column,
-            &format!("lte.{}", value)
-        );
-        self
-    }
-
-    /// This is a mandatory method to execute the select query
-    pub async fn execute(
-        self
-    ) -> Result<Vec<Value>, String> {
-
-        self.client.execute(
-            &self.table_name,
-            self.query.build().as_str()
-        ).await
-    }
-}
-
-
-impl Filter {
-    // constructs a new filter
-    pub fn new(
-        column: String,
-        operator: Operator,
-        value: String
-    ) -> Filter {
-        Filter {
-            column,
-            operator,
-            value
-        }
-    }
-
-    // converts the filter to a string
-    pub fn to_string(
-        &self
-    ) -> String {
-        format!(
-            "{}.{}={}",
-            self.column,
-            match self.operator {
-                Operator::Equals => "eq",
-                Operator::NotEquals => "neq",
-                Operator::GreaterThan => "gt",
-                Operator::LessThan => "lt",
-                Operator::GreaterThanOrEquals => "gte",
-                Operator::LessThanOrEquals => "lte"
-            },
-            self.value
-        )
-    }
-}
-
-
-// implementation of the query builder
-impl Default for Query {
-    fn default() -> Self {
-        Self {
-            params: HashMap::new(),
-        }
-    }
-}
-
-impl Query {
-    // Constructs a new query using the default implementation
-    pub fn new() -> Query {
-        Query::default()
-    }
-
-    // Method to add a key-value pair to the query
-    pub fn add_param(
-        &mut self,
-        key: &str,
-        value: &str
-    ) {
-
-        self.params.insert(
-            key.to_string(),
-            value.to_string()
-        );
-    }
-
-    // Method to build the query string
-    pub fn build(
-        &self
-    ) -> String {
-        let mut query_string = String::new();
-        for (key, value) in &self.params {
-            query_string.push_str(&format!("{}={}&", key, value));
-        }
-        query_string
-    }
-}
-
-
-// Modify your select function
 impl SupabaseClient {
-    pub fn select(
-        &self,
-        table_name: &str
-    ) -> QueryBuilder {
-
-        QueryBuilder::new(
-            self.clone(),
-            table_name
-        )
+    /// Initializes a `QueryBuilder` for a specified table.
+    /// 
+    /// # Arguments
+    /// * `table_name` - A string slice that holds the name of the table to be queried.
+    ///
+    /// # Returns
+    /// A `QueryBuilder` instance configured for the specified table.
+    pub fn select(&self, table_name: &str) -> QueryBuilder {
+        QueryBuilder::new(self.clone(), table_name)
     }
 
-    // Updated execute function
-    async fn execute(
-        &self,
-        table_name: &str,
-        query_string: &str,
-    ) -> Result<Vec<Value>, String> {
-
+    
+    /// Executes a query against a specified table with a given query string.
+    ///
+    /// # Arguments
+    /// * `table_name` - A string slice that holds the name of the table to be queried.
+    /// * `query_string` - A string slice that holds the query parameters.
+    ///
+    /// # Returns
+    /// A `Result` which is either a vector of `Value` representing the records fetched from the database
+    /// or a `String` error message in case of failure.
+    ///
+    /// # Errors
+    /// This function will return an error if the HTTP request fails or if the server returns a non-success status code.
+    pub async fn execute(&self, table_name: &str, query_string: &str) -> Result<Vec<Value>, String> {
         // Build the client and the endpoint
         let endpoint: String = format!("{}/rest/v1/{}?{}", self.url, table_name, query_string);
         let client: Client = Client::new();

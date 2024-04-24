@@ -1,3 +1,45 @@
+//! ## Insert Operations
+//!
+//! This module provides functionalities to insert new rows into a Supabase table.
+//! It leverages the Supabase REST API for performing these operations.
+//!
+//! ## Features
+//!
+//! - **Insert**: Add new rows to a table.
+//! - **Insert if Unique**: Add a new row only if it does not violate a UNIQUE constraint.
+//!
+//! ## Usage
+//!
+//! Before using these operations, ensure you have a valid `SupabaseClient` instance.
+//! You can then use the `insert` or `insert_if_unique` methods provided by the client to perform the desired operation.
+//!
+//! ### Insert Example
+//!
+//! ```ignore
+//! let client = SupabaseClient::new(
+//!     "your_supabase_url", "your_supabase_key"
+//! );
+//! let insert_result = client.insert(
+//!     "your_table_name", json!({"column_name": "value"})
+//! ).await;
+//! ```
+//!
+//! ### Insert if Unique Example
+//!
+//! ```ignore
+//! let client = SupabaseClient::new(
+//!     "your_supabase_url", "your_supabase_key"
+//! );
+//! let unique_insert_result = client.insert_if_unique(
+//!     "your_table_name", json!({"unique_column_name": "unique_value"})
+//! ).await;
+//! ```
+//!
+//! ## Error Handling
+//!
+//! Both `insert` and `insert_if_unique` methods return a `Result<String, String>`, where `Ok(String)` contains the ID of the inserted row,
+//! and `Err(String)` contains an error message in case of failure.
+
 use crate::{
     SupabaseClient,
     generate_random_id
@@ -11,9 +53,16 @@ use reqwest::{
     Response
 };
 
-
 impl SupabaseClient {
-    /// Inserts a row in the table
+    /// Inserts a new row into the specified table.
+    ///
+    /// # Arguments
+    /// * `table_name` - A string slice that holds the name of the table.
+    /// * `body` - A JSON value containing the data to be inserted.
+    ///
+    /// # Returns
+    /// This method returns a `Result<String, String>`. On success, it returns `Ok(String)` with the new row's ID,
+    /// and on failure, it returns `Err(String)` with an error message.
     pub async fn insert(
         &self,
         table_name: &str,
@@ -25,8 +74,6 @@ impl SupabaseClient {
         let new_id: i64 = generate_random_id();
         body["id"] = json!(new_id);
 
-        println!("Body: {:?}", body);
-        // Make a GET request to the user endpoint
         let response: Response = match client
             .post(&endpoint)
             .header("apikey", &self.api_key)
@@ -52,15 +99,20 @@ impl SupabaseClient {
         }
     }
 
-
-    /// Inserts a row in the table if the value is unique and does not exist in the table already
+    /// Inserts a row into the specified table if the value is unique and does not exist in the table already.
+    ///
+    /// # Arguments
+    /// * `table_name` - A string slice that holds the name of the table.
+    /// * `body` - A JSON value containing the data to be inserted.
+    ///
+    /// # Returns
+    /// This method returns a `Result<String, String>`. On success, it returns `Ok(String)` with the new row's ID,
+    /// and on failure, it returns `Err(String)` with an error message indicating a duplicate entry.
     pub async fn insert_if_unique(
         &self,
         table_name: &str,
         mut body: Value
     ) -> Result<String, String> {
-        // get column name and value from body
-
         let column_name: String = body
             .as_object_mut()
             .unwrap()
@@ -69,7 +121,6 @@ impl SupabaseClient {
             .unwrap()
             .to_string();
 
-        // get the value keyed by the column name, which can be a number too
         let column_value = match body
             .as_object_mut()
             .unwrap()
@@ -80,19 +131,16 @@ impl SupabaseClient {
                 _ => panic!("Unsupported type for column value"),
             };
 
-        // get the current value of the column and see if equal to the value in the body
         let response: Result<Vec<Value>, String> = self
             .select(table_name)
             .eq(&column_name, &column_value)
             .execute()
             .await;
 
-        // if the response is empty, insert the row
         if response.unwrap().is_empty() {
             return self.insert(table_name, body).await;
         }
 
-        // if the response is not empty, return an error
         Err("\x1b[31mError 409: Duplicate entry. The value you're trying to insert may already exist in a column with a UNIQUE constraint.\x1b[0m".to_string())
     }
 }
