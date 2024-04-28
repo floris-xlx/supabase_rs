@@ -44,7 +44,28 @@
 //!    }
 //! }
 //! ```
-//!
+//! ## Counting
+//! You can also count the number of rows that match the filter criteria and return it under `total_records_count`
+//! 
+//! ### Counting with filtering
+//! ```rust
+//! let data: Result<Vec<Value>, String> = supabase_client
+//!    .select("animals")
+//!    .eq("dog", "scooby")
+//!    .count()
+//!    .execute()
+//!    .await;
+//! ```
+//! 
+//! ### Counting without filtering
+//! ```rust
+//! let data: Result<Vec<Value>, String> = supabase_client
+//!    .select("animals")
+//!    .count()
+//!    .execute()
+//!    .await;
+//! ```
+//! 
 //! ## Methods / Operators
 //!
 //! ### eq
@@ -112,7 +133,7 @@ use crate::SupabaseClient;
 use reqwest;
 use reqwest::Client;
 use reqwest::Response;
-use serde_json::Value;
+use serde_json::{Value, json};
 
 use crate::query::QueryBuilder;
 
@@ -129,6 +150,7 @@ impl SupabaseClient {
     pub fn select(&self, table_name: &str) -> QueryBuilder {
         QueryBuilder::new(self.clone(), table_name)
     }
+
 
     
     /// Executes a query against a specified table with a given query string.
@@ -148,27 +170,73 @@ impl SupabaseClient {
         let endpoint: String = format!("{}/rest/v1/{}?{}", self.url, table_name, query_string);
         let client: Client = Client::new();
 
-        // Send the request
-        let response: Response = match client
-            .get(&endpoint)
-            .header("apikey", &self.api_key)
-            .header("Authorization", &format!("Bearer {}", &self.api_key))
-            .header("Content-Type", "application/json")
-            .send()
-            .await
-        {
-            Ok(response) => response,
-            Err(error) => return Err(error.to_string()),
-        };
+        // if the endpoint ends in count=exact& then we know we are doing a count query and we should remove that part but run the first part of the if statement
+        if endpoint.ends_with("count=exact&") {
+            let endpoint: String = endpoint.replace("count=exact&", "");
+                // Send the request
+                let response: Response = match client
+                .get(&endpoint)
+                .header("apikey", &self.api_key)
+                .header("Authorization", &format!("Bearer {}", &self.api_key))
+                .header("Content-Type", "application/json")
+                .header("prefer", "count=exact")
+                
+                .send()
+                .await
+            {
+                Ok(response) => response,
+                Err(error) => return Err(error.to_string()),
+            };
 
-        // Process the response
-        if response.status().is_success() {
-            match response.json::<Vec<Value>>().await {
-                Ok(records) => Ok(records),
-                Err(error) => Err(error.to_string()),
-            }
+            handle_count_response(response).await
+        
         } else {
-            Err(response.status().to_string())
+            // Send the request
+            let response: Response = match client
+                .get(&endpoint)
+                .header("apikey", &self.api_key)
+                .header("Authorization", &format!("Bearer {}", &self.api_key))
+                .header("Content-Type", "application/json")
+                
+                .send()
+                .await
+            {
+                Ok(response) => response,
+                Err(error) => return Err(error.to_string()),
+            };
+
+            // Process the response
+            handle_count_response(response).await
         }
+
+    }
+}
+
+
+async fn handle_count_response(response: Response) -> Result<Vec<Value>, String> {
+    // Extract the `headers` and `content-range` from the response
+    let headers: &reqwest::header::HeaderMap = response.headers();
+    let content_range_option: Option<&str> = headers.get("content-range").and_then(|v| v.to_str().ok());
+    
+    // Initialize total_records to None
+    let mut total_records: Option<i32> = None;
+
+    // If content-range header exists, parse the total records
+    if let Some(content_range) = content_range_option {
+        total_records = content_range.split('/').nth(1).and_then(|v| v.parse::<i32>().ok());
+    }
+
+    // Process the response
+    if response.status().is_success() {
+        let mut records: Vec<Value> = response.json::<Vec<Value>>().await.unwrap();
+        if let Some(count) = total_records {
+
+            // Add total_records to the records if available
+            records.push(json!({"total_records_count": count}));
+        }
+        Ok(records)
+    } else {
+
+        Err(response.status().to_string())
     }
 }

@@ -194,6 +194,13 @@ impl QueryBuilder {
         self
     }
 
+
+    pub fn count(mut self) -> Self {
+        self.query.add_param("count", "exact");
+        self
+    }
+
+
     /// Executes the constructed query against the database.
     ///
     /// # Returns

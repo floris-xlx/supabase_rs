@@ -40,7 +40,10 @@
 //! Both `update` and `upsert` methods return a `Result<(), String>`, where `Ok(())` indicates a successful operation,
 //! and `Err(String)` contains an error message in case of failure.
 //!
-use crate::SupabaseClient;
+use crate::{
+    SupabaseClient,
+    generate_random_id
+};
 use serde_json::{
     json,
     Value
@@ -78,7 +81,7 @@ impl SupabaseClient {
                 Ok(response) => response,
                 Err(error) => return Err(error.to_string())
             };
-
+        
         if response.status().is_success() {
             Ok(())
         } else {
@@ -95,24 +98,51 @@ impl SupabaseClient {
         mut body: Value
     ) -> Result<(), String> {
 
-        // endpoint and client construction
-        let endpoint: String = format!("{}/rest/v1/{}", self.url, table_name);
+         // endpoint and client construction
+         let endpoint: String = format!(
+            "{}/rest/v1/{}?id=eq.{}",
+            self.url, table_name, id
+        );
+
         let client: Client = Client::new();
 
-        body["id"] = json!(id);
-
         let response: Response = match client
-            .post(&endpoint)
+            .patch(&endpoint)
             .header("apikey", &self.api_key)
             .header("Authorization", &format!("Bearer {}", &self.api_key))
             .header("Content-Type", "application/json")
-            .header("Prefer", "return=merge=duplicates")
             .body(body.to_string())
             .send()
             .await {
                 Ok(response) => response,
                 Err(error) => return Err(error.to_string())
             };
+        
+        let status_code: u16 = response.status().as_u16();
+
+        if status_code == 2204 {
+            println!("No rows were updated. Inserting a new row...");
+            // status 204 indicates no rows were updated or exist
+            let endpoint: String = format!("{}/rest/v1/{}", self.url, table_name);
+            let client: Client = Client::new();
+            let new_id: i64 = generate_random_id();
+            body["id"] = json!(new_id);
+
+            let response: Response = match client
+                .post(&endpoint)
+                .header("apikey", &self.api_key)
+                .header("Authorization", format!("Bearer {}", &self.api_key))
+                .header("Content-Type", "application/json")
+                .body(body.to_string())
+                .send()
+                .await {
+                    Ok(response) => response,
+                    Err(e) => return Err(e.to_string())
+                };
+
+            println!("Status Code: {:?}", response.status());
+        } 
+
 
         if response.status().is_success() {
             Ok(())

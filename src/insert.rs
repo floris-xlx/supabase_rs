@@ -60,6 +60,21 @@ impl SupabaseClient {
     /// * `table_name` - A string slice that holds the name of the table.
     /// * `body` - A JSON value containing the data to be inserted.
     ///
+    /// # Example
+    /// ```rust
+    /// // Initialize the Supabase client
+    /// let client = SupabaseClient::new("your_supabase_url", "your_supabase_key");
+    /// 
+    /// // This will insert a new row into the table
+    /// let insert_result = client.insert(
+    ///   "your_table_name",
+    ///   json!(
+    ///     {"column_name": "value"}
+    ///   )
+    /// ).await;
+    /// ``` 
+    /// 
+    /// 
     /// # Returns
     /// This method returns a `Result<String, String>`. On success, it returns `Ok(String)` with the new row's ID,
     /// and on failure, it returns `Err(String)` with an error message.
@@ -105,6 +120,19 @@ impl SupabaseClient {
     /// * `table_name` - A string slice that holds the name of the table.
     /// * `body` - A JSON value containing the data to be inserted.
     ///
+    /// ## Example
+    /// ```rust
+    /// // Initialize the Supabase client
+    /// let client = SupabaseClient::new("your_supabase_url", "your_supabase_key");
+    /// 
+    /// // This will insert a new row into the table if the value is unique
+    /// let unique_insert_result = client.insert_if_unique(
+    ///    "your_table_name",
+    ///   json!({"unique_column_name": "unique_value"})
+    /// ).await;
+    /// ``` ```
+    /// 
+    /// 
     /// # Returns
     /// This method returns a `Result<String, String>`. On success, it returns `Ok(String)` with the new row's ID,
     /// and on failure, it returns `Err(String)` with an error message indicating a duplicate entry.

@@ -164,6 +164,70 @@ mod methods {
         assert_eq!(response.is_ok(), true);
     }
 
+    /// Tests the `select_filter` method of `SupabaseClient`.
+    #[tokio::test]
+    async fn select_with_count() {
+        
+        /// Performs a select_filter operation in an isolated scope.
+        async fn select_with_count_inner(supabase_client: SupabaseClient) -> Result<(), String> {
+            // Usage example
+            
+            let response_inner: Result<Vec<Value>, String> = supabase_client
+                .select("test")
+                .count()
+                .execute()
+                .await;
+
+            match response_inner {
+                Ok(response_inner) => {
+                    println!("Response: {:?}", response_inner);
+                    Ok(())
+                }
+                Err(error) => {
+                    println!("Error: {:?}", error);
+                    Err(error)
+                }
+            }
+        }
+
+        let supabase_client: SupabaseClient = init().await;
+        let response: Result<(), String> = select_with_count_inner(supabase_client).await;
+
+        assert_eq!(response.is_ok(), true);
+    }
+
+    /// Tests the `select_filter` method of `SupabaseClient`.
+    #[tokio::test]
+    async fn select_with_count_and_filter() {
+        
+        /// Performs a select_filter operation in an isolated scope.
+        async fn select_with_count_and_filter_inner(supabase_client: SupabaseClient) -> Result<(), String> {
+            // Usage example
+            
+            let response_inner: Result<Vec<Value>, String> = supabase_client
+                .select("test")
+                .eq("dog", "what da dog doing")
+                .count()
+                .execute()
+                .await;
+
+            match response_inner {
+                Ok(response_inner) => {
+                    println!("Response: {:?}", response_inner);
+                    Ok(())
+                }
+                Err(error) => {
+                    println!("Error: {:?}", error);
+                    Err(error)
+                }
+            }
+        }
+
+        let supabase_client: SupabaseClient = init().await;
+        let response: Result<(), String> = select_with_count_and_filter_inner(supabase_client).await;
+
+        assert_eq!(response.is_ok(), true);
+    }
 
     /// Tests the `select_filter` method of `SupabaseClient`.
     #[tokio::test]

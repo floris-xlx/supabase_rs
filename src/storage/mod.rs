@@ -48,7 +48,10 @@ pub mod download;
 /// A struct for interacting with Supabase Storage.
 #[derive(Debug, Clone)]
 pub struct SupabaseStorage {
+    /// The Supabase URL.
     pub supabase_url: String,
+    /// The name of the bucket.
     pub bucket_name: String,
+    /// The name of the file.
     pub filename: String,
 }
