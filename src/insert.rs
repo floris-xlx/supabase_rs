@@ -89,11 +89,14 @@ impl SupabaseClient {
         let new_id: i64 = generate_random_id();
         body["id"] = json!(new_id);
 
+        println!("Inserting row with body: {}", body);
+
         let response: Response = match client
             .post(&endpoint)
             .header("apikey", &self.api_key)
             .header("Authorization", format!("Bearer {}", &self.api_key))
             .header("Content-Type", "application/json")
+            .header("x_client_info", "supabase-rs/0.2.5")
             .body(body.to_string())
             .send()
             .await {

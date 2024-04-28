@@ -10,6 +10,11 @@
 //! - `insert_if_unique`: Tests the insertion of a unique row.
 //! - `select`: Tests the selection of rows.
 //! - `select_filter`: Tests the selection of rows with a specific filter.
+//! - `select_with_count`: Tests the selection of rows with a count.
+//! - `select_with_count_and_filter`: Tests the selection of rows with a count and a filter.
+//! - `delete`: Tests the deletion of a row.
+//! - `upsert`: Tests the upsertion of a row.
+//! - `update`: Tests the update of a row.
 //!
 //! These tests ensure that the basic functionalities of interacting with a Supabase database
 //! are working as expected.
@@ -256,6 +261,47 @@ mod methods {
 
         let supabase_client: SupabaseClient = init().await;
         let response: Result<(), String> = delete_inner(supabase_client).await;
+
+        assert_eq!(response.is_ok(), true);
+    }
+
+    /// Tests the `upsert` method of `SupabaseClient`.
+    #[tokio::test]
+    async fn upsert() {
+        
+        /// Performs a select_filter operation in an isolated scope.
+        async fn upsert_inner(supabase_client: SupabaseClient) -> Result<(), String> {
+            // Usage example
+    
+        let id: String = "8826759220049045588".to_string();
+        let email: String = "floris@xylex.ai".to_string();
+
+        // Usage example
+        let response_inner= supabase_client
+            .upsert(
+                "test",
+                &id,
+                json!({
+                    "email": email
+                }),
+            )
+            .await;
+
+            match response_inner {
+                Ok(response_inner) => {
+                    println!("Response: {:?}", response_inner);
+                    Ok(())
+                }
+
+                Err(error) => {
+                    println!("Error: {:?}", error);
+                    Err(error)
+                }
+            }
+        }
+
+        let supabase_client: SupabaseClient = init().await;
+        let response: Result<(), String> = upsert_inner(supabase_client).await;
 
         assert_eq!(response.is_ok(), true);
     }

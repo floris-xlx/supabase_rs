@@ -22,33 +22,33 @@
 
 //     supabase_client
 // }
-use serde_json::Value;
+use serde_json::json;
 use supabase_rs::SupabaseClient;
 
 // update beta table set email_address = 'test' where id = '1
-async fn select_test(
-    supabase_client: SupabaseClient
-)-> Result<Vec<Value>, String>{
+// async fn select_test(
+//     supabase_client: SupabaseClient
+// )-> Result<Vec<Value>, String>{
 
-    // Usage example
-    let response: Result<Vec<Value>, String> = supabase_client
-        .select("trades")
-        .gt("id", "1")
-        .count()
-        .execute()
-        .await;
+//     // Usage example
+//     let response: Result<Vec<Value>, String> = supabase_client
+//         .select("trades")
+//         .gt("id", "1")
+//         .count()
+//         .execute()
+//         .await;
 
-    match response {
-        Ok(response) => {
-            println!("Response: {:?}", response);
-            Ok(response)
-        },
-        Err(error) => {
-            println!("Error: {:?}", error);
-            Err(error)
-        }
-    }
-}
+//     match response {
+//         Ok(response) => {
+//             println!("Response: {:?}", response);
+//             Ok(response)
+//         },
+//         Err(error) => {
+//             println!("Error: {:?}", error);
+//             Err(error)
+//         }
+//     }
+// }
 
 
 
@@ -56,9 +56,9 @@ async fn select_test(
 //     // Usage example
 //     let response: Result<String, String> = supabase_client
 //         .insert(
-//             "test",
+//             "stripe_customer_data",
 //             json!({
-//                 "dog": "what da dog doing"
+//                 "email": "what da dog doing"
 
 //             }),
 //         )
@@ -77,23 +77,26 @@ async fn select_test(
 // }
 
 
-// async fn upsert_test(supabase_client: SupabaseClient) -> Result<(), String> {
-//     let email: String = "cooki5988985g1@gmail.com".to_string();
+async fn upsert_test(supabase_client: SupabaseClient) -> Result<(), String> {
+    let email: String = "floris@xylex.ai".to_string();
+    let id: String = "1".to_string();
 
-//     // Usage example
-//     let response= supabase_client
-//         .upsert(
-//             "stripe_customer_data",
-//             "897154399741408256",
-//             json!({
-//                 "email": email
-//             }),
-//         )
-//         .await;
+    // Usage example
+    let response= supabase_client
+        .upsert(
+            "stripe_customer_data",
+            &id,
+            json!({
+                
+                "email": email
+            }),
+        )
+        .await;
     
-//     println!("Response: {:?}", response);
-//     Ok(())
-// }
+    println!("Response: {:?}", response);
+    Ok(())
+}
+
 
 
 
@@ -108,7 +111,9 @@ async fn main() {
         std::env::var("SUPABASE_KEY").unwrap(),
     ); 
 
-    let response: Result<Vec<Value>, String> = select_test(supabase_client).await;
+    let response = upsert_test(supabase_client).await;
+
+
 
     println!("Response main: {:#?}", response);
 }

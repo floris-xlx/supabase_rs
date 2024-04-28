@@ -158,6 +158,8 @@
 //! ```
 //! 
 //! ### Select with Count
+//! <div class="warning">Counting is very expensive and will be alot slower, so only use it if you need it </div>
+//! 
 //! This will return all `dog` rows where the value is `scooby` in the `animals` table and count the number of rows that match the filter criteria.
 //! 
 //! ```rust
@@ -200,6 +202,8 @@
 //! ```
 //! 
 //! ### Selecting with Filter and Count
+//! <div class="warning">Counting is very expensive and will be alot slower, so only use it if you need it </div>
+//! 
 //! This will return all `dog` rows where the value is `scooby` in the `animals` table and count the number of rows that match the filter criteria.
 //! ```rust
 //! use supabase_rs::SupabaseClient;
@@ -240,8 +244,27 @@
 //!     .await;
 //! ```
 //! 
-//! 
+//! //! <div class="warning">Experimental features, Not ready for prod!</div>
 //!
+//! 
+//! ### Get ID by Column, Cell values
+//! This will return the ID of the row in the specified table where the column matches the provided email.
+//! 
+//! ```rust
+//! #[tokio::main]
+//! async fn main() {
+//!     // Initialize the Supabase Client
+//!     let supabase_client = SupabaseClient::new("your_supabase_url", "your_supabase_key");
+//! 
+//!     let email = "example@email.com".to_string();
+//!     let table_name = "users".to_string();
+//!     let column_name = "email".to_string();
+//!     match supabase_client.get_id(email, table_name, column_name).await {
+//!         Ok(id) => println!("Found ID: {}", id),
+//!         Err(e) => println!("Error: {}", e),
+//!     }
+//! }
+//! ```
 //! 
 //! 
 //! ## Different Operations
@@ -270,12 +293,12 @@ pub mod query;
 pub mod errors;
 pub mod success;
 pub mod tests;
+pub mod routing;
 
 
 // This is locked by feature flag `storage` & `realtime`
 pub mod storage;
 pub mod realtime;
-
 
 /// A client structure for interacting with Supabase services.
 ///
