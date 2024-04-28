@@ -53,9 +53,9 @@ I'm actively covering the entire Supabase API including Auth, Realtime, Storage 
 
 
 # Supabase SDK for Rust
-//!
+
 This is an unofficial Rust SDK for [Supabase](https://supabase.io/), since there is no official SDK for Rust yet.
-//!
+
 ## Features
 - [**`Insert`**](#insert): Add new rows to a table.
 - [**`Insert if unique`**](#insert-if-unique): Add a new row only if it does not violate a UNIQUE constraint.
@@ -66,15 +66,15 @@ This is an unofficial Rust SDK for [Supabase](https://supabase.io/), since there
 - [**`Select with filter and count`**](#selecting-with-filter-and-count): Select rows from a table based on a filter criteria and count the number of rows that match the filter criteria.
 - [**`Delete`**](#delete): Delete a row from a table based on a unique identifier.
 
-//!
+
 ## Feature flags
 - **`storage`**: Enables the `Storage` module to interact with Supabase Storage.
-//!
+
 ## Cargo.toml
 ```toml
 [dependencies]
 supabase-rs = "0.2.4"
-//!
+
 // With the [storage] feature
 supabase-rs = { version = "0.2.4", features = ["storage"] }
 ```
@@ -96,23 +96,23 @@ SUPABASE_KEY=
 ### Initialize the Supabase Client
  ```rust
 use supabase_rs::SupabaseClient;
-//!
+
 use dotenv::dotenv;
 use std::env::var;
-//!
+
 async fn initialize_supabase_client() -> SupabaseClient {
     dotenv().ok(); // Load the .env file
-//!
+
     let supabase_client: SupabaseClient = SupabaseClient::new(
         var("SUPABASE_URL").unwrap(),
         var("SUPABASE_KEY").unwrap()
         );
-//!
-        supabase_client
-   }
+
+    supabase_client
+}
 ```
 This will initialize the Supabase Client with the Supabase URL and the Supabase Key, and return the Supabase Client to be passed to other methods.
-//!
+
 ### Insert
 This will insert a new row into the `test` table with the value `value_test` in the `dog` column.
 
@@ -290,13 +290,7 @@ async fn delete_example(
  client: SupabaseClient
 ) -> Result<(), String> {
 let delete_result = client
-    .delete("test", "1")
-    .await;
-```
-
-
-//!
-
+    .delete("test", "1
 
 ## Different Operations
 - [Insert](./insert/index.html)
@@ -309,7 +303,7 @@ let delete_result = client
 - [Success](./success/index.html)
 - [Tests](./tests/index.html)
 
-//!
+
 ## Update
 I'll be adding more methods and enriching the SDK over the next few days, for now!
 
