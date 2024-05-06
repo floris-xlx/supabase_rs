@@ -25,6 +25,8 @@
 use serde_json::json;
 use supabase_rs::SupabaseClient;
 
+
+
 // update beta table set email_address = 'test' where id = '1
 // async fn select_test(
 //     supabase_client: SupabaseClient
@@ -75,6 +77,8 @@ use supabase_rs::SupabaseClient;
 //         }
 //     }
 // }
+
+
 
 
 async fn upsert_test(supabase_client: SupabaseClient) -> Result<(), String> {

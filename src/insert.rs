@@ -96,7 +96,7 @@ impl SupabaseClient {
             .header("apikey", &self.api_key)
             .header("Authorization", format!("Bearer {}", &self.api_key))
             .header("Content-Type", "application/json")
-            .header("x_client_info", "supabase-rs/0.2.5")
+            .header("x_client_info", "supabase-rs/0.2.6")
             .body(body.to_string())
             .send()
             .await {
@@ -142,36 +142,34 @@ impl SupabaseClient {
     pub async fn insert_if_unique(
         &self,
         table_name: &str,
-        mut body: Value
+        body: Value
     ) -> Result<String, String> {
-        let column_name: String = body
-            .as_object_mut()
-            .unwrap()
-            .keys()
-            .next()
-            .unwrap()
-            .to_string();
+        let conditions: &serde_json::Map<String, Value> = body.as_object().unwrap();
+    
+        // Check if any row in the table matches all the column-value pairs in the body
+        let mut query: crate::query::QueryBuilder = self.select(table_name);
+        for (
+            column_name, 
+            column_value
+        ) in conditions {
 
-        let column_value = match body
-            .as_object_mut()
-            .unwrap()
-            .get(&column_name)
-            .unwrap() {
-                Value::String(s) => s.clone(),
-                Value::Number(n) => n.to_string(),
-                _ => panic!("Unsupported type for column value"),
-            };
-
-        let response: Result<Vec<Value>, String> = self
-            .select(table_name)
-            .eq(&column_name, &column_value)
-            .execute()
-            .await;
-
-        if response.unwrap().is_empty() {
-            return self.insert(table_name, body).await;
+            query = query.eq(
+                column_name, 
+                column_value.as_str().unwrap()
+            );
         }
-
-        Err("\x1b[31mError 409: Duplicate entry. The value you're trying to insert may already exist in a column with a UNIQUE constraint.\x1b[0m".to_string())
+    
+        let response: Result<Vec<Value>, String> = query.execute().await;
+    
+        // If no existing row matches all conditions, proceed with the insert
+        if let Ok(results) = response {
+            if results.is_empty() {
+                return self.insert(table_name, body).await;
+            }
+        } else {
+            return Err("Failed to execute select query".to_string());
+        }
+    
+        Err("Error 409: Duplicate entry. The values you're trying to insert may already exist in a column with a UNIQUE constraint".to_string())
     }
 }

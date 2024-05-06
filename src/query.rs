@@ -108,7 +108,11 @@ impl QueryBuilder {
     ///
     /// # Returns
     /// Returns a new instance of `QueryBuilder`.
-    pub fn new(client: SupabaseClient, table_name: &str) -> Self {
+    pub fn new(
+        client: SupabaseClient, 
+        table_name: &str
+    ) -> Self {
+
         QueryBuilder {
             client,
             query: Query::new(),
@@ -124,7 +128,12 @@ impl QueryBuilder {
     ///
     /// # Returns
     /// Returns the `QueryBuilder` instance to allow for method chaining.
-    pub fn eq(mut self, column: &str, value: &str) -> Self {
+    pub fn eq(
+        mut self, 
+        column: &str, 
+        value: &str
+    ) -> Self {
+        
         self.query.add_param(column, &format!("eq.{}", value));
         self
     }
@@ -194,7 +203,10 @@ impl QueryBuilder {
         self
     }
 
-
+    /// Adds a parameter to the query to count the exact number of rows that match the query.
+    ///
+    /// # Returns
+    /// Returns the `QueryBuilder` instance to allow for method chaining.
     pub fn count(mut self) -> Self {
         self.query.add_param("count", "exact");
         self
@@ -301,7 +313,12 @@ impl Query {
     /// let mut query = Query::new();
     /// query.add_param("name", "John Doe");
     /// ```
-    pub fn add_param(&mut self, key: &str, value: &str) {
+    pub fn add_param(
+        &mut self, 
+        key: &str, 
+        value: &str
+    ) {
+
         self.params.insert(key.to_string(), value.to_string());
     }
 
@@ -320,7 +337,7 @@ impl Query {
     /// assert_eq!(query_string, "name=John Doe&age=30&");
     /// ```
     pub fn build(&self) -> String {
-        let mut query_string = String::new();
+        let mut query_string: String = String::new();
         for (key, value) in &self.params {
             query_string.push_str(&format!("{}={}&", key, value));
         }

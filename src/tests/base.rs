@@ -18,6 +18,7 @@
 //!
 //! These tests ensure that the basic functionalities of interacting with a Supabase database
 //! are working as expected.
+//! 
 
 #[cfg(test)]
 mod methods {
@@ -73,17 +74,18 @@ mod methods {
     /// Tests the `insert_if_unique` method of `SupabaseClient`.
     #[tokio::test]
     async fn insert_if_unique() {
-       
+        
         /// Performs an insert_if_unique operation in an isolated scope.
         async fn insert_if_unique_inner(supabase_client: SupabaseClient) -> Result<(), String> {
             // Usage example
             let random_string: String = rand::random::<u64>().to_string();
-
+            
             let response_inner: Result<String, String> = supabase_client
                 .insert_if_unique(
                     "test",
                     json!({
-                        "dog": random_string
+                        "dog": random_string,
+
                     }),
                 )
                 .await;
