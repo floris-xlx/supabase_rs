@@ -75,6 +75,7 @@ pub struct Sort {
 }
 
 /// Represents a query with a collection of parameters that define specific conditions and sorting orders.
+#[derive(Debug)]
 pub struct Query {
     /// A map where each key-value pair represents a column and the condition or sorting order applied to it.
     params: HashMap<String, String>,
@@ -91,7 +92,7 @@ pub struct Query {
 /// - `client`: The `SupabaseClient` used to execute the query.
 /// - `query`: A `Query` object that stores the parameters and conditions of the SQL query.
 /// - `table_name`: The name of the table in the database to which the query will be applied.
-// #[derive(Debug)]
+#[derive(Debug)]
 pub struct QueryBuilder {
     client: SupabaseClient,
     query: Query,

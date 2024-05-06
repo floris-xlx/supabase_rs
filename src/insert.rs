@@ -152,10 +152,18 @@ impl SupabaseClient {
             column_name, 
             column_value
         ) in conditions {
+            // turn column_value into a string before passing it to the query
+            // ONLY if it's NOT a string
+            let column_value_str: String = match column_value {
+                Value::String(s) => s.clone(),
+                _ => column_value.to_string(),
+            };
 
+
+            // our query is sensitive to the type of the column value
             query = query.eq(
                 column_name, 
-                column_value.as_str().unwrap()
+                column_value_str.as_str()
             );
         }
     
