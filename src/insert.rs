@@ -89,14 +89,12 @@ impl SupabaseClient {
         let new_id: i64 = generate_random_id();
         body["id"] = json!(new_id);
 
-        println!("Inserting row with body: {}", body);
-
         let response: Response = match client
             .post(&endpoint)
             .header("apikey", &self.api_key)
             .header("Authorization", format!("Bearer {}", &self.api_key))
             .header("Content-Type", "application/json")
-            .header("x_client_info", "supabase-rs/0.2.7")
+            .header("x_client_info", "supabase-rs/0.2.8")
             .body(body.to_string())
             .send()
             .await {
@@ -112,7 +110,7 @@ impl SupabaseClient {
 
             return Err("\x1b[31mError 409: Duplicate entry. The value you're trying to insert may already exist in a column with a UNIQUE constraint.\x1b[0m".to_string());
         } else {
-            println!("Error: {:?}", response);
+            println!("\x1b[31mError: {:?}\x1b[0m", response);
             return Err(response.status().to_string())
         }
     }
@@ -144,7 +142,13 @@ impl SupabaseClient {
         table_name: &str,
         body: Value
     ) -> Result<String, String> {
-        let conditions: &serde_json::Map<String, Value> = body.as_object().unwrap();
+        let conditions: &serde_json::Map<String, Value> = match body.as_object() {
+            Some(map) => map,
+            None => {
+                println!("\x1b[31mFailed to parse body as JSON object\x1b[0m");
+                return Err("Failed to parse body as JSON object".to_string());
+            },
+        };
     
         // Check if any row in the table matches all the column-value pairs in the body
         let mut query: crate::query::QueryBuilder = self.select(table_name);
@@ -175,6 +179,7 @@ impl SupabaseClient {
                 return self.insert(table_name, body).await;
             }
         } else {
+            println!("\x1b[31mFailed to execute select query\x1b[0m");
             return Err("Failed to execute select query".to_string());
         }
     

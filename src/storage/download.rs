@@ -46,7 +46,6 @@ impl SupabaseStorage {
 
 
         let url: String = format!("{}/storage/v1/object/public/{}/{}", self.supabase_url, self.bucket_name, self.filename);
-        println!("URL: {:?}", url);
         let client: Client = Client::new();
         let response: Response = client.get(&url).send().await?;
         let bytes = response.bytes().await?;

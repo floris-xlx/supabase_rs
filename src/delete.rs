@@ -55,7 +55,7 @@ impl SupabaseClient {
         );
         let client: Client = Client::new();
 
-        let body = json!({}); // this is temporary, will be used for more complex queries
+        let body: serde_json::Value = json!({}); // this is temporary, will be used for more complex queries
 
         // Send the delete request and handle the response
         let response: Response = match client

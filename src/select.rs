@@ -180,7 +180,7 @@ impl SupabaseClient {
                 .header("Authorization", &format!("Bearer {}", &self.api_key))
                 .header("Content-Type", "application/json")
                 .header("prefer", "count=exact")
-                .header("x_client_info", "supabase-rs/0.2.7")
+                .header("x_client_info", "supabase-rs/0.2.8")
                 
            
                 .send()
@@ -199,7 +199,7 @@ impl SupabaseClient {
                 .header("apikey", &self.api_key)
                 .header("Authorization", &format!("Bearer {}", &self.api_key))
                 .header("Content-Type", "application/json")
-                .header("x_client_info", "supabase-rs/0.2.7")
+                .header("x_client_info", "supabase-rs/0.2.8")
                 
                 .send()
                 .await
@@ -231,7 +231,11 @@ async fn handle_count_response(response: Response) -> Result<Vec<Value>, String>
 
     // Process the response
     if response.status().is_success() {
-        let mut records: Vec<Value> = response.json::<Vec<Value>>().await.unwrap();
+        let mut records: Vec<Value> = match response.json::<Vec<Value>>().await {
+            Ok(records) => records,
+            Err(error) => return Err(error.to_string()),
+        };
+        
         if let Some(count) = total_records {
 
             // Add total_records to the records if available

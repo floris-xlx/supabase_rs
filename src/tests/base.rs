@@ -28,13 +28,13 @@ mod methods {
     use std::env::var;
 
     /// Initializes the Supabase client by loading environment variables.
-    async fn init() -> SupabaseClient {
+    async fn init() -> Result<SupabaseClient, Box<dyn std::error::Error>> {
         dotenv().ok();
 
-        SupabaseClient::new(
-            var("SUPABASE_URL").unwrap(),
-            var("SUPABASE_KEY").unwrap(),
-        )
+        let supabase_url = var("SUPABASE_URL")?;
+        let supabase_key = var("SUPABASE_KEY")?;
+
+        Ok(SupabaseClient::new(supabase_url, supabase_key))
     }
 
     /// Tests the `insert` method of `SupabaseClient`.
@@ -65,7 +65,14 @@ mod methods {
             }
         }
 
-        let supabase_client: SupabaseClient = init().await;
+        let supabase_client: SupabaseClient = match init().await {
+            Ok(client) => client,
+            Err(e) => {
+                eprintln!("\x1b[31mFailed to initialize Supabase client: {:?}\x1b[0m", e);
+                return;
+            }
+        };
+        
         let response: Result<(), String> = insert_inner(supabase_client).await;
 
         assert_eq!(response.is_ok(), true);
@@ -99,7 +106,13 @@ mod methods {
             }
         }
 
-        let supabase_client: SupabaseClient = init().await;
+        let supabase_client: SupabaseClient = match init().await {
+            Ok(client) => client,
+            Err(e) => {
+                eprintln!("\x1b[31mFailed to initialize Supabase client: {:?}\x1b[0m", e);
+                return;
+            }
+        };
         let response: Result<(), String> = insert_inner(supabase_client).await;
 
         assert_eq!(response.is_ok(), true);
@@ -133,7 +146,13 @@ mod methods {
             }
         }
 
-        let supabase_client: SupabaseClient = init().await;
+        let supabase_client: SupabaseClient = match init().await {
+            Ok(client) => client,
+            Err(e) => {
+                eprintln!("\x1b[31mFailed to initialize Supabase client: {:?}\x1b[0m", e);
+                return;
+            }
+        };
         let response: Result<(), String> = insert_inner(supabase_client).await;
 
         assert_eq!(response.is_ok(), true);
@@ -170,7 +189,13 @@ mod methods {
             }
         }
 
-        let supabase_client: SupabaseClient = init().await;
+        let supabase_client: SupabaseClient = match init().await {
+            Ok(client) => client,
+            Err(e) => {
+                eprintln!("\x1b[31mFailed to initialize Supabase client: {:?}\x1b[0m", e);
+                return;
+            }
+        };
         let response: Result<(), String> = insert_if_unique_inner(supabase_client).await;
 
         assert_eq!(response.is_ok(), true);
@@ -206,7 +231,13 @@ mod methods {
             }
         }
 
-        let supabase_client: SupabaseClient = init().await;
+        let supabase_client: SupabaseClient = match init().await {
+            Ok(client) => client,
+            Err(e) => {
+                eprintln!("\x1b[31mFailed to initialize Supabase client: {:?}\x1b[0m", e);
+                return;
+            }
+        };
         let response: Result<(), String> = insert_if_unique_inner(supabase_client).await;
 
         assert_eq!(response.is_ok(), true);
@@ -238,7 +269,13 @@ mod methods {
             }
         }
 
-        let supabase_client: SupabaseClient = init().await;
+        let supabase_client: SupabaseClient = match init().await {
+            Ok(client) => client,
+            Err(e) => {
+                eprintln!("\x1b[31mFailed to initialize Supabase client: {:?}\x1b[0m", e);
+                return;
+            }
+        };
         let response: Result<(), String> = select_inner(supabase_client).await;
 
         assert_eq!(response.is_ok(), true);
@@ -270,7 +307,13 @@ mod methods {
             }
         }
 
-        let supabase_client: SupabaseClient = init().await;
+        let supabase_client: SupabaseClient = match init().await {
+            Ok(client) => client,
+            Err(e) => {
+                eprintln!("\x1b[31mFailed to initialize Supabase client: {:?}\x1b[0m", e);
+                return;
+            }
+        };
         let response: Result<(), String> = select_filter_inner(supabase_client).await;
 
         assert_eq!(response.is_ok(), true);
@@ -302,7 +345,13 @@ mod methods {
             }
         }
 
-        let supabase_client: SupabaseClient = init().await;
+        let supabase_client: SupabaseClient = match init().await {
+            Ok(client) => client,
+            Err(e) => {
+                eprintln!("\x1b[31mFailed to initialize Supabase client: {:?}\x1b[0m", e);
+                return;
+            }
+        };
         let response: Result<(), String> = select_with_count_inner(supabase_client).await;
 
         assert_eq!(response.is_ok(), true);
@@ -336,7 +385,13 @@ mod methods {
             }
         }
 
-        let supabase_client: SupabaseClient = init().await;
+        let supabase_client: SupabaseClient = match init().await {
+            Ok(client) => client,
+            Err(e) => {
+                eprintln!("\x1b[31mFailed to initialize Supabase client: {:?}\x1b[0m", e);
+                return;
+            }
+        };
         let response: Result<(), String> = select_with_count_and_filter_inner(supabase_client).await;
         println!("{:?}", response);
 
@@ -368,7 +423,13 @@ mod methods {
             }
         }
 
-        let supabase_client: SupabaseClient = init().await;
+        let supabase_client: SupabaseClient = match init().await {
+            Ok(client) => client,
+            Err(e) => {
+                eprintln!("\x1b[31mFailed to initialize Supabase client: {:?}\x1b[0m", e);
+                return;
+            }
+        };
         let response: Result<(), String> = delete_inner(supabase_client).await;
 
         assert_eq!(response.is_ok(), true);
@@ -409,7 +470,13 @@ mod methods {
             }
         }
 
-        let supabase_client: SupabaseClient = init().await;
+        let supabase_client: SupabaseClient = match init().await {
+            Ok(client) => client,
+            Err(e) => {
+                eprintln!("\x1b[31mFailed to initialize Supabase client: {:?}\x1b[0m", e);
+                return;
+            }
+        };
         let response: Result<(), String> = upsert_inner(supabase_client).await;
 
         assert_eq!(response.is_ok(), true);
@@ -451,7 +518,13 @@ mod methods {
             }
         }
 
-        let supabase_client: SupabaseClient = init().await;
+        let supabase_client: SupabaseClient = match init().await {
+            Ok(client) => client,
+            Err(e) => {
+                eprintln!("\x1b[31mFailed to initialize Supabase client: {:?}\x1b[0m", e);
+                return;
+            }
+        };
         let response: Result<(), String> = upsert_inner(supabase_client).await;
 
         assert_eq!(response.is_ok(), true);
