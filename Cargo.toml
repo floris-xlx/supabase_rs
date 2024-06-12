@@ -1,6 +1,6 @@
 [package]
 name = "supabase_rs"
-version = "0.2.8"
+version = "0.3.0"
 edition = "2021"
 authors = ["Floris floris@xylex.ai"]
 description = "Lightweight Rust client for Supabase"
@@ -15,3 +15,11 @@ rand = "0.8.5"
 serde_json = "1.0.111"
 tokio = { version = "1.37.0", features = ["full"] }
 dotenv = "0.15.0"
+anyhow = "1.0.86"
+
+
+[features]
+default = ["graphql", "storage", "realtime"]
+graphql = []
+storage = []
+realtime = []

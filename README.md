@@ -5,7 +5,11 @@
 I'm actively covering the entire Supabase API including Auth, Realtime, Storage etc
 
 ## Feature flags
+- **`graphql`**: Enables the `GraphQL` module to interact without REST.
 - **`storage`**: Enables the `Storage` module to interact with Supabase Storage.
+
+* Note 
+GraphQL and REST can be used together as the Client is shared from wherever it was authenticated initially.
 
 
 ## Database Features
@@ -42,6 +46,10 @@ I'm actively covering the entire Supabase API including Auth, Realtime, Storage 
 - [ ] Generating a signed url
 - [ ] Deleting a file
 
+## GraphQL
+- [ ] Calling a Query
+- [ ] Calling a mutating Query
+
 
 ## Auth
 
@@ -74,10 +82,10 @@ This is an unofficial Rust SDK for [Supabase](https://supabase.io/), since there
 ## Cargo.toml
 ```toml
 [dependencies]
-supabase-rs = "0.2.8"
+supabase-rs = "0.3.0"
 
 // With the [storage] feature
-supabase-rs = { version = "0.2.8", features = ["storage"] }
+supabase-rs = { version = "0.3.0", features = ["storage"] }
 ```
 //!
 ## Usage

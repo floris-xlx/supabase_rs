@@ -180,7 +180,7 @@ impl SupabaseClient {
                 .header("Authorization", &format!("Bearer {}", &self.api_key))
                 .header("Content-Type", "application/json")
                 .header("prefer", "count=exact")
-                .header("x_client_info", "supabase-rs/0.2.8")
+                .header("x_client_info", "supabase-rs/0.3.0")
                 
            
                 .send()
@@ -199,7 +199,7 @@ impl SupabaseClient {
                 .header("apikey", &self.api_key)
                 .header("Authorization", &format!("Bearer {}", &self.api_key))
                 .header("Content-Type", "application/json")
-                .header("x_client_info", "supabase-rs/0.2.8")
+                .header("x_client_info", "supabase-rs/0.3.0")
                 
                 .send()
                 .await

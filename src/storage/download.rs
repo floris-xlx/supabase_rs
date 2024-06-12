@@ -16,8 +16,8 @@
 use reqwest::{Client, Response, Error as ReqwestError};
 use std::fs::File;
 use std::io::prelude::*;
-use std::io::Error;
-use std::std::Error as dynError;
+use anyhow::{Error, Result};
+
 
 use crate::storage::SupabaseStorage;
 
@@ -71,10 +71,10 @@ impl SupabaseStorage {
     pub async fn save(
         &self, 
         file_path: &str
-    ) -> Result<(), Box<dyn dynError>> {
+    ) -> Result<(), Error> {
 
         let bytes: Vec<u8> = self.download().await.map_err(|e| {
-            Error::new(ErrorKind::Other, e)
+            Error::new(e)
         })?;
 
         let mut file: File = File::create(file_path)?;

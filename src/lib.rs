@@ -1,3 +1,12 @@
+#![allow(unused_imports)]
+#![allow(unused_variables)]
+#![allow(unused_mut)]
+#![allow(unused_assignments)]
+#![allow(unused_must_use)]
+#![allow(unused_parens)]
+#![allow(unused_braces)]
+#![allow(unused_macros)]
+
 //! # Supabase SDK for Rust
 //!
 //! This is an unofficial Rust SDK for [Supabase](https://supabase.io/), since there is no official SDK for Rust yet.
@@ -19,10 +28,10 @@
 //! ## Cargo.toml
 //! ```toml
 //! [dependencies]
-//! supabase-rs = "0.2.8"
+//! supabase-rs = "0.3.0"
 //!
 //! // With the [storage] feature
-//! supabase-rs = { version = "0.2.8", features = ["storage"] }
+//! supabase-rs = { version = "0.3.0", features = ["storage"] }
 //! ```
 //!
 //! ## Usage
@@ -294,6 +303,9 @@ pub mod errors;
 pub mod success;
 pub mod tests;
 pub mod routing;
+
+
+pub mod graphql;	
 
 
 // This is locked by feature flag `storage` & `realtime`
