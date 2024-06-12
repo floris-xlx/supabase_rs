@@ -7,17 +7,13 @@
 #![allow(unused_braces)]
 #![allow(unused_macros)]
 
-
-
 use serde_json::json;
 use supabase_rs::SupabaseClient;
 
-
 // graphql testing
 use supabase_rs::graphql::utils::format_endpoint::endpoint;
-use supabase_rs::graphql::utils::headers::{self, headers};
+use supabase_rs::graphql::utils::headers::{ self, headers };
 use supabase_rs::graphql::request::Request;
-
 
 #[tokio::main]
 async fn main() {
@@ -27,8 +23,8 @@ async fn main() {
 
     let supabase_client: SupabaseClient = SupabaseClient::new(
         std::env::var("SUPABASE_URL").unwrap(),
-        std::env::var("SUPABASE_KEY").unwrap(),
-    ); 
+        std::env::var("SUPABASE_KEY").unwrap()
+    );
 
     let request_graphql: Request = Request::new(
         supabase_client,
@@ -38,7 +34,7 @@ async fn main() {
                     usersCollection(first: 1) { 
                         edges { 
                             node { 
-                                user_id,
+                                1user_id,
                                 username,
                                 email
                             } 
@@ -47,10 +43,10 @@ async fn main() {
                 }
             "#,
         }),
-        supabase_rs::graphql::RootTypes::Query,
+        supabase_rs::graphql::RootTypes::Query
     );
 
-    let response= request_graphql.send().await;
+    let response = request_graphql.send().await;
 
     match response {
         Ok(response) => println!("{:#?}", response),

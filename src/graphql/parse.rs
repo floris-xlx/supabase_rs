@@ -1,12 +1,16 @@
-use anyhow::{Result, Error};
+use anyhow::{ Result, Error };
 use serde_json::Value;
-use crate::graphql::error_types::{illegal_table_name, table_does_not_exist, field_does_not_exist_on_table, table_name_does_not_end_with_collection};
-
+use crate::graphql::error_types::{
+    illegal_table_name,
+    table_does_not_exist,
+    field_does_not_exist_on_table,
+    table_name_does_not_end_with_collection,
+};
 
 pub fn parse_outer(query: &Value) -> bool {
     if let Some(query_str) = query.as_str() {
         let query_str = query_str.trim();
-        
+
         let start_1: &str = r#"{"#;
         let end_1: &str = "}";
 
@@ -15,7 +19,6 @@ pub fn parse_outer(query: &Value) -> bool {
         true
     }
 }
-
 
 pub fn get_table_name(query: &Value) -> Result<String, Error> {
     if parse_outer(query) {
@@ -45,5 +48,3 @@ pub fn get_table_name(query: &Value) -> Result<String, Error> {
         Err(Error::msg("Invalid outer structure"))
     }
 }
-
-   
