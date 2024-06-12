@@ -9,7 +9,7 @@ use crate::graphql::utils::headers::headers;
 use crate::graphql::parse::parse_outer;
 
 // custom errors
-use crate::graphql::error_types::illegal_table_name;
+use crate::graphql::error_types::{illegal_table_name, table_or_field_does_not_exist};
 
 use serde_json::json;
 use serde_json::Value;
@@ -70,6 +70,7 @@ impl Request {
             return Err(AnyError::msg("\x1b[31mInvalid query format.\x1b[0m"));
         }
         
+        let table_name = "uDsersCollection";
 
 
 
@@ -95,8 +96,9 @@ impl Request {
         let body: String = res.text().await.unwrap();
         let data: serde_json::Value = serde_json::from_str(&body).unwrap();
 
-        println!("{:#?}", data);
+        println!("\x1b[1;34m{:#?}\x1b[0m", data);
 
+        
         // handle errors
         // if errors.message = "query parse error: Parse error at 1:2\nUnexpected `unsupported float \"1usersCollection\"`\nExpected `Name`\n"),"
 
@@ -106,20 +108,35 @@ impl Request {
 
             // if the message is `query parse error: Parse error at 1:2\nUnexpected `unsupported float`
             let error_message: String = serde_json::from_value(message).unwrap_or_else(|_| "Failed to deserialize error message".to_string());
-            println!("{:#?}", error_message);
+            
+            let error_message: String = error_router(&error_message).await;
+
+            let data: Value = data["errors"][0]["message"].to_string().parse().unwrap();
 
             
-            if (error_message.to_string().contains("query parse error: Parse error at 1:2\nUnexpected `unsupported float")) {
-                return Err(AnyError::msg(illegal_table_name("1usersCollection")));
-            }
+            return Err(AnyError::msg(data));
+        } else {
+            // if there are no errors
+            let data: Value = data["data"].clone();
+            return Ok(data);
         }
-
-
-
-        // key into .data
-        let data: Value = data["data"].clone();
-
-        Ok(data)
     }
 
+}
+
+
+pub async fn error_router(error_message: &str) -> String {
+    let re: regex::Regex = regex::Regex::new(r#"Unknown field "[^"]*""#).unwrap();
+
+    if re.is_match(&error_message) {
+        return table_or_field_does_not_exist("uDsersCollection");
+    } else
+
+    if (error_message.to_string().contains("query parse error: Parse error at 1:2\nUnexpected `unsupported float")) {
+
+        return illegal_table_name("uDsersCollection");
+    } else {
+
+        return error_message.to_string();
+    }
 }

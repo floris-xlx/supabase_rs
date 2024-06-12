@@ -35,7 +35,7 @@ async fn main() {
         json!({
             "query": r#"
                 { 
-                    1usersCollection(first: 1) { 
+                    uDsersCollection(first: 1) { 
                         edges { 
                             node { 
                                 id 
