@@ -23,10 +23,19 @@ pub fn illegal_table_name(table_name: &str) -> String {
     "Illegal table name".to_string()
 }
 
-pub fn table_or_field_does_not_exist(name: &str) -> String {
-    let error: String = format!("\x1b[1;31mTable or field does not exist: {}\x1b[0m", name).to_string();
+pub fn table_does_not_exist(name: &str) -> String {
+    let error: String = format!("\x1b[1;31mTable does not exist: {}\x1b[0m", name).to_string();
 
     println!("{}", error);
 
-    "Table or field does not exist".to_string()
+    "Table does not exist".to_string()
+}
+
+
+pub fn field_does_not_exist_on_table(field: &str, table: &str) -> String {
+    let error: String = format!("\x1b[1;31mField does not exist on table: \n {} -> {}\x1b[0m", table, field).to_string();
+
+    println!("{}", error);
+
+    "Field does not exist on table".to_string()
 }
