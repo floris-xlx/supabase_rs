@@ -39,3 +39,15 @@ pub fn field_does_not_exist_on_table(field: &str, table: &str) -> String {
 
     "Field does not exist on table".to_string()
 }
+
+pub fn table_name_does_not_end_with_collection(table_name: &str) -> String {
+    let error: String = format!("\x1b[1;31mTable name does not end with \x1b[1;34m`Collection`\x1b[1;31m: {}\x1b[0m", table_name).to_string();
+    let arrow_amount: String = "^".repeat(table_name.len());
+
+    println!("{}", error);
+    println!("\x1b[1;34m{}\x1b[0m\x1b[1;32mCollection\x1b[0m", table_name);
+    println!("\x1b[1;34m{}\x1b[0m", arrow_amount);
+    println!("Add Collection to the end of the table name and try again");
+
+    "Table name does not end with Collection".to_string()
+}

@@ -38,7 +38,9 @@ async fn main() {
                     usersCollection(first: 1) { 
                         edges { 
                             node { 
-                                user_id 
+                                user_id,
+                                username,
+                                email
                             } 
                         } 
                     } 

@@ -1,5 +1,6 @@
 use anyhow::{Result, Error};
 use serde_json::Value;
+use crate::graphql::error_types::{illegal_table_name, table_does_not_exist, field_does_not_exist_on_table, table_name_does_not_end_with_collection};
 
 
 pub fn parse_outer(query: &Value) -> bool {
@@ -18,20 +19,31 @@ pub fn parse_outer(query: &Value) -> bool {
 
 pub fn get_table_name(query: &Value) -> Result<String, Error> {
     if parse_outer(query) {
-        let table_name: String = query["query"].as_str().unwrap_or("").to_string();
+        let query_str: &str = query["query"].as_str().unwrap_or("");
+        println!("Query: {}", query_str);
+        // remove all the { } and then get the first alphanumeric word from the query
+        let query_str: String = query_str.replace("{", "").replace("}", "");
+        let query_str: String = query_str.trim().to_string();
+        let query_str: Vec<&str> = query_str.split_whitespace().collect();
+        let mut table_name: String = query_str[0].to_string();
 
-        // remove the brackets
-        let table_name: String = table_name.replace("{", "").replace("}", "");
+        // remove all beyond the last alphanumeric char
+        for (i, c) in table_name.chars().enumerate() {
+            if !c.is_alphanumeric() {
+                table_name = table_name[..i].to_string();
+                break;
+            }
+        }
 
-        // first word is table name
-        let table_name: String = table_name.split_whitespace().next().unwrap().to_string();
-
-        // break the word off as soon as its not alphanumeric
-        let table_name: String = table_name.chars().take_while(|c| c.is_alphanumeric()).collect();
-
+        // if the table name doesnt end with Collection, add it
+        if !table_name.ends_with("Collection") {
+            table_name_does_not_end_with_collection(&table_name);
+        }
 
         Ok(table_name)
     } else {
         Err(Error::msg("Invalid outer structure"))
     }
 }
+
+   
