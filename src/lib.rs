@@ -21,10 +21,17 @@
 //! - [**`Select with filter and count`**](#selecting-with-filter-and-count): Select rows from a table based on a filter criteria and count the number of rows that match the filter criteria.
 //! - [**`Delete`**](#delete): Delete a row from a table based on a unique identifier.
 //! 
+//! ## Graphql features
+//! - [**`Query request`**](#query-request): Runs a GraphQL query to supabase
 //!
 //! ## Feature flags
 //! - **`storage`**: Enables the `Storage` module to interact with Supabase Storage.
+//! - **`nightly`**: Enables the nightly features. 
 //!
+//! ## Nightly Build
+//! - **`nightly`**: Enables the `GraphQL` module to interact with Supabase GraphQL API.
+//! Nightly features are not stable and may break at any time without notice, so use with caution.
+//! 
 //! ## Cargo.toml
 //! ```toml
 //! [dependencies]
@@ -286,6 +293,7 @@
 //! - [Errors](./errors/index.html)
 //! - [Success](./success/index.html)
 //! - [Tests](./tests/index.html)
+//! - [GraphQL](./graphql/index.html)
 //! 
 //!
 //! ## Update

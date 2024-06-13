@@ -5,8 +5,12 @@
 I'm actively covering the entire Supabase API including Auth, Realtime, Storage etc
 
 ## Feature flags
-- **`graphql`**: Enables the `GraphQL` module to interact without REST.
+- **`nightly`**: Enables the `GraphQL` module to interact without REST.
 - **`storage`**: Enables the `Storage` module to interact with Supabase Storage.
+
+## Nightly build
+If you want to use GraphQL early you can enable the `nightly` flag, this is NOT production ready obviously.
+
 
 * Note 
 GraphQL and REST can be used together as the Client is shared from wherever it was authenticated initially.
@@ -47,8 +51,10 @@ GraphQL and REST can be used together as the Client is shared from wherever it w
 - [ ] Deleting a file
 
 ## GraphQL
-- [ ] Calling a Query
+- [x] Query validation
+- [x] Calling a Query
 - [ ] Calling a mutating Query
+- [ ] Response parsing
 
 
 ## Auth
@@ -74,6 +80,8 @@ This is an unofficial Rust SDK for [Supabase](https://supabase.io/), since there
 - [**`Select with filter and count`**](#selecting-with-filter-and-count): Select rows from a table based on a filter criteria and count the number of rows that match the filter criteria.
 - [**`Delete`**](#delete): Delete a row from a table based on a unique identifier.
 
+## Graphql features
+- [**`Query request`**](#query-request): Runs a GraphQL query to supabase
 
 
 ## Feature flags

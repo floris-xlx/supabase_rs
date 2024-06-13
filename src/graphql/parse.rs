@@ -20,10 +20,18 @@ pub fn parse_outer(query: &Value) -> bool {
     }
 }
 
+/// Get the table name from the query
+/// 
+/// # Arguments
+/// - `query` - A JSON Value containing the query
+/// 
+/// # Returns
+/// A `Result` containing the table name as a `String` if successful, or an `Error` if the outer structure is invalid
+/// 
 pub fn get_table_name(query: &Value) -> Result<String, Error> {
     if parse_outer(query) {
         let query_str: &str = query["query"].as_str().unwrap_or("");
-        println!("Query: {}", query_str);
+        // println!("Query: {}", query_str);
         // remove all the { } and then get the first alphanumeric word from the query
         let query_str: String = query_str.replace("{", "").replace("}", "");
         let query_str: String = query_str.trim().to_string();

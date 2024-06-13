@@ -1,26 +1,18 @@
 use crate::SupabaseClient;
-
-// local imports
-use crate::graphql::Query;
-use crate::graphql::RootTypes;
+use crate::graphql::parse::get_table_name;
 use crate::graphql::utils::format_endpoint::endpoint;
 use crate::graphql::utils::headers::headers;
-use crate::graphql::parse::{ parse_outer, get_table_name };
-
-// custom errors
+use crate::graphql::{RootTypes, Query};
 use crate::graphql::error_types::{
-    illegal_table_name,
-    table_does_not_exist,
-    field_does_not_exist_on_table,
-    illegal_field_name,
+    field_does_not_exist_on_table, illegal_field_name, illegal_table_name, table_does_not_exist,
+    failed_to_parse_json,
 };
 
-use serde_json::json;
-use serde_json::Value;
+use regex::Regex;
 use reqwest::Client;
+use serde_json::{json, Value};
 use std::collections::HashMap;
-
-use anyhow::{ Result, Error as AnyError };
+use anyhow::{Error as AnyError, Result};
 
 #[derive(Debug)]
 pub struct Request {
@@ -31,7 +23,7 @@ pub struct Request {
 
 impl Request {
     pub fn new(client: SupabaseClient, query: Value, root_type: RootTypes) -> Self {
-        Request {
+        Self {
             client,
             query,
             root_type,
@@ -39,105 +31,86 @@ impl Request {
     }
 
     pub async fn format_query(&self) -> String {
-        let query: String = match &self.root_type {
-            RootTypes::Query =>
-                format!(
-                    r#"{{"query": "{}", "variables": {{}}}}"#,
-                    self.query["query"].as_str().unwrap_or("")
-                ),
-
-            RootTypes::Mutation => format!("{}", self.query),
-
-            // uncovered
-            RootTypes::Subscription => format!("{}", self.query),
-            RootTypes::Fragment => format!("{}", self.query),
+        let query = match &self.root_type {
+            RootTypes::Query => format!(
+                r#"{{"query": "{}", "variables": {{}}}}"#,
+                self.query["query"].as_str().unwrap_or("")
+            ),
+            _ => self.query.to_string(),
         };
 
-        // remove all the weird newlines and tabs
-        let query: String = query.replace("\n", "").replace("\t", "");
-        // spaces
-        let query: String = query.replace(" ", "");
-
-        query
+        query.replace("\n", "").replace("\t", "").replace(" ", "")
     }
 
-    pub async fn send(&self) -> Result<serde_json::Value, AnyError> {
-        // verify query
-        let query: Value = self.query.clone();
+    pub async fn send(&self) -> Result<Value, AnyError> {
+        let query = self.query.clone();
+        let table_name = get_table_name(&query).map_err(|e| e)?;
 
-        // TEMP
-        let table_name: String = get_table_name(&query).unwrap();
-        let field_name: &str = "eads";
+        let headers_map = headers(&self.client);
+        let endpoint_graphql = endpoint(&self.client);
+        let formatted_query = self.format_query().await;
 
-        println!("Table Name: {}", table_name);
+        // println!("formatted_query: {}", formatted_query);
 
-        let headers_map: HashMap<String, String> = headers(&self.client);
-        let endpoint_graphql: String = endpoint(&self.client);
-
-        // format query
-
-        let query: String = self.format_query().await;
-
-        let client: Client = Client::new();
-        let res: reqwest::Response = client
+        let client = Client::new();
+        let res = client
             .post(&endpoint_graphql)
             .header("apiKey", headers_map.get("apiKey").unwrap())
             .header("Content-Type", headers_map.get("Content-Type").unwrap())
-            .body(query)
-            .send().await?;
+            .body(formatted_query)
+            .send()
+            .await?;
 
-        let body: String = res.text().await.unwrap();
-        let data: serde_json::Value = serde_json::from_str(&body).unwrap();
+        let data: Value = res.json().await.map_err(|e| failed_to_parse_json(e.to_string()))?;
 
-        println!("\x1b[1;34m{:#?}\x1b[0m", data);
+        // println!("{:#?}", data);
 
-        if data["errors"].is_array() {
-            let message: Value = data["errors"][0]["message"].clone();
-            let error_message: String = serde_json
-                ::from_value(message)
+        if let Some(errors) = data["errors"].as_array() {
+            let message = errors[0]["message"].clone();
+            let error_message: String = serde_json::from_value(message)
                 .unwrap_or_else(|_| "Failed to deserialize error message".to_string());
-            let error_message: String = error_router(&error_message, field_name, &table_name).await;
+            let error_message = error_router(&error_message, "eads", &table_name).await;
 
-            // return the errors key from the data
-            let data: Value = data["errors"][0]["message"].to_string().parse().unwrap();
-            return Err(AnyError::msg(data));
-        } else {
-            // if there are no errors
-            let data: Value = data["data"].clone();
-            return Ok(data);
+            let parsed_data: Value = data["errors"][0]["message"]
+                .to_string()
+                .parse()
+                .map_err(|e| AnyError::msg(format!("Failed to parse error message: {}", e)))?;
+
+            return Err(AnyError::msg(parsed_data));
         }
+
+        let data: Value = data["data"].clone();
+ 
+        let data: Value = if data[&table_name].is_null() {
+            data
+        } else {
+            data[table_name]["edges"].clone()
+        };
+
+        Ok(data)
     }
 }
 
 pub async fn error_router(error_message: &str, field_name: &str, table_name: &str) -> String {
-    let re: regex::Regex = regex::Regex::new(r#"Unknown field "[^"]*""#).unwrap();
-
-    if re.is_match(&error_message) {
+    let re = match Regex::new(r#"Unknown field "[^"]*""#) {
+        Ok(regex) => regex,
+        Err(e) => return format!("Failed to create regex: {}", e),
+    };
+    
+    if re.is_match(error_message) {
         return table_does_not_exist(table_name);
-    } else if
-        error_message
-            .to_string()
-            .contains("query parse error: Parse error at 1:2\nUnexpected `unsupported float")
-    {
+    } else if error_message.contains("query parse error: Parse error at 1:2\nUnexpected `unsupported float") {
         return illegal_table_name(table_name);
-    } else if
-        error_message
-            .to_string()
-            .contains("query parse error: Parse error at 1:2\nUnexpected `unsupported integer")
-    {
+    } else if error_message.contains("query parse error: Parse error at 1:2\nUnexpected `unsupported integer") {
         return illegal_table_name(table_name);
-    } else if
-        regex::Regex
-            ::new(r#"Unknown field '[^']*' on type '[^']*'"#)
-            .unwrap()
-            .is_match(&error_message)
+    } else if Regex::new(r#"Unknown field '[^']*' on type '[^']*'"#)
+        .unwrap()
+        .is_match(error_message)
     {
         return field_does_not_exist_on_table(field_name, table_name);
-    } else if
-        regex::Regex
-            ::new(r#"query parse error: Parse error at \d+:\d+\nUnexpected `unsupported float"#)
-            .unwrap()
-            .is_match(&error_message)
+    } else if Regex::new(r#"query parse error: Parse error at \d+:\d+\nUnexpected `unsupported float"#)
+        .unwrap()
+        .is_match(error_message)
     {
         return illegal_field_name(field_name);
     } else {

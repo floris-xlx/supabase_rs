@@ -3,7 +3,7 @@ name = "supabase_rs"
 version = "0.3.0"
 edition = "2021"
 authors = ["Floris floris@xylex.ai"]
-description = "Lightweight Rust client for Supabase"
+description = "Lightweight Rust client for Supabase REST and GraphQL"
 license = "MIT"
 readme = "README.md"
 
@@ -20,7 +20,10 @@ regex = "1.10.5"
 
 
 [features]
-default = ["graphql", "storage", "realtime"]
-graphql = []
+nightly = []
 storage = []
-realtime = []
+
+# default = ["nightly", "storage", "realtime"]
+# 
+# 
+# realtime = []
