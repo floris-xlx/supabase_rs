@@ -168,7 +168,18 @@ impl SupabaseClient {
     pub async fn execute(&self, table_name: &str, query_string: &str) -> Result<Vec<Value>, String> {
         // Build the client and the endpoint
         let endpoint: String = format!("{}/rest/v1/{}?{}", self.url, table_name, query_string);
-        let client: Client = Client::new();
+
+        #[cfg(feature = "rustls")]
+        let client = Client::builder().use_rustls_tls().build().unwrap();
+        
+        #[cfg(not(feature = "rustls"))]
+        let client = Client::new();
+        
+
+        #[cfg(feature = "nightly")]
+        use crate::nightly::print_nightly_warning;
+        #[cfg(feature = "nightly")]
+        print_nightly_warning();
 
         // if the endpoint ends in count=exact& then we know we are doing a count query and we should remove that part but run the first part of the if statement
         if endpoint.ends_with("count=exact&") {
@@ -180,9 +191,7 @@ impl SupabaseClient {
                 .header("Authorization", &format!("Bearer {}", &self.api_key))
                 .header("Content-Type", "application/json")
                 .header("prefer", "count=exact")
-                .header("x_client_info", "supabase-rs/0.3.0")
-                
-           
+                .header("x_client_info", "supabase-rs/0.3.1")
                 .send()
                 .await
             {
@@ -199,7 +208,7 @@ impl SupabaseClient {
                 .header("apikey", &self.api_key)
                 .header("Authorization", &format!("Bearer {}", &self.api_key))
                 .header("Content-Type", "application/json")
-                .header("x_client_info", "supabase-rs/0.3.0")
+                .header("x_client_info", "supabase-rs/0.3.1")
                 
                 .send()
                 .await

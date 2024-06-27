@@ -85,7 +85,20 @@ impl SupabaseClient {
     ) -> Result<String, String> {
 
         let endpoint: String = format!("{}/rest/v1/{}", self.url, table_name);
-        let client: Client = Client::new();
+
+        #[cfg(feature = "rustls")]
+        let client = Client::builder().use_rustls_tls().build().unwrap();
+        
+        #[cfg(not(feature = "rustls"))]
+        let client = Client::new();
+        
+
+        #[cfg(feature = "nightly")]
+        use crate::nightly::print_nightly_warning;
+        #[cfg(feature = "nightly")]
+        print_nightly_warning();
+        
+
         let new_id: i64 = generate_random_id();
         body["id"] = json!(new_id);
 
@@ -94,7 +107,7 @@ impl SupabaseClient {
             .header("apikey", &self.api_key)
             .header("Authorization", format!("Bearer {}", &self.api_key))
             .header("Content-Type", "application/json")
-            .header("x_client_info", "supabase-rs/0.3.0")
+            .header("x_client_info", "supabase-rs/0.3.1")
             .body(body.to_string())
             .send()
             .await {

@@ -27,18 +27,26 @@
 //! ## Feature flags
 //! - **`storage`**: Enables the `Storage` module to interact with Supabase Storage.
 //! - **`nightly`**: Enables the nightly features. 
+//! - **`rustls`**: Forces the client into using `rustls` over `OpenSSL`.
 //!
 //! ## Nightly Build
 //! - **`nightly`**: Enables the `GraphQL` module to interact with Supabase GraphQL API.
 //! Nightly features are not stable and may break at any time without notice, so use with caution.
 //! 
+//! Nightly WILL send a warning message, to disable the `nightly` warning message
+//! 
+//! disable it in your `.env` as such:
+//! ```env
+//! SUPABASE_RS_NO_NIGHTLY_MSG=true
+//! ```
+//! 
 //! ## Cargo.toml
 //! ```toml
 //! [dependencies]
-//! supabase-rs = "0.3.0"
+//! supabase-rs = "0.3.1"
 //!
 //! // With the [storage] feature
-//! supabase-rs = { version = "0.3.0", features = ["storage"] }
+//! supabase-rs = { version = "0.3.1", features = ["storage"] }
 //! ```
 //!
 //! ## Usage
@@ -312,7 +320,7 @@ pub mod success;
 pub mod tests;
 pub mod routing;
 
-
+pub mod nightly;
 pub mod graphql;	
 
 

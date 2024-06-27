@@ -7,9 +7,17 @@ I'm actively covering the entire Supabase API including Auth, Realtime, Storage 
 ## Feature flags
 - **`nightly`**: Enables the `GraphQL` module to interact without REST.
 - **`storage`**: Enables the `Storage` module to interact with Supabase Storage.
+- **`rustls`**: Forces the client into using `rustls` over `OpenSSL`.
 
 ## Nightly build
 If you want to use GraphQL early you can enable the `nightly` flag, this is NOT production ready obviously.
+
+Nightly WILL send a warning message, to disable the `nightly` warning message
+
+disable it in your `.env` as such:
+```env
+SUPABASE_RS_NO_NIGHTLY_MSG=true
+```
 
 
 * Note 
@@ -90,10 +98,10 @@ This is an unofficial Rust SDK for [Supabase](https://supabase.io/), since there
 ## Cargo.toml
 ```toml
 [dependencies]
-supabase-rs = "0.3.0"
+supabase-rs = "0.3.1"
 
 // With the [storage] feature
-supabase-rs = { version = "0.3.0", features = ["storage"] }
+supabase-rs = { version = "0.3.1", features = ["storage"] }
 ```
 //!
 ## Usage

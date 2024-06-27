@@ -53,7 +53,19 @@ impl SupabaseClient {
             "{}/rest/v1/{}?id=eq.{}",
             self.url, table_name, id
         );
-        let client: Client = Client::new();
+        
+        #[cfg(feature = "rustls")]
+        let client = Client::builder().use_rustls_tls().build().unwrap();
+        
+        #[cfg(not(feature = "rustls"))]
+        let client = Client::new();
+        
+
+        #[cfg(feature = "nightly")]
+        use crate::nightly::print_nightly_warning;
+        #[cfg(feature = "nightly")]
+        print_nightly_warning();
+
 
         let body: serde_json::Value = json!({}); // this is temporary, will be used for more complex queries
 

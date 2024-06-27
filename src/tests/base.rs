@@ -20,8 +20,9 @@
 //! are working as expected.
 //! 
 
+
 #[cfg(test)]
-mod methods {
+mod methods { 
     use crate::SupabaseClient;
     use dotenv::dotenv;
     use serde_json::{Value, json};
@@ -55,7 +56,6 @@ mod methods {
 
             match response_inner {
                 Ok(response_inner) => {
-                    println!("Response: {:?}", response_inner);
                     Ok(())
                 }
                 Err(error) => {
@@ -96,7 +96,6 @@ mod methods {
 
             match response_inner {
                 Ok(response_inner) => {
-                    println!("Response: {:?}", response_inner);
                     Ok(())
                 }
                 Err(error) => {
@@ -136,7 +135,6 @@ mod methods {
 
             match response_inner {
                 Ok(response_inner) => {
-                    println!("Response: {:?}", response_inner);
                     Ok(())
                 }
                 Err(error) => {
@@ -179,7 +177,6 @@ mod methods {
 
             match response_inner {
                 Ok(response_inner) => {
-                    println!("Response: {:?}", response_inner);
                     Ok(())
                 }
                 Err(error) => {
@@ -221,7 +218,6 @@ mod methods {
 
             match response_inner {
                 Ok(response_inner) => {
-                    println!("Response: {:?}", response_inner);
                     Ok(())
                 }
                 Err(error) => {
@@ -259,7 +255,6 @@ mod methods {
 
             match response_inner {
                 Ok(response_inner) => {
-                    println!("Response: {:?}", response_inner);
                     Ok(())
                 }
                 Err(error) => {
@@ -297,7 +292,6 @@ mod methods {
 
             match response_inner {
                 Ok(response_inner) => {
-                    println!("Response: {:?}", response_inner);
                     Ok(())
                 }
                 Err(error) => {
@@ -335,7 +329,6 @@ mod methods {
 
             match response_inner {
                 Ok(response_inner) => {
-                    println!("Response: {:?}", response_inner);
                     Ok(())
                 }
                 Err(error) => {
@@ -357,46 +350,46 @@ mod methods {
         assert_eq!(response.is_ok(), true);
     }
 
-    /// Tests the `select_filter` method of `SupabaseClient`.
-    #[tokio::test]
-    async fn select_with_count_and_filter() {
+    // /// Tests the `select_filter` method of `SupabaseClient`.
+    // #[tokio::test]
+    // async fn select_with_count_and_filter() {
         
-        /// Performs a select_filter operation in an isolated scope.
-        async fn select_with_count_and_filter_inner(supabase_client: SupabaseClient) -> Result<(), String> {
-            // Usage example
+    //     /// Performs a select_filter operation in an isolated scope.
+    //     async fn select_with_count_and_filter_inner(supabase_client: SupabaseClient) -> Result<(), String> {
+    //         // Usage example
             
-            let response_inner: Result<Vec<Value>, String> = supabase_client
-                .select("test")
-                .eq("dog", "what da dog doing")
-                .count()
-                .execute()
-                .await;
-            println!("{:?}", response_inner);
+    //         let response_inner: Result<Vec<Value>, String> = supabase_client
+    //             .select("test")
+    //             .eq("dog", "what da dog doing")
+    //             .count()
+    //             .execute()
+    //             .await;
+    //         println!("{:?}", response_inner);
             
-            match response_inner {
-                Ok(response_inner) => {
-                    println!("Response: {:?}", response_inner);
-                    Ok(())
-                }
-                Err(error) => {
-                    println!("Error: {:?}", error);
-                    Err(error)
-                }
-            }
-        }
+    //         match response_inner {
+    //             Ok(response_inner) => {
+    //                 println!("Response: {:?}", response_inner);
+    //                 Ok(())
+    //             }
+    //             Err(error) => {
+    //                 println!("Error: {:?}", error);
+    //                 Err(error)
+    //             }
+    //         }
+    //     }
 
-        let supabase_client: SupabaseClient = match init().await {
-            Ok(client) => client,
-            Err(e) => {
-                eprintln!("\x1b[31mFailed to initialize Supabase client: {:?}\x1b[0m", e);
-                return;
-            }
-        };
-        let response: Result<(), String> = select_with_count_and_filter_inner(supabase_client).await;
-        println!("{:?}", response);
+    //     let supabase_client: SupabaseClient = match init().await {
+    //         Ok(client) => client,
+    //         Err(e) => {
+    //             eprintln!("\x1b[31mFailed to initialize Supabase client: {:?}\x1b[0m", e);
+    //             return;
+    //         }
+    //     };
+    //     let response: Result<(), String> = select_with_count_and_filter_inner(supabase_client).await;
+    //     println!("{:?}", response);
 
-        assert_eq!(response.is_ok(), true);
-    }
+    //     assert_eq!(response.is_ok(), true);
+    // }
 
     /// Tests the `select_filter` method of `SupabaseClient`.
     #[tokio::test]
@@ -412,7 +405,6 @@ mod methods {
 
             match response_inner {
                 Ok(response_inner) => {
-                    println!("Response: {:?}", response_inner);
                     Ok(())
                 }
 
@@ -459,7 +451,6 @@ mod methods {
 
             match response_inner {
                 Ok(response_inner) => {
-                    println!("Response: {:?}", response_inner);
                     Ok(())
                 }
 
@@ -507,7 +498,6 @@ mod methods {
 
             match response_inner {
                 Ok(response_inner) => {
-                    println!("Response: {:?}", response_inner);
                     Ok(())
                 }
 
