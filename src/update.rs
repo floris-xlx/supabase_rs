@@ -41,27 +41,29 @@
 //! and `Err(String)` contains an error message in case of failure.
 //!
 use crate::SupabaseClient;
-use reqwest::{Client, Response};
-use serde_json::{json, Value};
+use serde_json::{
+    json,
+    Value
+};
+use reqwest::{
+    Client,
+    Response
+};
+
 
 impl SupabaseClient {
     /// Updates a row in the table, based on the id
-    pub async fn update(&self, table_name: &str, id: &str, body: Value) -> Result<String, String> {
-        Self::update_with_column_name(self, table_name, "id", id, body).await
-    }
-
-    /// Updates a row in the table, based on the column name
-    pub async fn update_with_column_name(
+    pub async fn update(
         &self,
         table_name: &str,
-        column_name: &str,
         id: &str,
-        body: Value,
-    ) -> Result<String, String> {
+        body: Value
+    ) -> Result<(), String> {
+
         // endpoint and client construction
         let endpoint: String = format!(
-            "{}/rest/v1/{}?{}=eq.{}",
-            self.url, table_name, column_name, id
+            "{}/rest/v1/{}?id=eq.{}",
+            self.url, table_name, id
         );
         let client: Client = Client::new();
 
@@ -72,39 +74,41 @@ impl SupabaseClient {
             .header("Content-Type", "application/json")
             .body(body.to_string())
             .send()
-            .await
-        {
-            Ok(response) => response,
-            Err(error) => return Err(error.to_string()),
-        };
-
+            .await {
+                Ok(response) => response,
+                Err(error) => return Err(error.to_string())
+            };
+        
         if response.status().is_success() {
-            Ok(id.to_string())
+            Ok(())
         } else {
             Err(response.status().to_string())
         }
     }
+
 
     /// Creates a row in the table, or updates if the id already exists
     pub async fn upsert(
         &self,
         table_name: &str,
         id: &str,
-        mut body: Value,
+        mut body: Value
     ) -> Result<String, String> {
+
         let endpoint: String = format!("{}/rest/v1/{}", self.url, table_name);
 
         #[cfg(feature = "rustls")]
         let client = Client::builder().use_rustls_tls().build().unwrap();
-
+        
         #[cfg(not(feature = "rustls"))]
         let client = Client::new();
+        
 
         #[cfg(feature = "nightly")]
         use crate::nightly::print_nightly_warning;
         #[cfg(feature = "nightly")]
         print_nightly_warning();
-
+    
         body["id"] = json!(id);
 
         let response: Response = match client
@@ -117,14 +121,14 @@ impl SupabaseClient {
             .header("Prefer", "return=representation")
             .body(body.to_string())
             .send()
-            .await
-        {
-            Ok(response) => response,
-            Err(e) => return Err(e.to_string()),
-        };
+            .await {
+                Ok(response) => response,
+                Err(e) => return Err(e.to_string())
+            };
 
         if response.status().is_success() {
             Ok(id.to_string())
+
         } else {
             Err(response.status().to_string())
         }
