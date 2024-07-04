@@ -139,3 +139,6 @@ async fn initialize_supabase_client() -> SupabaseClient {
 This will initialize the Supabase Client with the Supabase URL and the Supabase Key, and return the Supabase Client to be passed to other methods.
 
 More examples will be present in the docs
+
+## Contributors
+[Izyuumi](https://github.com/izyuumi) - Improved row ID routing with updating methods
