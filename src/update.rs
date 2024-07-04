@@ -46,7 +46,7 @@ use serde_json::{json, Value};
 
 impl SupabaseClient {
     /// Updates a row in the table, based on the id
-    pub async fn update(&self, table_name: &str, id: &str, body: Value) -> Result<(), String> {
+    pub async fn update(&self, table_name: &str, id: &str, body: Value) -> Result<String, String> {
         Self::update_with_column_name(self, table_name, "id", id, body).await
     }
 
@@ -57,7 +57,7 @@ impl SupabaseClient {
         column_name: &str,
         id: &str,
         body: Value,
-    ) -> Result<(), String> {
+    ) -> Result<String, String> {
         // endpoint and client construction
         let endpoint: String = format!(
             "{}/rest/v1/{}?{}=eq.{}",
@@ -79,7 +79,7 @@ impl SupabaseClient {
         };
 
         if response.status().is_success() {
-            Ok(())
+            Ok(id.to_string())
         } else {
             Err(response.status().to_string())
         }
