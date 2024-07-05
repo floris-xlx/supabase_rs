@@ -96,7 +96,8 @@ pub struct Query {
 pub struct QueryBuilder {
     client: SupabaseClient,
     query: Query,
-    table_name: String,
+    table_name: String
+    // option columns
 }
 
 
@@ -117,8 +118,15 @@ impl QueryBuilder {
         QueryBuilder {
             client,
             query: Query::new(),
-            table_name: table_name.to_string(),
+            table_name: table_name.to_string()
         }
+    }
+
+    pub fn columns(mut self, columns: Vec<&str>) -> QueryBuilder {
+        // add query params &select=column1,column2
+        let columns_str = columns.join(",");
+        self.query.add_param("select", &columns_str);
+        self
     }
 
     /// Adds a filter to the query to check if the column is equal to a specified value.

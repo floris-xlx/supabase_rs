@@ -1,2 +1,0 @@
-{"query":"{usersCollection(filter:{user_id:{eq: \"5abff35c-41ce-4ec5-b26f-dee7f9f36833\"}}){edges{node{user_id,username,email}}}}","variables":{}}
-

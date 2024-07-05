@@ -137,11 +137,9 @@
 //! This will update the row in the `test` table with the value `value_test` in the `dog` column where the `id` is `1`.
 //! 
 //! ```rust
-//! // i know the imports are self explanatory but it makes it easier for beginners:)
 //! use serde_json::json;
 //! use supabase_rs::SupabaseClient;
 //! 
-//! // always pass an initialized SupabaseClient to the method
 //! let client = SupabaseClient::new(
 //!    "your_supabase_url", "your_supabase_key"
 //! );
@@ -150,9 +148,10 @@
 //!   client: SupabaseClient
 //! ) -> Result<(), String> {
 //!    let update_result = client
-//!       .update(
-//!          "test", // the table name
-//!          "1",    // the id of the row to update
+//!       .update_with_column_name(
+//!          "table_name", // the table name
+//!          "column_name",    // the column name to filter by
+//!          "id", // the value to filter by (can be any value to use as key)
 //!          json!({
 //!            "dog": "value_test"  // the new value
 //!          }),
@@ -176,6 +175,29 @@
 //! 
 //! let data: Result<Vec<Value>, String> = supabase_client
 //!    .select("animals")
+//!    .eq("dog", "scooby")
+//!    .execute()
+//!    .await; 
+//! ```
+//! 
+//! ### Select on specific column
+//! This will return all the `dog` rows where the value is `scooby` in the `animals` table and only return the `dog` column.
+//! 
+//! ```rust
+//! use supabase_rs::SupabaseClient;
+//! 
+//! // always pass an initialized SupabaseClient to the method
+//! let client = SupabaseClient::new(
+//!    "your_supabase_url", "your_supabase_key"
+//! );
+//! 
+//! async fn select_scooby(
+//!    supabase_client: SupabaseClient
+//! ) -> Result<(), String> {
+//! 
+//! let data: Result<Vec<Value>, String> = supabase_client
+//!    .select("animals")
+//!    .columns(["dog"].to_vec())
 //!    .eq("dog", "scooby")
 //!    .execute()
 //!    .await; 
@@ -305,7 +327,10 @@
 //! 
 //!
 //! ## Update
-//! I'll be adding more methods and enriching the SDK over the next few days, for now!
+//! I'll be adding more methods and enriching the SDK over the next few weeks, for now!
+//! 
+//! ## Contributers
+//! 
 
 use rand::Rng;
 use rand::prelude::ThreadRng;

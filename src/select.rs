@@ -169,6 +169,8 @@ impl SupabaseClient {
         // Build the client and the endpoint
         let endpoint: String = format!("{}/rest/v1/{}?{}", self.url, table_name, query_string);
 
+        println!("Endpoint: {}", endpoint);
+
         #[cfg(feature = "rustls")]
         let client = Client::builder().use_rustls_tls().build().unwrap();
         

@@ -34,6 +34,7 @@ GraphQL and REST can be used together as the Client is shared from wherever it w
 - [ ] Bulk Upserting
 - [x] Delete (only per ID)
 - [x] Select
+- [x] Select specific columns
 - [x] Applying Filters
 - [x] Counting total records
 
@@ -98,10 +99,10 @@ This is an unofficial Rust SDK for [Supabase](https://supabase.io/), since there
 ## Cargo.toml
 ```toml
 [dependencies]
-supabase-rs = "0.3.1"
+supabase-rs = "0.3.2"
 
 // With the [storage] feature
-supabase-rs = { version = "0.3.1", features = ["storage"] }
+supabase-rs = { version = "0.3.2", features = ["storage"] }
 ```
 //!
 ## Usage
@@ -116,29 +117,7 @@ SUPABASE_URL=
 SUPABASE_KEY=
 ```
 
-## Examples
-
-### Initialize the Supabase Client
- ```rust
-use supabase_rs::SupabaseClient;
-
-use dotenv::dotenv;
-use std::env::var;
-
-async fn initialize_supabase_client() -> SupabaseClient {
-    dotenv().ok(); // Load the .env file
-
-    let supabase_client: SupabaseClient = SupabaseClient::new(
-        var("SUPABASE_URL").unwrap(),
-        var("SUPABASE_KEY").unwrap()
-        );
-
-    supabase_client
-}
-```
-This will initialize the Supabase Client with the Supabase URL and the Supabase Key, and return the Supabase Client to be passed to other methods.
-
-More examples will be present in the docs
+Examples will be present in the docs
 
 ## Contributors
 [Izyuumi](https://github.com/izyuumi) - Improved row ID routing with updating methods
