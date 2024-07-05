@@ -43,10 +43,10 @@
 //! ## Cargo.toml
 //! ```toml
 //! [dependencies]
-//! supabase-rs = "0.3.1"
+//! supabase-rs = "0.3.2"
 //!
 //! // With the [storage] feature
-//! supabase-rs = { version = "0.3.1", features = ["storage"] }
+//! supabase-rs = { version = "0.3.2", features = ["storage"] }
 //! ```
 //!
 //! ## Usage

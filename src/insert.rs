@@ -107,7 +107,7 @@ impl SupabaseClient {
             .header("apikey", &self.api_key)
             .header("Authorization", format!("Bearer {}", &self.api_key))
             .header("Content-Type", "application/json")
-            .header("x_client_info", "supabase-rs/0.3.1")
+            .header("x_client_info", "supabase-rs/0.3.2")
             .body(body.to_string())
             .send()
             .await {
