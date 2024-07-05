@@ -6,6 +6,7 @@ authors = ["Floris floris@xylex.ai"]
 description = "Lightweight Rust client for Supabase REST and GraphQL"
 license = "MIT"
 readme = "README.md"
+repository = "https://github.com/floris-xlx/supabase_rs"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
