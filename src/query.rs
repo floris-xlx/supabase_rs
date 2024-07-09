@@ -1,8 +1,8 @@
 //! This module contains the `QueryBuilder` struct and its associated methods for building and executing SQL queries.
-//! 
+//!
 //! This module provides the functionality to construct and manipulate SQL queries for the Supabase client.
 //! It includes definitions for various query components such as filters, sorting, and the main `Query` structure.
-//! 
+//!
 //! # Features
 //! - Building complex SQL queries with ease.
 //! - Support for multiple types of filters and sorting orders.
@@ -28,11 +28,12 @@
 //! let query_string = query.build();
 //! ```
 
-use std::collections::HashMap;
 use crate::SupabaseClient;
 use serde_json::Value;
+use std::collections::HashMap;
 
 /// Represents the type of comparison to be performed in a query filter.
+#[derive(Debug)]
 pub enum Operator {
     /// Represents equality comparison.
     Equals,
@@ -49,6 +50,7 @@ pub enum Operator {
 }
 
 /// Specifies the order in which results should be sorted.
+#[derive(Debug)]
 pub enum SortOrder {
     /// Results should be sorted in ascending order.
     Ascending,
@@ -57,21 +59,23 @@ pub enum SortOrder {
 }
 
 /// Represents a filter to be applied to a query, consisting of a column name, an operator, and a value to compare against.
+#[derive(Debug)]
 pub struct Filter {
     /// The name of the column to which the filter applies.
-    column: String,
+    pub column: String,
     /// The operator that defines the type of comparison to be performed.
-    operator: Operator,
+    pub operator: Operator,
     /// The value to compare against the column's values.
-    value: String,
+    pub value: String,
 }
 
 /// Represents sorting criteria for query results, consisting of a column name and the order of sorting.
+#[derive(Debug)]
 pub struct Sort {
     /// The name of the column by which to sort.
-    _column: String,
+    pub column: String,
     /// The order in which to sort the results.
-    _order: SortOrder,
+    pub order: SortOrder,
 }
 
 /// Represents a query with a collection of parameters that define specific conditions and sorting orders.
@@ -79,10 +83,11 @@ pub struct Sort {
 pub struct Query {
     /// A map where each key-value pair represents a column and the condition or sorting order applied to it.
     params: HashMap<String, String>,
+    /// A vector of filters to be applied to the query results.
+    filters: Vec<Filter>,
+    /// A vector of sorting criteria to be applied to the query results.
+    sorts: Vec<Sort>,
 }
-
-
-
 
 /// A `QueryBuilder` is used to construct and manage SQL queries for a specific table using a `SupabaseClient`.
 ///
@@ -96,10 +101,8 @@ pub struct Query {
 pub struct QueryBuilder {
     client: SupabaseClient,
     query: Query,
-    table_name: String
-    // option columns
+    table_name: String, // option columns
 }
-
 
 impl QueryBuilder {
     /// Constructs a new `QueryBuilder` for a specified table.
@@ -110,15 +113,11 @@ impl QueryBuilder {
     ///
     /// # Returns
     /// Returns a new instance of `QueryBuilder`.
-    pub fn new(
-        client: SupabaseClient, 
-        table_name: &str
-    ) -> Self {
-
+    pub fn new(client: SupabaseClient, table_name: &str) -> Self {
         QueryBuilder {
             client,
             query: Query::new(),
-            table_name: table_name.to_string()
+            table_name: table_name.to_string(),
         }
     }
 
@@ -137,12 +136,7 @@ impl QueryBuilder {
     ///
     /// # Returns
     /// Returns the `QueryBuilder` instance to allow for method chaining.
-    pub fn eq(
-        mut self, 
-        column: &str, 
-        value: &str
-    ) -> Self {
-        
+    pub fn eq(mut self, column: &str, value: &str) -> Self {
         self.query.add_param(column, &format!("eq.{}", value));
         self
     }
@@ -221,7 +215,6 @@ impl QueryBuilder {
         self
     }
 
-
     /// Executes the constructed query against the database.
     ///
     /// # Returns
@@ -232,8 +225,6 @@ impl QueryBuilder {
             .await
     }
 }
-
-
 
 impl Filter {
     /// Constructs a new `Filter` instance.
@@ -294,6 +285,8 @@ impl Default for Query {
     fn default() -> Self {
         Self {
             params: HashMap::new(),
+            filters: Vec::new(),
+            sorts: Vec::new(),
         }
     }
 }
@@ -304,6 +297,7 @@ impl Query {
     /// # Examples
     ///
     /// ```
+    /// # use supabase_rs::query::Query;
     /// let query = Query::new();
     /// ```
     pub fn new() -> Query {
@@ -319,16 +313,52 @@ impl Query {
     /// # Examples
     ///
     /// ```
+    /// # use supabase_rs::query::Query;
     /// let mut query = Query::new();
     /// query.add_param("name", "John Doe");
     /// ```
-    pub fn add_param(
-        &mut self, 
-        key: &str, 
-        value: &str
-    ) {
-
+    pub fn add_param(&mut self, key: &str, value: &str) {
         self.params.insert(key.to_string(), value.to_string());
+    }
+
+    /// Adds a filter to the query.
+    ///
+    /// # Arguments
+    /// * `filter` - A `Filter` struct containing the column name, operator, and value for the filter.
+    ///
+    /// # Examples
+    /// ```
+    /// # use supabase_rs::query::{Query, Filter, Operator};
+    /// let mut query = Query::new();
+    /// let filter = Filter {
+    ///     column: "age".to_string(),
+    ///     operator: Operator::GreaterThan,
+    ///     value: "30".to_string(),
+    /// };
+    /// query.add_filter(filter);
+    /// ```
+    pub fn add_filter(&mut self, filter: Filter) {
+        self.filters.push(filter);
+    }
+
+    /// Adds a sorting criterion to the query.
+    ///
+    /// # Arguments
+    /// * `sort` - A `Sort` struct containing the column name and the sorting order.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use supabase_rs::query::{Query, Sort, SortOrder};
+    /// let mut query = Query::new();
+    /// let sort = Sort {
+    ///     column: "name".to_string(),
+    ///     order: SortOrder::Ascending,
+    /// };
+    /// query.add_sort(sort);
+    /// ```
+    pub fn add_sort(&mut self, sort: Sort) {
+        self.sorts.push(sort);
     }
 
     /// Builds and returns the query string from the current state of the query parameters.
@@ -339,6 +369,7 @@ impl Query {
     /// # Examples
     ///
     /// ```
+    /// # use supabase_rs::query::Query;
     /// let mut query = Query::new();
     /// query.add_param("name", "John Doe");
     /// query.add_param("age", "30");
