@@ -75,7 +75,7 @@ pub struct Sort {
 }
 
 /// Represents a query with a collection of parameters that define specific conditions and sorting orders.
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct Query {
     /// A map where each key-value pair represents a column and the condition or sorting order applied to it.
     params: HashMap<String, String>,
@@ -274,15 +274,6 @@ impl std::fmt::Display for Filter {
             },
             self.value
         )
-    }
-}
-
-// implementation of the query builder
-impl Default for Query {
-    fn default() -> Self {
-        Self {
-            params: HashMap::new(),
-        }
     }
 }
 
