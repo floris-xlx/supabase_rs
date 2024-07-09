@@ -79,10 +79,10 @@ pub struct Sort {
 }
 
 /// Represents a query with a collection of parameters that define specific conditions and sorting orders.
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct Query {
     /// A map where each key-value pair represents a column and the condition or sorting order applied to it.
-    params: HashMap<String, String>,
+    params: Vec<(String, String)>,
     /// A vector of filters to be applied to the query results.
     filters: Vec<Filter>,
     /// A vector of sorting criteria to be applied to the query results.
@@ -248,7 +248,9 @@ impl Filter {
             value,
         }
     }
+}
 
+impl std::fmt::Display for Filter {
     /// Converts the filter into a query string format.
     ///
     /// This method formats the filter's column, operator, and value into a string
@@ -260,11 +262,13 @@ impl Filter {
     /// Basic usage:
     ///
     /// ```
+    /// # use supabase_rs::query::{Filter, Operator};
     /// let filter = Filter::new("age".to_string(), Operator::GreaterThan, "30".to_string());
     /// assert_eq!(filter.to_string(), "age.gt=30");
     /// ```
-    pub fn to_string(&self) -> String {
-        format!(
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
             "{}.{}={}",
             self.column,
             match self.operator {
@@ -280,14 +284,17 @@ impl Filter {
     }
 }
 
-// implementation of the query builder
-impl Default for Query {
-    fn default() -> Self {
-        Self {
-            params: HashMap::new(),
-            filters: Vec::new(),
-            sorts: Vec::new(),
-        }
+impl std::fmt::Display for Sort {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "{}.{}",
+            self.column,
+            match self.order {
+                SortOrder::Ascending => "asc",
+                SortOrder::Descending => "desc",
+            }
+        )
     }
 }
 
@@ -318,7 +325,7 @@ impl Query {
     /// query.add_param("name", "John Doe");
     /// ```
     pub fn add_param(&mut self, key: &str, value: &str) {
-        self.params.insert(key.to_string(), value.to_string());
+        self.params.push((key.to_string(), value.to_string()));
     }
 
     /// Adds a filter to the query.
@@ -378,8 +385,38 @@ impl Query {
     /// ```
     pub fn build(&self) -> String {
         let mut query_string: String = String::new();
-        for (key, value) in &self.params {
-            query_string.push_str(&format!("{}={}&", key, value));
+        // add params
+        query_string.push_str(
+            self.params
+                .iter()
+                .map(|(key, value)| format!("{}={}", key, value))
+                .collect::<Vec<String>>()
+                .join("&")
+                .as_str(),
+        );
+        if !self.filters.is_empty() {
+            // add filters
+            query_string.push('&');
+            query_string.push_str(
+                self.filters
+                    .iter()
+                    .map(|filter| filter.to_string())
+                    .collect::<Vec<String>>()
+                    .join("&")
+                    .as_str(),
+            );
+        }
+        if !self.sorts.is_empty() {
+            // add sorts
+            query_string.push('&');
+            query_string.push_str(
+                self.sorts
+                    .iter()
+                    .map(|sort| sort.to_string())
+                    .collect::<Vec<String>>()
+                    .join("&")
+                    .as_str(),
+            );
         }
         query_string
     }
