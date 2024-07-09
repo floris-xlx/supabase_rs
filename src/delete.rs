@@ -2,17 +2,13 @@
 //!
 //! It leverages the Supabase REST API to send delete requests. The main functionality is encapsulated
 //! in the `SupabaseClient` struct, which provides the `delete` method to perform the deletion.
-//! 
+//!
 //! ## Usage
 //!     
 
 use crate::SupabaseClient;
+use reqwest::{Client, Response};
 use serde_json::json;
-use reqwest::{
-    Client,
-    Response
-};
-
 
 impl SupabaseClient {
     /// Deletes a row in the specified table based on the provided ID.
@@ -33,8 +29,11 @@ impl SupabaseClient {
     ///
     /// #[tokio::main]
     /// async fn main() {
-    ///     let client = SupabaseClient::new("your_supabase_url", "your_supabase_key");
-    ///     let result = client.delete("your_table_name", "row_id", json!({})).await;
+    ///     let client = SupabaseClient::new(
+    ///         "your_supabase_url".to_string(),
+    ///         "your_supabase_key".to_string()
+    ///     );
+    ///     let result = client.delete("your_table_name", "row_id").await;
     ///     match result {
     ///         Ok(_) => println!("Row deleted successfully"),
     ///         Err(e) => println!("Failed to delete row: {}", e),
@@ -47,25 +46,19 @@ impl SupabaseClient {
         id: &str,
         //body: Value
     ) -> Result<(), String> {
-
         // Construct the endpoint URL for the delete operation
-        let endpoint: String = format!(
-            "{}/rest/v1/{}?id=eq.{}",
-            self.url, table_name, id
-        );
-        
+        let endpoint: String = format!("{}/rest/v1/{}?id=eq.{}", self.url, table_name, id);
+
         #[cfg(feature = "rustls")]
         let client = Client::builder().use_rustls_tls().build().unwrap();
-        
+
         #[cfg(not(feature = "rustls"))]
         let client = Client::new();
-        
 
         #[cfg(feature = "nightly")]
         use crate::nightly::print_nightly_warning;
         #[cfg(feature = "nightly")]
         print_nightly_warning();
-
 
         let body: serde_json::Value = json!({}); // this is temporary, will be used for more complex queries
 
@@ -77,11 +70,11 @@ impl SupabaseClient {
             .header("Content-Type", "application/json")
             .body(body.to_string())
             .send()
-            .await {
-                Ok(response) => response,
-                Err(error) => return Err(error.to_string())
-            };
-
+            .await
+        {
+            Ok(response) => response,
+            Err(error) => return Err(error.to_string()),
+        };
 
         // Check the HTTP status code of the response
         if response.status().is_success() {
@@ -90,5 +83,4 @@ impl SupabaseClient {
             Err(response.status().to_string())
         }
     }
-
 }

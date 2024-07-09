@@ -18,7 +18,7 @@
 //! [Initalizing the SupabaseClient](#lib)
 //!
 //! This will return all `dog` rows where the value is `scooby` in the `animals` table
-//! ```rust
+//! ```rust,ignore
 //! use supabase_rs::SupabaseClient;
 //! use dotenv::dotenv;
 //! use std::env::var;
@@ -46,9 +46,9 @@
 //! ```
 //! ## Counting
 //! You can also count the number of rows that match the filter criteria and return it under `total_records_count`
-//! 
+//!
 //! ### Counting with filtering
-//! ```rust
+//! ```rust,ignore
 //! let data: Result<Vec<Value>, String> = supabase_client
 //!    .select("animals")
 //!    .eq("dog", "scooby")
@@ -56,21 +56,21 @@
 //!    .execute()
 //!    .await;
 //! ```
-//! 
+//!
 //! ### Counting without filtering
-//! ```rust
+//! ```rust,ignore
 //! let data: Result<Vec<Value>, String> = supabase_client
 //!    .select("animals")
 //!    .count()
 //!    .execute()
 //!    .await;
 //! ```
-//! 
+//!
 //! ## Methods / Operators
 //!
 //! ### eq
 //! This method checks if the Column is equal to a value
-//! ```rust
+//! ```rust,ignore
 //! let data: Result<Vec<Value>, String> = supabase_client
 //!     .select("animals")
 //!     .eq("dog", "scooby")
@@ -79,7 +79,7 @@
 //! ```
 //! ### neq
 //! This method checks if the Column is not equal to a value
-//! ```rust
+//! ```rust,ignore
 //! let data: Result<Vec<Value>, String> = supabase_client
 //!     .select("animals")
 //!     .neq("dog", "scooby")
@@ -88,7 +88,7 @@
 //! ```
 //! ### gt
 //! This method checks if the Column is not equal to a value
-//! ```rust
+//! ```rust,ignore
 //! let data: Result<Vec<Value>, String> = supabase_client
 //!     .select("animals")
 //!     .gt("weight", "100")
@@ -97,7 +97,7 @@
 //! ```
 //! ### lt
 //! This method checks if the Column is not equal to a value
-//! ```rust
+//! ```rust,ignore
 //! let data: Result<Vec<Value>, String> = supabase_client
 //!     .select("animals")
 //!     .lt("weight", "100")
@@ -106,7 +106,7 @@
 //! ```
 //! ### gte
 //! This method checks if the Column is not equal to a value
-//! ```rust
+//! ```rust,ignore
 //! let data: Result<Vec<Value>, String> = supabase_client
 //!     .select("animals")
 //!     .gte("weight", "100")
@@ -115,7 +115,7 @@
 //! ```
 //! ### lte
 //! This method checks if the Column is not equal to a value
-//! ```rust
+//! ```rust,ignore
 //! let data: Result<Vec<Value>, String> = supabase_client
 //!     .select("animals")
 //!     .lte("weight", "100")
@@ -127,21 +127,17 @@
 #![allow(clippy::derivable_impls)]
 #![allow(rustdoc::invalid_rust_codeblocks)]
 
-
-
 use crate::SupabaseClient;
 use reqwest;
 use reqwest::Client;
 use reqwest::Response;
-use serde_json::{Value, json};
+use serde_json::{json, Value};
 
 use crate::query::QueryBuilder;
 
-
-
 impl SupabaseClient {
     /// Initializes a `QueryBuilder` for a specified table.
-    /// 
+    ///
     /// # Arguments
     /// * `table_name` - A string slice that holds the name of the table to be queried.
     ///
@@ -151,8 +147,6 @@ impl SupabaseClient {
         QueryBuilder::new(self.clone(), table_name)
     }
 
-
-    
     /// Executes a query against a specified table with a given query string.
     ///
     /// # Arguments
@@ -165,7 +159,11 @@ impl SupabaseClient {
     ///
     /// # Errors
     /// This function will return an error if the HTTP request fails or if the server returns a non-success status code.
-    pub async fn execute(&self, table_name: &str, query_string: &str) -> Result<Vec<Value>, String> {
+    pub async fn execute(
+        &self,
+        table_name: &str,
+        query_string: &str,
+    ) -> Result<Vec<Value>, String> {
         // Build the client and the endpoint
         let endpoint: String = format!("{}/rest/v1/{}?{}", self.url, table_name, query_string);
 
@@ -173,10 +171,9 @@ impl SupabaseClient {
 
         #[cfg(feature = "rustls")]
         let client = Client::builder().use_rustls_tls().build().unwrap();
-        
+
         #[cfg(not(feature = "rustls"))]
         let client = Client::new();
-        
 
         #[cfg(feature = "nightly")]
         use crate::nightly::print_nightly_warning;
@@ -186,8 +183,8 @@ impl SupabaseClient {
         // if the endpoint ends in count=exact& then we know we are doing a count query and we should remove that part but run the first part of the if statement
         if endpoint.ends_with("count=exact&") {
             let endpoint: String = endpoint.replace("count=exact&", "");
-                // Send the request
-                let response: Response = match client
+            // Send the request
+            let response: Response = match client
                 .get(&endpoint)
                 .header("apikey", &self.api_key)
                 .header("Authorization", &format!("Bearer {}", &self.api_key))
@@ -202,7 +199,6 @@ impl SupabaseClient {
             };
 
             handle_count_response(response).await
-        
         } else {
             // Send the request
             let response: Response = match client
@@ -211,7 +207,6 @@ impl SupabaseClient {
                 .header("Authorization", &format!("Bearer {}", &self.api_key))
                 .header("Content-Type", "application/json")
                 .header("x_client_info", "supabase-rs/0.3.3")
-                
                 .send()
                 .await
             {
@@ -222,22 +217,24 @@ impl SupabaseClient {
             // Process the response
             handle_count_response(response).await
         }
-
     }
 }
-
 
 async fn handle_count_response(response: Response) -> Result<Vec<Value>, String> {
     // Extract the `headers` and `content-range` from the response
     let headers: &reqwest::header::HeaderMap = response.headers();
-    let content_range_option: Option<&str> = headers.get("content-range").and_then(|v| v.to_str().ok());
-    
+    let content_range_option: Option<&str> =
+        headers.get("content-range").and_then(|v| v.to_str().ok());
+
     // Initialize total_records to None
     let mut total_records: Option<i32> = None;
 
     // If content-range header exists, parse the total records
     if let Some(content_range) = content_range_option {
-        total_records = content_range.split('/').nth(1).and_then(|v| v.parse::<i32>().ok());
+        total_records = content_range
+            .split('/')
+            .nth(1)
+            .and_then(|v| v.parse::<i32>().ok());
     }
 
     // Process the response
@@ -246,15 +243,13 @@ async fn handle_count_response(response: Response) -> Result<Vec<Value>, String>
             Ok(records) => records,
             Err(error) => return Err(error.to_string()),
         };
-        
-        if let Some(count) = total_records {
 
+        if let Some(count) = total_records {
             // Add total_records to the records if available
             records.push(json!({"total_records_count": count}));
         }
         Ok(records)
     } else {
-
         Err(response.status().to_string())
     }
 }
