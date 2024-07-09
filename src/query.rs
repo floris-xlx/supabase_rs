@@ -30,7 +30,7 @@
 
 use crate::SupabaseClient;
 use serde_json::Value;
-use std::collections::HashMap;
+use std::{collections::HashMap, path::Display};
 
 /// Represents the type of comparison to be performed in a query filter.
 pub enum Operator {
@@ -241,7 +241,9 @@ impl Filter {
             value,
         }
     }
+}
 
+impl std::fmt::Display for Filter {
     /// Converts the filter into a query string format.
     ///
     /// This method formats the filter's column, operator, and value into a string
@@ -257,8 +259,9 @@ impl Filter {
     /// let filter = Filter::new("age".to_string(), Operator::GreaterThan, "30".to_string());
     /// assert_eq!(filter.to_string(), "age.gt=30");
     /// ```
-    pub fn to_string(&self) -> String {
-        format!(
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
             "{}.{}={}",
             self.column,
             match self.operator {
