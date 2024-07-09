@@ -1,8 +1,8 @@
 //! This module contains the `QueryBuilder` struct and its associated methods for building and executing SQL queries.
-//! 
+//!
 //! This module provides the functionality to construct and manipulate SQL queries for the Supabase client.
 //! It includes definitions for various query components such as filters, sorting, and the main `Query` structure.
-//! 
+//!
 //! # Features
 //! - Building complex SQL queries with ease.
 //! - Support for multiple types of filters and sorting orders.
@@ -28,9 +28,9 @@
 //! let query_string = query.build();
 //! ```
 
-use std::collections::HashMap;
 use crate::SupabaseClient;
 use serde_json::Value;
+use std::collections::HashMap;
 
 /// Represents the type of comparison to be performed in a query filter.
 pub enum Operator {
@@ -81,9 +81,6 @@ pub struct Query {
     params: HashMap<String, String>,
 }
 
-
-
-
 /// A `QueryBuilder` is used to construct and manage SQL queries for a specific table using a `SupabaseClient`.
 ///
 /// It holds the state of the query being built, including the target table and any parameters or filters that have been set.
@@ -96,10 +93,8 @@ pub struct Query {
 pub struct QueryBuilder {
     client: SupabaseClient,
     query: Query,
-    table_name: String
-    // option columns
+    table_name: String, // option columns
 }
-
 
 impl QueryBuilder {
     /// Constructs a new `QueryBuilder` for a specified table.
@@ -110,15 +105,11 @@ impl QueryBuilder {
     ///
     /// # Returns
     /// Returns a new instance of `QueryBuilder`.
-    pub fn new(
-        client: SupabaseClient, 
-        table_name: &str
-    ) -> Self {
-
+    pub fn new(client: SupabaseClient, table_name: &str) -> Self {
         QueryBuilder {
             client,
             query: Query::new(),
-            table_name: table_name.to_string()
+            table_name: table_name.to_string(),
         }
     }
 
@@ -137,12 +128,7 @@ impl QueryBuilder {
     ///
     /// # Returns
     /// Returns the `QueryBuilder` instance to allow for method chaining.
-    pub fn eq(
-        mut self, 
-        column: &str, 
-        value: &str
-    ) -> Self {
-        
+    pub fn eq(mut self, column: &str, value: &str) -> Self {
         self.query.add_param(column, &format!("eq.{}", value));
         self
     }
@@ -221,7 +207,6 @@ impl QueryBuilder {
         self
     }
 
-
     /// Executes the constructed query against the database.
     ///
     /// # Returns
@@ -232,8 +217,6 @@ impl QueryBuilder {
             .await
     }
 }
-
-
 
 impl Filter {
     /// Constructs a new `Filter` instance.
@@ -248,6 +231,7 @@ impl Filter {
     ///
     /// # Examples
     /// ```
+    /// # use supabase_rs::query::{Filter, Operator};
     /// let filter = Filter::new("age".to_string(), Operator::GreaterThan, "30".to_string());
     /// ```
     pub fn new(column: String, operator: Operator, value: String) -> Filter {
@@ -269,6 +253,7 @@ impl Filter {
     /// Basic usage:
     ///
     /// ```
+    /// # use supabase_rs::query::{Filter, Operator};
     /// let filter = Filter::new("age".to_string(), Operator::GreaterThan, "30".to_string());
     /// assert_eq!(filter.to_string(), "age.gt=30");
     /// ```
@@ -319,15 +304,11 @@ impl Query {
     /// # Examples
     ///
     /// ```
+    /// # use supabase_rs::query::Query;
     /// let mut query = Query::new();
     /// query.add_param("name", "John Doe");
     /// ```
-    pub fn add_param(
-        &mut self, 
-        key: &str, 
-        value: &str
-    ) {
-
+    pub fn add_param(&mut self, key: &str, value: &str) {
         self.params.insert(key.to_string(), value.to_string());
     }
 
@@ -339,6 +320,7 @@ impl Query {
     /// # Examples
     ///
     /// ```
+    /// # use supabase_rs::query::Query;
     /// let mut query = Query::new();
     /// query.add_param("name", "John Doe");
     /// query.add_param("age", "30");
@@ -346,10 +328,10 @@ impl Query {
     /// assert_eq!(query_string, "name=John Doe&age=30&");
     /// ```
     pub fn build(&self) -> String {
-        let mut query_string: String = String::new();
-        for (key, value) in &self.params {
-            query_string.push_str(&format!("{}={}&", key, value));
-        }
-        query_string
+        self.params
+            .iter()
+            .map(|(key, value)| format!("{}={}&", key, value))
+            .collect::<Vec<String>>()
+            .join("")
     }
 }

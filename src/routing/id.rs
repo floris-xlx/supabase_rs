@@ -2,7 +2,6 @@ use crate::SupabaseClient;
 
 use serde_json::Value;
 
-
 impl SupabaseClient {
     /// Retrieves the ID of a row from a specified table based on a matching email address.
     ///
@@ -19,25 +18,29 @@ impl SupabaseClient {
     ///
     /// ## Examples
     /// ```rust
+    /// # use supabase_rs::SupabaseClient;
     /// #[tokio::main]
     /// async fn main() {
-    ///     let supabase_client = SupabaseClient::new("your_supabase_url", "your_supabase_key");
+    ///     let supabase_client = SupabaseClient::new(
+    ///         "your_supabase_url".to_string(),
+    ///         "your_supabase_key".to_string()
+    ///     );
     ///     let email = "example@email.com".to_string();
     ///     let table_name = "users".to_string();
     ///     let column_name = "email".to_string();
-    ///     match get_id(supabase_client, email, table_name, column_name).await {
+    ///     match supabase_client.get_id(email, table_name, column_name).await {
     ///         Ok(id) => println!("Found ID: {}", id),
     ///         Err(e) => println!("Error: {}", e),
     ///     }
     /// }
     /// ```
     pub async fn get_id(
-        supabase_client: SupabaseClient,
+        &self,
         email: String,
         table_name: String,
-        column_name: String
+        column_name: String,
     ) -> Result<String, String> {
-        let response: Result<Vec<Value>, String> = supabase_client
+        let response: Result<Vec<Value>, String> = self
             .select(&table_name)
             .eq(&column_name, &email)
             .execute()
@@ -51,11 +54,8 @@ impl SupabaseClient {
                 } else {
                     Err("No matching record found".to_string())
                 }
-            },
-            Err(error) => {
-                Err(error)
             }
+            Err(error) => Err(error),
         }
     }
-
 }
