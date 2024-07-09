@@ -241,4 +241,84 @@ impl SupabaseClient {
 
         Err("Error 409: Duplicate entry. The values you're trying to insert may already exist in a column with a UNIQUE constraint".to_string())
     }
+
+    /// Inserts new rows into the specified table in bulk.
+    ///
+    /// # Arguments
+    /// * `table_name` - A string slice that holds the name of the table.
+    /// * `body` - A vector of serializable values to be inserted.
+    ///
+    /// # Example
+    /// ```rust
+    /// // Initialize the Supabase client
+    /// # use serde_json::{json, Value};
+    /// # use serde::Serialize;
+    ///
+    /// // A struct that implements the Serialize trait
+    /// #[derive(Serialize)]
+    /// pub struct User {
+    ///   name: String,
+    /// }
+    ///
+    /// let client = SupabaseClient::new("your_supabase_url", "your_supabase_key");
+    ///
+    /// // Create the body of the request as a vector of JSON values
+    /// let body: Vec<Value> = vec![
+    ///     json!({"column_name": "value"}),
+    ///     json!({"column_name": "value"}),
+    ///     User { name: "Alice".to_string() },
+    /// ];
+    ///
+    /// // This will insert a new row into the table
+    /// let insert_result = client.insert("your_table_name", body).await;
+    /// ```
+    ///
+    /// # Returns
+    /// This method returns a `Result<(), String>`. On success, it returns `Ok(())`,
+    /// and on failure, it returns `Err(String)` with an error message.
+    pub async fn bulk_insert<T>(&self, table_name: &str, body: Vec<T>) -> Result<(), String>
+    where
+        T: serde::Serialize,
+    {
+        let Ok(body) = serde_json::to_value(body) else {
+            return Err("Failed to serialize body".to_string());
+        };
+        let endpoint: String = format!("{}/rest/v1/{}", self.url, table_name);
+
+        #[cfg(feature = "rustls")]
+        let client = Client::builder().use_rustls_tls().build().unwrap();
+
+        #[cfg(not(feature = "rustls"))]
+        let client = Client::new();
+
+        #[cfg(feature = "nightly")]
+        use crate::nightly::print_nightly_warning;
+        #[cfg(feature = "nightly")]
+        print_nightly_warning();
+
+        let response: Response = match client
+            .post(&endpoint)
+            .header("apikey", &self.api_key)
+            .header("Authorization", format!("Bearer {}", &self.api_key))
+            .header("Content-Type", "application/json")
+            .header("x_client_info", "supabase-rs/0.3.3")
+            .body(body.to_string())
+            .send()
+            .await
+        {
+            Ok(response) => response,
+            Err(e) => return Err(e.to_string()),
+        };
+
+        if response.status().is_success() {
+            Ok(())
+        } else if response.status().as_u16() == 409 {
+            println!("\x1b[31mError 409: Duplicate entry. The value you're trying to insert may already exist in a column with a UNIQUE constraint.\x1b[0m");
+
+            return Err("\x1b[31mError 409: Duplicate entry. The value you're trying to insert may already exist in a column with a UNIQUE constraint.\x1b[0m".to_string());
+        } else {
+            println!("\x1b[31mError: {:?}\x1b[0m", response);
+            return Err(response.status().to_string());
+        }
+    }
 }
