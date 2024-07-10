@@ -99,10 +99,10 @@ This is an unofficial Rust SDK for [Supabase](https://supabase.io/), since there
 ## Cargo.toml
 ```toml
 [dependencies]
-supabase-rs = "0.3.5"
+supabase-rs = "0.3.6"
 
 // With the [storage] feature
-supabase-rs = { version = "0.3.5", features = ["storage"] }
+supabase-rs = { version = "0.3.6", features = ["storage"] }
 ```
 //!
 ## Usage
