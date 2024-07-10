@@ -140,6 +140,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "deprecate-until"
+version = "0.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7a3767f826efbbe5a5ae093920b58b43b01734202be697e1354914e862e8e704"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "semver",
+ "syn",
+]
+
+[[package]]
 name = "dotenv"
 version = "0.15.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -986,6 +998,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "semver"
+version = "1.0.23"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "61697e0a1c7e512e84a621326239844a24d8207b4669b41bc18b32ea5cbf988b"
+
+[[package]]
 name = "serde"
 version = "1.0.203"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1079,6 +1097,7 @@ name = "supabase_rs"
 version = "0.3.3"
 dependencies = [
  "anyhow",
+ "deprecate-until",
  "dotenv",
  "rand",
  "regex",

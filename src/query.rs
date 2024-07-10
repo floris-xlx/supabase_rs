@@ -303,7 +303,10 @@ impl Query {
     /// query.add_param("name", "John Doe");
     /// ```
     pub fn add_param(&mut self, key: &str, value: &str) {
-        self.params.insert(key.to_string(), value.to_string());
+        self.params
+            .entry(key.to_string())
+            .and_modify(|e| e.push_str(&format!("&{}={}", key, value)))
+            .or_insert(value.to_string());
     }
 
     /// Builds and returns the query string from the current state of the query parameters.
@@ -322,6 +325,7 @@ impl Query {
     /// assert_eq!(query_string, "name=John Doe&age=30&");
     /// ```
     pub fn build(&self) -> String {
+        println!("{:?}", self.params);
         self.params
             .iter()
             .map(|(key, value)| format!("{}={}&", key, value))

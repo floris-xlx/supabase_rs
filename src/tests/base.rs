@@ -20,6 +20,10 @@
 //! are working as expected.
 //!
 
+
+
+
+
 #[cfg(test)]
 mod methods {
     use crate::SupabaseClient;
@@ -27,570 +31,114 @@ mod methods {
     use serde_json::{json, Value};
     use std::env::var;
 
-    /// Initializes the Supabase client by loading environment variables.
-    async fn init() -> Result<SupabaseClient, Box<dyn std::error::Error>> {
-        dotenv().ok();
-
-        let supabase_url = var("SUPABASE_URL")?;
-        let supabase_key = var("SUPABASE_KEY")?;
-
-        Ok(SupabaseClient::new(supabase_url, supabase_key))
-    }
+    // import local method tests
+    use crate::tests::methods::{
+        init::init,
+        insert::insert as test_insert,
+        insert_string::insert_string as test_insert_string,
+        insert_numeric::insert_numeric as test_insert_numeric,
+        insert_if_unique_string::insert_if_unique_string as test_insert_if_unique_string,
+        insert_if_unique_numeric::insert_if_unique_numeric as test_insert_if_unique_numeric,
+        select::select as test_select,
+        select_filter::select_filter as test_select_filter,
+        select_with_columns::select_with_columns as test_select_with_columns,
+        select_with_count::select_with_count as test_select_with_count,
+        select_with_count_and_filter::select_with_count_and_filter as test_select_with_count_and_filter,
+        delete::delete as test_delete,
+        upsert_string::upsert_string as test_upsert_string,
+        upsert_numeric::upsert_numeric as test_upsert_numeric,
+        update_with_column::update_with_column as test_update_with_column,
+        select_stacked_queries::select_stacked_queries as test_select_stacked_queries,
+    };
 
     /// Tests the `insert` method of `SupabaseClient`.
     #[tokio::test]
     async fn insert() {
-        /// Performs an insert operation in an isolated scope.
-        async fn insert_inner(supabase_client: SupabaseClient) -> Result<(), String> {
-            // Usage example
-            let response_inner: Result<String, String> = supabase_client
-                .insert(
-                    "test",
-                    json!({
-                        "dog": "what da dog doing"
-                    }),
-                )
-                .await;
-
-            match response_inner {
-                Ok(response_inner) => Ok(()),
-                Err(error) => {
-                    println!("Error: {:?}", error);
-                    Err(error)
-                }
-            }
-        }
-
-        let supabase_client: SupabaseClient = match init().await {
-            Ok(client) => client,
-            Err(e) => {
-                eprintln!(
-                    "\x1b[31mFailed to initialize Supabase client: {:?}\x1b[0m",
-                    e
-                );
-                return;
-            }
-        };
-
-        let response: Result<(), String> = insert_inner(supabase_client).await;
-
-        assert!(response.is_ok());
+        test_insert().await;
     }
 
-    /// Tests the `insert` method of `SupabaseClient`.
+    /// Tests the `insert` with a string method of `SupabaseClient`.
     #[tokio::test]
     async fn insert_string() {
-        /// Performs an insert operation in an isolated scope.
-        async fn insert_inner(supabase_client: SupabaseClient) -> Result<(), String> {
-            // Usage example
-            let response_inner: Result<String, String> = supabase_client
-                .insert(
-                    "test",
-                    json!({
-                        "dog": "what da dog doing2"
-                    }),
-                )
-                .await;
-
-            match response_inner {
-                Ok(response_inner) => Ok(()),
-                Err(error) => {
-                    println!("Error: {:?}", error);
-                    Err(error)
-                }
-            }
-        }
-
-        let supabase_client: SupabaseClient = match init().await {
-            Ok(client) => client,
-            Err(e) => {
-                eprintln!(
-                    "\x1b[31mFailed to initialize Supabase client: {:?}\x1b[0m",
-                    e
-                );
-                return;
-            }
-        };
-        let response: Result<(), String> = insert_inner(supabase_client).await;
-
-        assert!(response.is_ok());
+        test_insert_string().await;
     }
 
-    /// Tests the `insert` method of `SupabaseClient`.
+    /// Tests the `insert` with a number method of `SupabaseClient`.
     #[tokio::test]
     async fn insert_numeric() {
-        /// Performs an insert operation in an isolated scope.
-        async fn insert_inner(supabase_client: SupabaseClient) -> Result<(), String> {
-            // Usage example
-            let response_inner: Result<String, String> = supabase_client
-                .insert(
-                    "test",
-                    json!({
-                        "dog": 1234
-                    }),
-                )
-                .await;
-
-            match response_inner {
-                Ok(response_inner) => Ok(()),
-                Err(error) => {
-                    println!("Error: {:?}", error);
-                    Err(error)
-                }
-            }
-        }
-
-        let supabase_client: SupabaseClient = match init().await {
-            Ok(client) => client,
-            Err(e) => {
-                eprintln!(
-                    "\x1b[31mFailed to initialize Supabase client: {:?}\x1b[0m",
-                    e
-                );
-                return;
-            }
-        };
-        let response: Result<(), String> = insert_inner(supabase_client).await;
-
-        assert!(response.is_ok());
+        test_insert_numeric().await;
     }
 
     /// Tests the `insert_if_unique` method of `SupabaseClient`.
     #[tokio::test]
     async fn insert_if_unique_string() {
-        /// Performs an insert_if_unique operation in an isolated scope.
-        async fn insert_if_unique_inner(supabase_client: SupabaseClient) -> Result<(), String> {
-            // Usage example
-            let random_string: String = rand::random::<u64>().to_string();
-
-            let response_inner: Result<String, String> = supabase_client
-                .insert_if_unique(
-                    "test",
-                    json!({
-                        "dog": random_string,
-                    }),
-                )
-                .await;
-
-            match response_inner {
-                Ok(response_inner) => Ok(()),
-                Err(error) => {
-                    println!("Error: {:?}", error);
-                    Err(error)
-                }
-            }
-        }
-
-        let supabase_client: SupabaseClient = match init().await {
-            Ok(client) => client,
-            Err(e) => {
-                eprintln!(
-                    "\x1b[31mFailed to initialize Supabase client: {:?}\x1b[0m",
-                    e
-                );
-                return;
-            }
-        };
-        let response: Result<(), String> = insert_if_unique_inner(supabase_client).await;
-
-        assert!(response.is_ok());
+        test_insert_if_unique_string().await;
     }
 
     /// Tests the `insert_if_unique` method of `SupabaseClient`.
     #[tokio::test]
     async fn insert_if_unique_numeric() {
-        /// Performs an insert_if_unique operation in an isolated scope.
-        async fn insert_if_unique_inner(supabase_client: SupabaseClient) -> Result<(), String> {
-            // Usage example
-            let random_number: u64 = rand::random::<u64>();
-
-            let response_inner: Result<String, String> = supabase_client
-                .insert_if_unique(
-                    "test",
-                    json!({
-                        "dog": random_number,
-                    }),
-                )
-                .await;
-
-            match response_inner {
-                Ok(response_inner) => Ok(()),
-                Err(error) => {
-                    println!("Error: {:?}", error);
-                    Err(error)
-                }
-            }
-        }
-
-        let supabase_client: SupabaseClient = match init().await {
-            Ok(client) => client,
-            Err(e) => {
-                eprintln!(
-                    "\x1b[31mFailed to initialize Supabase client: {:?}\x1b[0m",
-                    e
-                );
-                return;
-            }
-        };
-        let response: Result<(), String> = insert_if_unique_inner(supabase_client).await;
-
-        assert!(response.is_ok());
+        test_insert_if_unique_numeric().await;
     }
 
     /// Tests the `select` method of `SupabaseClient`.
     #[tokio::test]
     async fn select() {
-        /// Performs a select operation in an isolated scope.
-        async fn select_inner(supabase_client: SupabaseClient) -> Result<(), String> {
-            // Usage example
-
-            let response_inner: Result<Vec<Value>, String> =
-                supabase_client.select("test").execute().await;
-
-            match response_inner {
-                Ok(response_inner) => Ok(()),
-                Err(error) => {
-                    println!("Error: {:?}", error);
-                    Err(error)
-                }
-            }
-        }
-
-        let supabase_client: SupabaseClient = match init().await {
-            Ok(client) => client,
-            Err(e) => {
-                eprintln!(
-                    "\x1b[31mFailed to initialize Supabase client: {:?}\x1b[0m",
-                    e
-                );
-                return;
-            }
-        };
-        let response: Result<(), String> = select_inner(supabase_client).await;
-
-        assert!(response.is_ok());
+        test_select().await;
     }
 
     /// Tests the `select_filter` method of `SupabaseClient`.
     #[tokio::test]
     async fn select_filter() {
-        /// Performs a select_filter operation in an isolated scope.
-        async fn select_filter_inner(supabase_client: SupabaseClient) -> Result<(), String> {
-            // Usage example
-
-            let response_inner: Result<Vec<Value>, String> = supabase_client
-                .select("test")
-                .eq("dog", "what da dog doing")
-                .execute()
-                .await;
-
-            match response_inner {
-                Ok(response_inner) => Ok(()),
-                Err(error) => {
-                    println!("Error: {:?}", error);
-                    Err(error)
-                }
-            }
-        }
-
-        let supabase_client: SupabaseClient = match init().await {
-            Ok(client) => client,
-            Err(e) => {
-                eprintln!(
-                    "\x1b[31mFailed to initialize Supabase client: {:?}\x1b[0m",
-                    e
-                );
-                return;
-            }
-        };
-        let response: Result<(), String> = select_filter_inner(supabase_client).await;
-
-        assert!(response.is_ok());
+        test_select_filter().await;
     }
 
     /// Tests the `select_filter` method of `SupabaseClient`.
     #[tokio::test]
     async fn select_with_columns() {
-        /// Performs a select_with_columns operation in an isolated scope.
-        async fn select_filter_columns_inner(
-            supabase_client: SupabaseClient,
-        ) -> Result<(), String> {
-            // Usage example
-
-            let response_inner: Result<Vec<Value>, String> = supabase_client
-                .select("test")
-                .columns(["dog"].to_vec())
-                .eq("dog", "what da dog doing")
-                .execute()
-                .await;
-
-            match response_inner {
-                Ok(response_inner) => Ok(()),
-                Err(error) => {
-                    println!("Error: {:?}", error);
-                    Err(error)
-                }
-            }
-        }
-
-        let supabase_client: SupabaseClient = match init().await {
-            Ok(client) => client,
-            Err(e) => {
-                eprintln!(
-                    "\x1b[31mFailed to initialize Supabase client: {:?}\x1b[0m",
-                    e
-                );
-                return;
-            }
-        };
-        let response: Result<(), String> = select_filter_columns_inner(supabase_client).await;
-
-        assert!(response.is_ok());
+        test_select_with_columns().await;
     }
 
     /// Tests the `select_filter` method of `SupabaseClient`.
     #[tokio::test]
     async fn select_with_count() {
-        /// Performs a select_filter operation in an isolated scope.
-        async fn select_with_count_inner(supabase_client: SupabaseClient) -> Result<(), String> {
-            // Usage example
-
-            let response_inner: Result<Vec<Value>, String> =
-                supabase_client.select("test").count().execute().await;
-
-            match response_inner {
-                Ok(response_inner) => Ok(()),
-                Err(error) => {
-                    println!("Error: {:?}", error);
-                    Err(error)
-                }
-            }
-        }
-
-        let supabase_client: SupabaseClient = match init().await {
-            Ok(client) => client,
-            Err(e) => {
-                eprintln!(
-                    "\x1b[31mFailed to initialize Supabase client: {:?}\x1b[0m",
-                    e
-                );
-                return;
-            }
-        };
-        let response: Result<(), String> = select_with_count_inner(supabase_client).await;
-
-        assert!(response.is_ok());
+        test_select_with_count().await;
     }
 
-    // /// Tests the `select_filter` method of `SupabaseClient`.
+    /// Tests the `select_filter` method of `SupabaseClient`.
     // #[tokio::test]
     // async fn select_with_count_and_filter() {
-
-    //     /// Performs a select_filter operation in an isolated scope.
-    //     async fn select_with_count_and_filter_inner(supabase_client: SupabaseClient) -> Result<(), String> {
-    //         // Usage example
-
-    //         let response_inner: Result<Vec<Value>, String> = supabase_client
-    //             .select("test")
-    //             .eq("dog", "what da dog doing")
-    //             .count()
-    //             .execute()
-    //             .await;
-    //         println!("{:?}", response_inner);
-
-    //         match response_inner {
-    //             Ok(response_inner) => {
-    //                 println!("Response: {:?}", response_inner);
-    //                 Ok(())
-    //             }
-    //             Err(error) => {
-    //                 println!("Error: {:?}", error);
-    //                 Err(error)
-    //             }
-    //         }
-    //     }
-
-    //     let supabase_client: SupabaseClient = match init().await {
-    //         Ok(client) => client,
-    //         Err(e) => {
-    //             eprintln!("\x1b[31mFailed to initialize Supabase client: {:?}\x1b[0m", e);
-    //             return;
-    //         }
-    //     };
-    //     let response: Result<(), String> = select_with_count_and_filter_inner(supabase_client).await;
-    //     println!("{:?}", response);
-
-    //     assert_eq!(response.is_ok(), true);
+    //     test_select_with_count_and_filter().await;
     // }
 
     /// Tests the `select_filter` method of `SupabaseClient`.
     #[tokio::test]
     async fn delete() {
-        /// Performs a select_filter operation in an isolated scope.
-        async fn delete_inner(supabase_client: SupabaseClient) -> Result<(), String> {
-            // Usage example
-
-            let response_inner: Result<(), String> =
-                supabase_client.delete("test", "1476105020679346924").await;
-
-            match response_inner {
-                Ok(response_inner) => Ok(()),
-
-                Err(error) => {
-                    println!("Error: {:?}", error);
-                    Err(error)
-                }
-            }
-        }
-
-        let supabase_client: SupabaseClient = match init().await {
-            Ok(client) => client,
-            Err(e) => {
-                eprintln!(
-                    "\x1b[31mFailed to initialize Supabase client: {:?}\x1b[0m",
-                    e
-                );
-                return;
-            }
-        };
-        let response: Result<(), String> = delete_inner(supabase_client).await;
-
-        assert!(response.is_ok());
+        test_delete().await;
     }
 
     /// Tests the `upsert` method of `SupabaseClient`.
     #[tokio::test]
     async fn upsert_string() {
-        /// Performs a select_filter operation in an isolated scope.
-        async fn upsert_inner(supabase_client: SupabaseClient) -> Result<(), String> {
-            // Usage example
-
-            let id: String = "8826759220049045588".to_string();
-            let email: String = "floris@xylex.ai".to_string();
-
-            // Usage example
-            let response_inner = supabase_client
-                .upsert(
-                    "test",
-                    &id,
-                    json!({
-                        "email": email
-                    }),
-                )
-                .await;
-
-            match response_inner {
-                Ok(response_inner) => Ok(()),
-
-                Err(error) => {
-                    println!("Error: {:?}", error);
-                    Err(error)
-                }
-            }
-        }
-
-        let supabase_client: SupabaseClient = match init().await {
-            Ok(client) => client,
-            Err(e) => {
-                eprintln!(
-                    "\x1b[31mFailed to initialize Supabase client: {:?}\x1b[0m",
-                    e
-                );
-                return;
-            }
-        };
-        let response: Result<(), String> = upsert_inner(supabase_client).await;
-
-        assert!(response.is_ok());
+        test_upsert_string().await;
     }
 
     /// Tests the `upsert` method of `SupabaseClient`.
     #[tokio::test]
     async fn upsert_numeric() {
-        /// Performs a select_filter operation in an isolated scope.
-        async fn upsert_inner(supabase_client: SupabaseClient) -> Result<(), String> {
-            // Usage example
-
-            let id: String = "8826759220049045588".to_string();
-            let email: i64 = 1234;
-
-            // Usage example
-            let response_inner = supabase_client
-                .upsert(
-                    "test",
-                    &id,
-                    json!({
-                        "email": email
-                    }),
-                )
-                .await;
-
-            match response_inner {
-                Ok(response_inner) => Ok(()),
-
-                Err(error) => {
-                    println!("Error: {:?}", error);
-                    Err(error)
-                }
-            }
-        }
-
-        let supabase_client: SupabaseClient = match init().await {
-            Ok(client) => client,
-            Err(e) => {
-                eprintln!(
-                    "\x1b[31mFailed to initialize Supabase client: {:?}\x1b[0m",
-                    e
-                );
-                return;
-            }
-        };
-        let response: Result<(), String> = upsert_inner(supabase_client).await;
-
-        assert!(response.is_ok());
+        test_upsert_numeric().await;
     }
 
     /// Tests the `update_with_column` method of `SupabaseClient` with a string value.
     #[tokio::test]
     async fn update_with_column() {
-        /// Performs a select_filter operation in an isolated scope.
-        async fn update_inner(supabase_client: SupabaseClient) -> Result<(), String> {
-            // Usage example
+        test_update_with_column().await;
+    }
 
-            let id: String = "what da dog doing".to_string();
-            let email: i64 = 1234;
-
-            let updated_body: Value = json!({
-                "dog4": "what da dog doing"
-            });
-
-            // Usage example
-            let response_inner: Result<String, String> = supabase_client
-                .update_with_column_name("test", "dog", &id, updated_body)
-                .await;
-
-            match response_inner {
-                Ok(response_inner) => Ok(()),
-
-                Err(error) => {
-                    println!("Error: {:?}", error);
-                    Err(error)
-                }
-            }
-        }
-
-        let supabase_client: SupabaseClient = match init().await {
-            Ok(client) => client,
-            Err(e) => {
-                eprintln!(
-                    "\x1b[31mFailed to initialize Supabase client: {:?}\x1b[0m",
-                    e
-                );
-                return;
-            }
-        };
-        let response: Result<(), String> = update_inner(supabase_client).await;
-
-        assert!(response.is_ok());
+    /// Tests the `select_stacked_queries` method of `SupabaseClient`.
+    /// This test is used to test the chaining of multiple `eq` methods in a single query.
+    #[tokio::test]
+    async fn select_stacked_queries() {
+        test_select_stacked_queries().await;
     }
 }
