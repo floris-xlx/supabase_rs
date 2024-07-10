@@ -226,6 +226,17 @@ impl QueryBuilder {
     }
 }
 
+#[tokio::test]
+async fn test_query_builder() -> Result<(), Box<dyn std::error::Error>> {
+    let client = crate::tests::create_test_supabase_client()?;
+    let query = QueryBuilder::new(client, "test")
+        .eq("dog", "what da dog doing")
+        .execute()
+        .await?;
+    assert!(!query.is_empty());
+    Ok(())
+}
+
 impl Filter {
     /// Constructs a new `Filter` instance.
     ///
@@ -396,7 +407,9 @@ impl Query {
         );
         if !self.filters.is_empty() {
             // add filters
-            query_string.push('&');
+            if !query_string.is_empty() {
+                query_string.push('&');
+            }
             query_string.push_str(
                 self.filters
                     .iter()
@@ -408,7 +421,9 @@ impl Query {
         }
         if !self.sorts.is_empty() {
             // add sorts
-            query_string.push('&');
+            if !query_string.is_empty() {
+                query_string.push('&');
+            }
             query_string.push_str(
                 self.sorts
                     .iter()
@@ -420,4 +435,22 @@ impl Query {
         }
         query_string
     }
+}
+
+#[test]
+fn test_query() {
+    let mut query = Query::new();
+    let filter = Filter {
+        column: "age".to_string(),
+        operator: Operator::GreaterThan,
+        value: "30".to_string(),
+    };
+    let sort = Sort {
+        column: "name".to_string(),
+        order: SortOrder::Ascending,
+    };
+    query.add_filter(filter);
+    query.add_sort(sort);
+    let query_string = query.build();
+    assert_eq!(query_string, "age.gt=30&name.asc");
 }
