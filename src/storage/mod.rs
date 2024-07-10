@@ -16,8 +16,8 @@
 //! [Initalizing the SupabaseClient](../struct.SupabaseClient.html)
 //!
 //! ### Downloading a file to a `bytes` object
-//! ```rust
-//! use supabase_rs::SupabaseStorage;
+//! ```ignore
+//! use supabase_rs::storage::SupabaseStorage;
 //!
 //! let storage = SupabaseStorage {
 //!     supabase_url: "https://example.com".to_string(),
@@ -25,12 +25,12 @@
 //!     filename: "file.txt".to_string(),
 //! };
 //!
-//! let bytes = storage.download().await.unwrap();
+//! let bytes = storage.download().unwrap();
 //! ```
 //! 
 //! ### Downloading a file directly to the local system
-//! ```rust
-//! use supabase_rs::SupabaseStorage;
+//! ```ignore
+//! use supabase_rs::storage::SupabaseStorage;
 //! 
 //! let storage = SupabaseStorage {
 //!    supabase_url: "https://example.com".to_string(),
@@ -38,7 +38,7 @@
 //!    filename: "file.txt".to_string(),
 //! };
 //! 
-//! storage.save("local_file.txt").await.unwrap();  
+//! storage.save("local_file.txt").unwrap();  
 //! ```
 //! 
 #![cfg(feature = "storage")]

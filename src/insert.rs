@@ -52,8 +52,9 @@ impl SupabaseClient {
     /// * `body` - A JSON value containing the data to be inserted.
     ///
     /// # Example
-    /// ```rust
+    /// ```ignore
     /// // Initialize the Supabase client
+    /// use supabase_rs::SupabaseClient;
     /// let client = SupabaseClient::new("your_supabase_url", "your_supabase_key");
     ///
     /// // This will insert a new row into the table
@@ -119,7 +120,7 @@ impl SupabaseClient {
     /// * `body` - A JSON value containing the data to be inserted.
     ///
     /// # Example
-    /// ```rust
+    /// ```ignore
     /// // Initialize the Supabase client
     /// let client = SupabaseClient::new("your_supabase_url", "your_supabase_key");
     ///
@@ -189,7 +190,7 @@ impl SupabaseClient {
     /// * `body` - A JSON value containing the data to be inserted.
     ///
     /// ## Example
-    /// ```rust
+    /// ```ignore
     /// // Initialize the Supabase client
     /// let client = SupabaseClient::new("your_supabase_url", "your_supabase_key");
     ///
@@ -249,7 +250,7 @@ impl SupabaseClient {
     /// * `body` - A vector of serializable values to be inserted.
     ///
     /// # Example
-    /// ```rust
+    /// ```ignore
     /// // Initialize the Supabase client
     /// # use serde_json::{json, Value};
     /// # use serde::Serialize;

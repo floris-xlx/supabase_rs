@@ -31,19 +31,14 @@ pub fn parse_outer(query: &Value) -> bool {
 pub fn get_table_name(query: &Value) -> Result<String, Error> {
     if parse_outer(query) {
         let query_str: &str = query["query"].as_str().unwrap_or("");
-        // println!("Query: {}", query_str);
-        // remove all the { } and then get the first alphanumeric word from the query
-        let query_str: String = query_str.replace("{", "").replace("}", "");
-        let query_str: String = query_str.trim().to_string();
+        // Remove all the { } and then get the first alphanumeric word from the query
+        let query_str: String = query_str.replace(['{', '}'], "").trim().to_string();
         let query_str: Vec<&str> = query_str.split_whitespace().collect();
-        let mut table_name: String = query_str[0].to_string();
+        let mut table_name: String = query_str.first().unwrap_or(&"").to_string();
 
         // remove all beyond the last alphanumeric char
-        for (i, c) in table_name.chars().enumerate() {
-            if !c.is_alphanumeric() {
-                table_name = table_name[..i].to_string();
-                break;
-            }
+        if let Some(pos) = table_name.find(|c: char| !c.is_alphanumeric()) {
+            table_name = table_name[..pos].to_string();
         }
 
         // if the table name doesnt end with Collection, add it

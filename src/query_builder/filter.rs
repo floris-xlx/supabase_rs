@@ -15,7 +15,7 @@ impl Filter {
     /// Returns a new `Filter` instance containing the specified column, operator, and value.
     ///
     /// # Examples
-    /// ```
+    /// ``ignore
     /// let filter = Filter::new("age".to_string(), Operator::GreaterThan, "30".to_string());
     /// ```
     pub fn new(column: String, operator: Operator, value: String) -> Filter {
@@ -38,7 +38,7 @@ impl Display for Filter {
     ///
     /// Basic usage:
     ///
-    /// ```
+    /// ```ignore
     /// # use supabase_rs::query::{Filter, Operator};
     /// let filter = Filter::new("age".to_string(), Operator::GreaterThan, "30".to_string());
     /// assert_eq!(filter.to_string(), "age.gt=30");

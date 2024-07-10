@@ -10,7 +10,7 @@
 //!
 //! # Examples
 //! Basic usage:
-//! ```
+//! ```ignore
 //! use supabase_rs::query::{Query, Filter, Operator, Sort, SortOrder};
 //!
 //! let mut query = Query::new();

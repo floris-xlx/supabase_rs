@@ -37,5 +37,5 @@ pub async fn select_with_count_and_filter() {
     };
     let response: Result<(), String> = select_with_count_and_filter_inner(supabase_client).await;
 
-    assert_eq!(response.is_ok(), true);
+    assert!(response.is_ok());
 }

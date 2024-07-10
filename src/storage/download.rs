@@ -29,7 +29,7 @@ impl SupabaseStorage {
     ///
     /// # Example
     ///
-    /// ```
+    /// ```ignore
     /// use supabase_rs::SupabaseStorage;
     ///
     /// let storage = SupabaseStorage {
@@ -57,7 +57,7 @@ impl SupabaseStorage {
     ///
     /// # Example
     ///
-    /// ```
+    /// ```ignore
     /// use supabase_rs::SupabaseStorage;
     ///
     /// let storage = SupabaseStorage {

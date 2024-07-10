@@ -2,6 +2,12 @@ use std::collections::HashMap;
 
 use crate::request::Headers;
 
+impl Default for Headers {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl Headers {
     pub fn new() -> Self {
         Headers {

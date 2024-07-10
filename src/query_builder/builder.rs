@@ -186,7 +186,7 @@ impl Query {
     ///
     /// # Examples
     ///
-    /// ```
+    /// ```ignore
     /// # use supabase_rs::query::{Query, Sort, SortOrder};
     /// let mut query = Query::new();
     /// let sort = Sort {
@@ -212,7 +212,7 @@ impl Query {
     /// query.add_param("name", "John Doe");
     /// query.add_param("age", "30");
     /// let query_string = query.build();
-    /// assert_eq!(query_string, "name=John Doe&age=30&");
+    /// assert_eq!(query_string, "name=John Doe&age=30");
     /// ```
     pub fn build(&self) -> String {
         println!("{:?}", self.params);

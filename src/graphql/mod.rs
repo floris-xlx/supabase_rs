@@ -87,7 +87,7 @@ pub mod parsing;
 use crate::SupabaseClient;
 use serde_json::Value;
 
-//// #### Query
+/// #### Query
 /// 
 /// Represents a GraphQL query.
 #[derive(Debug)]
