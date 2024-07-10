@@ -22,7 +22,7 @@ regex = { version = "1.10.5", optional = true }
 serde = "1.0.204"
 
 
-#[cfg(feature = "nightly")]
+
 
 [features]
 nightly = []
