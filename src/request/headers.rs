@@ -2,7 +2,6 @@ use std::collections::HashMap;
 
 use crate::request::Headers;
 
-
 impl Headers {
     pub fn new() -> Self {
         Headers {
@@ -17,17 +16,14 @@ impl Headers {
     pub fn get_headers(&self) -> HashMap<String, String> {
         self.headers.clone()
     }
-}
 
-
-impl Default for Headers {
-    fn default() -> Self {
+    pub fn with_defaults(api_key: &str, auth_token: &str) -> Self {
         let mut headers = Headers::new();
         headers.insert(HeadersTypes::ClientInfo.as_str(), "supabase-rs/0.3.3");
         headers.insert(HeadersTypes::ContentType.as_str(), "application/json");
-        Headers {
-            headers: headers.get_headers(),
-        }
+        headers.insert(HeadersTypes::ApiKey.as_str(), api_key);
+        headers.insert(HeadersTypes::Authorization.as_str(), &format!("Bearer {}", auth_token));
+        headers
     }
 }
 

@@ -130,6 +130,8 @@
 use crate::SupabaseClient;
 use crate::query::QueryBuilder;
 
+use crate::request::Headers;
+
 use reqwest::{Client, Response};
 use reqwest::header::HeaderMap;
 use serde_json::{json, Value};
