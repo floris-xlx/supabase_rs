@@ -25,7 +25,7 @@ impl Headers {
 
     pub fn with_defaults(api_key: &str, auth_token: &str) -> Self {
         let mut headers = Headers::new();
-        headers.insert(HeadersTypes::ClientInfo.as_str(), "supabase-rs/0.3.3");
+        headers.insert(HeadersTypes::ClientInfo.as_str(), "supabase-rs/0.3.4");
         headers.insert(HeadersTypes::ContentType.as_str(), "application/json");
         headers.insert(HeadersTypes::ApiKey.as_str(), api_key);
         headers.insert(HeadersTypes::Authorization.as_str(), &format!("Bearer {}", auth_token));
