@@ -1,0 +1,51 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  CARGO_TERM_COLOR: always
+  RUSTFLAGS: "-Dwarnings"
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  clippy-check:
+    runs-on: self-hosted
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run Clippy
+        run: cargo clippy --all-targets --all-features
+      
+
+  test:
+    runs-on: self-hosted
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Run tests
+      run: cargo test
+      working-directory: ./
+
+  release_please: 
+    runs-on: self-hosted
+    steps:
+      - uses: google-github-actions/release-please-action@v4
+        id: release
+        with:
+          release-type: rust
+
+      - name: Checkout
+        if: ${{ steps.release.outputs.release_created }}
+        uses: actions/checkout@v4
+
+      - name: Release Crate
+        if: ${{ steps.release.outputs.release_created }}
+        run: |
+          cargo publish --token ${{ secrets.CARGO_PUBLISH_TOKEN }}
+        
