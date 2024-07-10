@@ -40,17 +40,17 @@ impl fmt::Display for ErrorTypes {
 impl std::error::Error for ErrorTypes {}
 
 pub async fn unknown_error() -> Result<(), Error> {
-    Err(Error::msg("\x1b[32mSUPABASE_RS\x1b[0m: \x1b[31munknown error\x1b[0m"))
+    Err(Error::msg("SUPABASE_RS: unknown error"))
 }
 
 pub async fn api_key_missing_error() -> Result<(), Error> {
-    Err(Error::msg("\x1b[32mSUPABASE_RS\x1b[0m: \x1b[31mAPI key is missing\x1b[0m"))
+    Err(Error::msg("SUPABASE_RS: API key is missing"))
 }
 
 pub async fn authorization_failed_error() -> Result<(), Error> {
-    Err(Error::msg("\x1b[32mSUPABASE_RS\x1b[0m: \x1b[31mAuthorization failed\x1b[0m"))
+    Err(Error::msg("SUPABASE_RS: Authorization failed"))
 }
 
 pub async fn invalid_query_error() -> Result<(), Error> {
-    Err(Error::msg("\x1b[32mSUPABASE_RS\x1b[0m: \x1b[31mInvalid query\x1b[0m"))
+    Err(Error::msg("SUPABASE_RS: Invalid query"))
 }

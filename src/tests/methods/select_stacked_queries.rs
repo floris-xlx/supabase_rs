@@ -15,10 +15,8 @@ pub async fn select_stacked_queries() {
         // Usage example
         let response_inner = supabase_client
             .select("test")
-            .eq("dog", "what da dog doing")
-            .eq("dog", "what da dog doing2")
-            .eq("dog", "what da dog doing3")
-            .eq("dog", "what da dog doing4")
+            .gt("number", "10")
+            .gt("number", "20")
             .execute()
             .await;
 
