@@ -29,7 +29,7 @@ nightly = []
 storage = []
 rustls = []
 
-default = ["nightly", "storage"]
+# default = ["nightly", "storage"]
 # # 
 # # 
 # realtime = []
