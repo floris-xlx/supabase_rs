@@ -129,13 +129,13 @@
 
 use crate::SupabaseClient;
 use crate::query::QueryBuilder;
-
+use crate::success::handle_response;
 use crate::request::Headers;
 
 use reqwest::{Client, Response};
 use reqwest::header::HeaderMap;
 use serde_json::{json, Value};
-
+use reqwest::header::{HeaderName, HeaderValue};
 
 
 
@@ -173,91 +173,51 @@ impl SupabaseClient {
     ) -> Result<Vec<Value>, String> {
         // Build the client and the endpoint
         let endpoint: String = format!("{}/rest/v1/{}?{}", self.url, table_name, query_string);
-
+    
         #[cfg(feature = "nightly")]
         println!("\x1b[33mEndpoint: {}\x1b[0m", endpoint);
-
+    
         #[cfg(feature = "rustls")]
         let client = Client::builder().use_rustls_tls().build().unwrap();
-
+    
         #[cfg(not(feature = "rustls"))]
         let client = Client::new();
-
+    
         #[cfg(feature = "nightly")]
         use crate::nightly::print_nightly_warning;
         #[cfg(feature = "nightly")]
         print_nightly_warning();
-
-        // if the endpoint ends in count=exact& then we know we are doing a count query and we should remove that part but run the first part of the if statement
-        if endpoint.ends_with("count=exact&") {
-            let endpoint: String = endpoint.replace("count=exact&", "");
-            // Send the request
-            let response: Response = match client
-                .get(&endpoint)
-                .header("apikey", &self.api_key)
-                .header("Authorization", &format!("Bearer {}", &self.api_key))
-                .header("Content-Type", "application/json")
-                .header("prefer", "count=exact")
-                .header("x_client_info", "supabase-rs/0.3.3")
-                .send()
-                .await
-            {
-                Ok(response) => response,
-                Err(error) => return Err(error.to_string()),
-            };
-
-            handle_count_response(response).await
+    
+        let endpoint = if endpoint.ends_with("count=exact&") {
+            endpoint.replace("count=exact&", "")
         } else {
-            // Send the request
-            let response: Response = match client
-                .get(&endpoint)
-                .header("apikey", &self.api_key)
-                .header("Authorization", &format!("Bearer {}", &self.api_key))
-                .header("Content-Type", "application/json")
-                .header("x_client_info", "supabase-rs/0.3.3")
-                .send()
-                .await
-            {
-                Ok(response) => response,
-                Err(error) => return Err(error.to_string()),
-            };
-
-            // Process the response
-            handle_count_response(response).await
+            endpoint
+        };
+    
+        // create headers with default values
+        let headers: Headers = Headers::with_defaults(&self.api_key, &self.api_key);
+    
+        // convert headers to HeaderMap
+        let mut header_map: HeaderMap = HeaderMap::new();
+        for (key, value) in headers.get_headers() {
+            header_map.insert(
+                HeaderName::from_bytes(key.as_bytes()).unwrap(),
+                HeaderValue::from_str(&value).unwrap(),
+            );
         }
-    }
-}
-
-async fn handle_count_response(response: Response) -> Result<Vec<Value>, String> {
-    // Extract the `headers` and `content-range` from the response
-    let headers: &reqwest::header::HeaderMap = response.headers();
-    let content_range_option: Option<&str> =
-        headers.get("content-range").and_then(|v| v.to_str().ok());
-
-    // Initialize total_records to None
-    let mut total_records: Option<i32> = None;
-
-    // If content-range header exists, parse the total records
-    if let Some(content_range) = content_range_option {
-        total_records = content_range
-            .split('/')
-            .nth(1)
-            .and_then(|v| v.parse::<i32>().ok());
-    }
-
-    // Process the response
-    if response.status().is_success() {
-        let mut records: Vec<Value> = match response.json::<Vec<Value>>().await {
-            Ok(records) => records,
+    
+        // send the request
+        let response: Response = match client
+            .get(&endpoint)
+            .headers(header_map)
+            .send()
+            .await
+        {
+            Ok(response) => response,
             Err(error) => return Err(error.to_string()),
         };
-
-        if let Some(count) = total_records {
-            // Add total_records to the records if available
-            records.push(json!({"total_records_count": count}));
-        }
-        Ok(records)
-    } else {
-        Err(response.status().to_string())
+    
+        // process the response
+        handle_response(response).await
     }
 }
