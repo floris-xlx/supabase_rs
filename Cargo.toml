@@ -17,16 +17,17 @@ serde_json = "1.0.111"
 tokio = { version = "1.37.0", features = ["full"] }
 dotenv = "0.15.0"
 anyhow = "1.0.86"
-regex = { version = "1.10.5", optional = true }
+regex = { version = "1.10.5", optional = false }
 
 
+#[cfg(feature = "nightly")]
 
 [features]
 nightly = []
 storage = []
 rustls = []
 
-# default = ["nightly", "storage", "realtime"]
+default = ["nightly", "storage"]
 # # 
 # # 
 # realtime = []

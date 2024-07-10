@@ -128,12 +128,17 @@
 #![allow(rustdoc::invalid_rust_codeblocks)]
 
 use crate::SupabaseClient;
-use reqwest;
-use reqwest::Client;
-use reqwest::Response;
+use crate::query::QueryBuilder;
+
+use reqwest::{Client, Response};
+use reqwest::header::HeaderMap;
 use serde_json::{json, Value};
 
-use crate::query::QueryBuilder;
+
+
+
+#[cfg(feature = "nightly")]
+use crate::nightly::print_if_dev;
 
 impl SupabaseClient {
     /// Initializes a `QueryBuilder` for a specified table.
@@ -167,7 +172,8 @@ impl SupabaseClient {
         // Build the client and the endpoint
         let endpoint: String = format!("{}/rest/v1/{}?{}", self.url, table_name, query_string);
 
-        println!("Endpoint: {}", endpoint);
+        #[cfg(feature = "nightly")]
+        println!("\x1b[33mEndpoint: {}\x1b[0m", endpoint);
 
         #[cfg(feature = "rustls")]
         let client = Client::builder().use_rustls_tls().build().unwrap();

@@ -344,6 +344,7 @@ pub mod select;
 pub mod success;
 pub mod tests;
 pub mod update;
+pub mod request;
 
 pub mod graphql;
 pub mod nightly;
