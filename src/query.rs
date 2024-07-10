@@ -30,9 +30,10 @@
 
 use crate::SupabaseClient;
 use serde_json::Value;
-use std::{collections::HashMap, path::Display};
+use std::collections::HashMap;
 
 /// Represents the type of comparison to be performed in a query filter.
+#[derive(Debug)]
 pub enum Operator {
     /// Represents equality comparison.
     Equals,
@@ -49,6 +50,7 @@ pub enum Operator {
 }
 
 /// Specifies the order in which results should be sorted.
+#[derive(Debug)]
 pub enum SortOrder {
     /// Results should be sorted in ascending order.
     Ascending,
@@ -57,28 +59,34 @@ pub enum SortOrder {
 }
 
 /// Represents a filter to be applied to a query, consisting of a column name, an operator, and a value to compare against.
+#[derive(Debug)]
 pub struct Filter {
     /// The name of the column to which the filter applies.
-    column: String,
+    pub column: String,
     /// The operator that defines the type of comparison to be performed.
-    operator: Operator,
+    pub operator: Operator,
     /// The value to compare against the column's values.
-    value: String,
+    pub value: String,
 }
 
 /// Represents sorting criteria for query results, consisting of a column name and the order of sorting.
+#[derive(Debug)]
 pub struct Sort {
     /// The name of the column by which to sort.
-    _column: String,
+    pub column: String,
     /// The order in which to sort the results.
-    _order: SortOrder,
+    pub order: SortOrder,
 }
 
 /// Represents a query with a collection of parameters that define specific conditions and sorting orders.
 #[derive(Debug, Default)]
 pub struct Query {
     /// A map where each key-value pair represents a column and the condition or sorting order applied to it.
-    params: HashMap<String, String>,
+    params: Vec<(String, String)>,
+    /// A vector of filters to be applied to the query results.
+    filters: Vec<Filter>,
+    /// A vector of sorting criteria to be applied to the query results.
+    sorts: Vec<Sort>,
 }
 
 /// A `QueryBuilder` is used to construct and manage SQL queries for a specific table using a `SupabaseClient`.
@@ -218,6 +226,17 @@ impl QueryBuilder {
     }
 }
 
+#[tokio::test]
+async fn test_query_builder() -> Result<(), Box<dyn std::error::Error>> {
+    let client = crate::tests::create_test_supabase_client()?;
+    let query = QueryBuilder::new(client, "test")
+        .eq("dog", "what da dog doing")
+        .execute()
+        .await?;
+    assert!(!query.is_empty());
+    Ok(())
+}
+
 impl Filter {
     /// Constructs a new `Filter` instance.
     ///
@@ -231,7 +250,6 @@ impl Filter {
     ///
     /// # Examples
     /// ```
-    /// # use supabase_rs::query::{Filter, Operator};
     /// let filter = Filter::new("age".to_string(), Operator::GreaterThan, "30".to_string());
     /// ```
     pub fn new(column: String, operator: Operator, value: String) -> Filter {
@@ -277,12 +295,27 @@ impl std::fmt::Display for Filter {
     }
 }
 
+impl std::fmt::Display for Sort {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "{}.{}",
+            self.column,
+            match self.order {
+                SortOrder::Ascending => "asc",
+                SortOrder::Descending => "desc",
+            }
+        )
+    }
+}
+
 impl Query {
     /// Constructs a new `Query` instance using the default settings.
     ///
     /// # Examples
     ///
     /// ```
+    /// # use supabase_rs::query::Query;
     /// let query = Query::new();
     /// ```
     pub fn new() -> Query {
@@ -307,6 +340,47 @@ impl Query {
             .entry(key.to_string())
             .and_modify(|e| e.push_str(&format!("&{}={}", key, value)))
             .or_insert(value.to_string());
+        self.params.push((key.to_string(), value.to_string()));
+    }
+
+    /// Adds a filter to the query.
+    ///
+    /// # Arguments
+    /// * `filter` - A `Filter` struct containing the column name, operator, and value for the filter.
+    ///
+    /// # Examples
+    /// ```
+    /// # use supabase_rs::query::{Query, Filter, Operator};
+    /// let mut query = Query::new();
+    /// let filter = Filter {
+    ///     column: "age".to_string(),
+    ///     operator: Operator::GreaterThan,
+    ///     value: "30".to_string(),
+    /// };
+    /// query.add_filter(filter);
+    /// ```
+    pub fn add_filter(&mut self, filter: Filter) {
+        self.filters.push(filter);
+    }
+
+    /// Adds a sorting criterion to the query.
+    ///
+    /// # Arguments
+    /// * `sort` - A `Sort` struct containing the column name and the sorting order.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use supabase_rs::query::{Query, Sort, SortOrder};
+    /// let mut query = Query::new();
+    /// let sort = Sort {
+    ///     column: "name".to_string(),
+    ///     order: SortOrder::Ascending,
+    /// };
+    /// query.add_sort(sort);
+    /// ```
+    pub fn add_sort(&mut self, sort: Sort) {
+        self.sorts.push(sort);
     }
 
     /// Builds and returns the query string from the current state of the query parameters.
@@ -331,5 +405,63 @@ impl Query {
             .map(|(key, value)| format!("{}={}&", key, value))
             .collect::<Vec<String>>()
             .join("")
+        let mut query_string: String = String::new();
+        
+        // add params
+        query_string.push_str(
+            self.params
+                .iter()
+                .map(|(key, value)| format!("{}={}", key, value))
+                .collect::<Vec<String>>()
+                .join("&")
+                .as_str(),
+        );
+        if !self.filters.is_empty() {
+            // add filters
+            if !query_string.is_empty() {
+                query_string.push('&');
+            }
+            query_string.push_str(
+                self.filters
+                    .iter()
+                    .map(|filter| filter.to_string())
+                    .collect::<Vec<String>>()
+                    .join("&")
+                    .as_str(),
+            );
+        }
+        if !self.sorts.is_empty() {
+            // add sorts
+            if !query_string.is_empty() {
+                query_string.push('&');
+            }
+            query_string.push_str(
+                self.sorts
+                    .iter()
+                    .map(|sort| sort.to_string())
+                    .collect::<Vec<String>>()
+                    .join("&")
+                    .as_str(),
+            );
+        }
+        query_string
     }
+}
+
+#[test]
+fn test_query() {
+    let mut query = Query::new();
+    let filter = Filter {
+        column: "age".to_string(),
+        operator: Operator::GreaterThan,
+        value: "30".to_string(),
+    };
+    let sort = Sort {
+        column: "name".to_string(),
+        order: SortOrder::Ascending,
+    };
+    query.add_filter(filter);
+    query.add_sort(sort);
+    let query_string = query.build();
+    assert_eq!(query_string, "age.gt=30&name.asc");
 }
