@@ -137,6 +137,7 @@ use reqwest::header::HeaderMap;
 use serde_json::{json, Value};
 use reqwest::header::{HeaderName, HeaderValue};
 
+use deprecate_until::deprecate_until;
 
 
 #[cfg(feature = "nightly")]
@@ -150,7 +151,12 @@ impl SupabaseClient {
     ///
     /// # Returns
     /// A `QueryBuilder` instance configured for the specified table.
+    // #[deprecate_until(remove = ">= 0.4.x", note = "`.select()` will be deprecated. Use `.from()` to specify the table name and then use `.select()` to pass the query string. This change will align with the official Supabase documentation for other languages.")]
     pub fn select(&self, table_name: &str) -> QueryBuilder {
+        QueryBuilder::new(self.clone(), table_name)
+    }
+
+    pub fn from(&self, table_name: &str) -> QueryBuilder {
         QueryBuilder::new(self.clone(), table_name)
     }
 
