@@ -187,18 +187,20 @@ impl SupabaseClient {
         let client = Client::builder().use_rustls_tls().build().unwrap();
     
         #[cfg(not(feature = "rustls"))]
-        let client = Client::new();
+        let client: Client = Client::new();
     
         #[cfg(feature = "nightly")]
         use crate::nightly::print_nightly_warning;
         #[cfg(feature = "nightly")]
         print_nightly_warning();
     
-        let endpoint = if endpoint.ends_with("count=exact&") {
-            endpoint.replace("count=exact&", "")
+
+        let endpoint: String = if endpoint.ends_with("?count=exact") {
+            endpoint.replace("?count=exact", "")
         } else {
             endpoint
         };
+
     
         // create headers with default values
         let headers: Headers = Headers::with_defaults(&self.api_key, &self.api_key);
@@ -207,8 +209,8 @@ impl SupabaseClient {
         let mut header_map: HeaderMap = HeaderMap::new();
         for (key, value) in headers.get_headers() {
             header_map.insert(
-                HeaderName::from_bytes(key.as_bytes()).unwrap(),
-                HeaderValue::from_str(&value).unwrap(),
+                HeaderName::from_bytes(key.as_bytes()).map_err(|e| e.to_string())?,
+                HeaderValue::from_str(&value).map_err(|e| e.to_string())?,
             );
         }
     

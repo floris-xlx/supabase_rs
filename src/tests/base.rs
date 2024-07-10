@@ -49,6 +49,7 @@ mod methods {
         upsert_numeric::upsert_numeric as test_upsert_numeric,
         update_with_column::update_with_column as test_update_with_column,
         select_stacked_queries::select_stacked_queries as test_select_stacked_queries,
+        query::test_query,
     };
 
     /// Tests the `insert` method of `SupabaseClient`.
@@ -140,5 +141,13 @@ mod methods {
     #[tokio::test]
     async fn select_stacked_queries() {
         test_select_stacked_queries().await;
+    }
+
+
+    /// Tests the `query` method of `SupabaseClient`.
+    /// This test is used to test the query builder.
+    #[tokio::test]
+    async fn query() {
+        test_query().await;
     }
 }

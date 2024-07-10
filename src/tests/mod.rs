@@ -17,6 +17,7 @@ pub mod methods {
     pub mod upsert_string;
     pub mod update_with_column;
     pub mod select_stacked_queries;
+    pub mod query;
 }
 #[cfg(test)]
 pub fn create_test_supabase_client() -> Result<crate::SupabaseClient, Box<dyn std::error::Error>> {
