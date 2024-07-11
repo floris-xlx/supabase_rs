@@ -215,7 +215,6 @@ impl Query {
     /// assert_eq!(query_string, "name=John Doe&age=30");
     /// ```
     pub fn build(&self) -> String {
-        println!("{:?}", self.params);
         self.params
             .iter()
             .map(|(key, value)| format!("{}={}&", key, value))
