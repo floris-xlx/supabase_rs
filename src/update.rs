@@ -93,17 +93,20 @@ impl SupabaseClient {
         mut body: Value,
     ) -> Result<String, String> {
         body["id"] = json!(id);
-        self.upsert_without_defined_key(table_name, body).await
+        match self.upsert_without_defined_key(table_name, body).await {
+            Ok(_) => Ok(id.to_string()),
+            Err(e) => Err(e),
+        }
     }
 
     /// Creates a row in the table, or updates if the row already exists
-    /// 
+    ///
     /// This method does not require a defined key in the body unlike the `upsert` method.
     pub async fn upsert_without_defined_key(
         &self,
         table_name: &str,
         body: Value,
-    ) -> Result<String, String> {
+    ) -> Result<(), String> {
         let endpoint: String = format!("{}/rest/v1/{}", self.url, table_name);
 
         #[cfg(feature = "rustls")]
@@ -134,7 +137,7 @@ impl SupabaseClient {
         };
 
         if response.status().is_success() {
-            Ok(id.to_string())
+            Ok(())
         } else {
             Err(response.status().to_string())
         }
