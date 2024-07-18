@@ -15,31 +15,38 @@
 //!
 //! ### Update Example
 //!
-//! ```ignore
-//! let client = SupabaseClient::new(
-//!     "your_supabase_url", "your_supabase_key"
-//! );
-//! let update_result = client.update(
-//!     "your_table_name", "row_id", json!({"column_name": "new_value"})
-//! ).await;
+//! ```
+//! # use supabaase_rs::SupabaseClient;
+//! #[tokio::main]
+//! async fn main() {
+//!     let client = SupabaseClient::new(
+//!         "your_supabase_url", "your_supabase_key"
+//!     );
+//!     let update_result = client.update(
+//!         "your_table_name", "row_id", json!({"column_name": "new_value"})
+//!     ).await;
+//! }
 //! ```
 //!
 //! ### Upsert Example
 //!
-//! ```ignore
-//! let client = SupabaseClient::new(
-//!     "your_supabase_url", "your_supabase_key"
-//! );
-//! let upsert_result = client.upsert(
-//!     "your_table_name", "row_id", json!({"column_name": "value"})
-//! ).await;
+//! ```
+//! # use supabaase_rs::SupabaseClient;
+//! #[tokio::main]
+//! async fn main() {
+//!     let client = SupabaseClient::new(
+//!         "your_supabase_url", "your_supabase_key"
+//!     );
+//!     let upsert_result = client.upsert(
+//!         "your_table_name", "row_id", json!({"column_name": "value"})
+//!     ).await;
+//! }
 //! ```
 //!
 //! ## Error Handling
 //!
 //! Both `update` and `upsert` methods return a `Result<(), String>`, where `Ok(())` indicates a successful operation,
 //! and `Err(String)` contains an error message in case of failure.
-//!
 use crate::SupabaseClient;
 use reqwest::{Client, Response};
 use serde_json::{json, Value};
