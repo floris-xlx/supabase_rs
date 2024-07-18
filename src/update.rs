@@ -92,6 +92,18 @@ impl SupabaseClient {
         id: &str,
         mut body: Value,
     ) -> Result<String, String> {
+        body["id"] = json!(id);
+        self.upsert_without_defined_key(table_name, body).await
+    }
+
+    /// Creates a row in the table, or updates if the row already exists
+    /// 
+    /// This method does not require a defined key in the body unlike the `upsert` method.
+    pub async fn upsert_without_defined_key(
+        &self,
+        table_name: &str,
+        body: Value,
+    ) -> Result<String, String> {
         let endpoint: String = format!("{}/rest/v1/{}", self.url, table_name);
 
         #[cfg(feature = "rustls")]
@@ -104,8 +116,6 @@ impl SupabaseClient {
         use crate::nightly::print_nightly_warning;
         #[cfg(feature = "nightly")]
         print_nightly_warning();
-
-        body["id"] = json!(id);
 
         let response: Response = match client
             .post(&endpoint)
