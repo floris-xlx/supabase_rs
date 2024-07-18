@@ -10,8 +10,8 @@
 //!
 //! # Examples
 //! Basic usage:
-//! ```ignore
-//! use supabase_rs::query::{Query, Filter, Operator, Sort, SortOrder};
+//! ```
+//! use supabase_rs::query::{Filter, Operator, Query, Sort, SortOrder};
 //!
 //! let mut query = Query::new();
 //! let filter = Filter {
@@ -35,7 +35,6 @@ use crate::SupabaseClient;
 use serde_json::Value;
 use std::collections::HashMap;
 use std::fmt::Formatter;
-
 
 /// Represents the type of comparison to be performed in a query filter.
 #[derive(Debug)]
@@ -108,4 +107,3 @@ pub struct QueryBuilder {
     pub query: Query,
     pub table_name: String, // option columns
 }
-

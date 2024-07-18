@@ -15,24 +15,34 @@
 //!
 //! ### Insert Example
 //!
-//! ```ignore
-//! let client = SupabaseClient::new(
-//!     "your_supabase_url", "your_supabase_key"
-//! );
-//! let insert_result = client.insert(
-//!     "your_table_name", json!({"column_name": "value"})
-//! ).await;
+//! ```
+//! # use serde_json::json;
+//! # use supabase_rs::SupabaseClient;
+//! #[tokio::main]
+//! async fn main() {
+//!     let client = SupabaseClient::new(
+//!         "your_supabase_url", "your_supabase_key"
+//!     );
+//!     let insert_result = client.insert(
+//!         "your_table_name", json!({"column_name": "value"})
+//!     ).await;
+//! }
 //! ```
 //!
 //! ### Insert if Unique Example
 //!
-//! ```ignore
-//! let client = SupabaseClient::new(
-//!     "your_supabase_url", "your_supabase_key"
-//! );
-//! let unique_insert_result = client.insert_if_unique(
-//!     "your_table_name", json!({"unique_column_name": "unique_value"})
-//! ).await;
+//! ```
+//! # use serde_json::json;
+//! # use supabase_rs::SupabaseClient;
+//! #[tokio::main]
+//! async fn main() {
+//!     let client = SupabaseClient::new(
+//!         "your_supabase_url", "your_supabase_key"
+//!     );
+//!     let unique_insert_result = client.insert_if_unique(
+//!         "your_table_name", json!({"unique_column_name": "unique_value"})
+//!     ).await;
+//! }
 //! ```
 //!
 //! ## Error Handling
@@ -190,17 +200,21 @@ impl SupabaseClient {
     /// * `body` - A JSON value containing the data to be inserted.
     ///
     /// ## Example
-    /// ```ignore
-    /// // Initialize the Supabase client
-    /// let client = SupabaseClient::new("your_supabase_url", "your_supabase_key");
+    /// ```
+    /// # use serde_json::json;
+    /// # use supabase_rs::SupabaseClient;
+    /// #[tokio::main]
+    /// async fn main() {
+    ///     // Initialize the Supabase client
+    ///     let client = SupabaseClient::new("your_supabase_url", "your_supabase_key");
     ///
-    /// // This will insert a new row into the table if the value is unique
-    /// let unique_insert_result = client.insert_if_unique(
-    ///    "your_table_name",
-    ///   json!({"unique_column_name": "unique_value"})
-    /// ).await;
-    /// ``` ```
-    ///
+    ///     // This will insert a new row into the table if the value is unique
+    ///     let unique_insert_result = client.insert_if_unique(
+    ///         "your_table_name",
+    ///         json!({"unique_column_name": "unique_value"})
+    ///     ).await;
+    /// }
+    /// ```
     ///
     /// # Returns
     /// This method returns a `Result<String, String>`. On success, it returns `Ok(String)` with the new row's ID,

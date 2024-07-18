@@ -1,4 +1,4 @@
-use crate::query::{QueryBuilder, Query, Filter, Sort};
+use crate::query::{Filter, Query, QueryBuilder, Sort};
 use crate::SupabaseClient;
 
 use serde_json::Value;
@@ -125,7 +125,6 @@ impl QueryBuilder {
     }
 }
 
-
 impl Query {
     /// Constructs a new `Query` instance using the default settings.
     ///
@@ -221,9 +220,8 @@ impl Query {
             .collect::<Vec<String>>()
             .join("");
 
-        
         let mut query_string: String = String::new();
-        
+
         // add params
         query_string.push_str(
             self.params
