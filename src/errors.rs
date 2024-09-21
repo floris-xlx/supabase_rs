@@ -1,5 +1,5 @@
 //! ## Error handling
-//! 
+//!
 //! This module provides error handling utilities for the Supabase client.
 
 use anyhow::Error;

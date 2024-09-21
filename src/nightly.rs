@@ -14,13 +14,10 @@ pub fn print_nightly_warning() {
     println!("\x1b[34;1mTo disable this message, set the environment variable SUPABASE_RS_NO_NIGHTLY_MSG to 'true'.\x1b[0m");
 }
 
-pub fn print_if_dev(
-    message: &str
-) {
+pub fn print_if_dev(message: &str) {
     dotenv().ok();
     if env::var("SUPABASE_RS_DEV").unwrap_or_else(|_| "false".to_string()) == "true" {
         return;
     }
     println!("\x1b[34m{}\x1b[0m", message);
-
 }

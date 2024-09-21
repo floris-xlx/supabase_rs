@@ -1,13 +1,10 @@
-use serde_json::json;
-use crate::SupabaseClient;
 use crate::tests::methods::init::init;
-
+use crate::SupabaseClient;
+use serde_json::json;
 
 pub async fn insert() {
     /// Performs an insert operation in an isolated scope.
-    async fn insert_inner(
-        supabase_client: SupabaseClient
-    ) -> Result<(), String> {
+    async fn insert_inner(supabase_client: SupabaseClient) -> Result<(), String> {
         // Usage example
         let response_inner: Result<String, String> = supabase_client
             .insert(

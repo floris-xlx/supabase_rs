@@ -1,13 +1,10 @@
-use serde_json::{json, Value};
-use crate::SupabaseClient;
 use crate::tests::methods::init::init;
-
+use crate::SupabaseClient;
+use serde_json::{json, Value};
 
 pub async fn select_with_columns() {
     /// Performs a select_with_columns operation in an isolated scope.
-    async fn select_filter_columns_inner(
-        supabase_client: SupabaseClient,
-    ) -> Result<(), String> {
+    async fn select_filter_columns_inner(supabase_client: SupabaseClient) -> Result<(), String> {
         // Usage example
 
         let response_inner: Result<Vec<Value>, String> = supabase_client

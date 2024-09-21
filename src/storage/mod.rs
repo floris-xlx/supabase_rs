@@ -27,20 +27,20 @@
 //!
 //! let bytes = storage.download().unwrap();
 //! ```
-//! 
+//!
 //! ### Downloading a file directly to the local system
 //! ```ignore
 //! use supabase_rs::storage::SupabaseStorage;
-//! 
+//!
 //! let storage = SupabaseStorage {
 //!    supabase_url: "https://example.com".to_string(),
 //!    bucket_name: "bucket".to_string(),
 //!    filename: "file.txt".to_string(),
 //! };
-//! 
+//!
 //! storage.save("local_file.txt").unwrap();  
 //! ```
-//! 
+//!
 #![cfg(feature = "storage")]
 
 pub mod download;
