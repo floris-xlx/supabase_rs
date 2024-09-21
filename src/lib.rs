@@ -31,6 +31,7 @@
 //!
 //! ## Nightly Build
 //! - **`nightly`**: Enables the `GraphQL` module to interact with Supabase GraphQL API.
+//!
 //! Nightly features are not stable and may break at any time without notice, so use with caution.
 //!
 //! Nightly WILL send a warning message, to disable the `nightly` warning message
