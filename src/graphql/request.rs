@@ -1,5 +1,3 @@
-#![allow(clippy::needless_return)]
-
 use crate::graphql::error_types::{
     failed_to_parse_json, field_does_not_exist_on_table, illegal_field_name, illegal_table_name,
     table_does_not_exist,
@@ -124,19 +122,18 @@ pub async fn error_router(error_message: &str, field_name: &str, table_name: &st
     };
 
     if re_unknown_field.is_match(error_message) {
-        let error: String = table_does_not_exist(table_name);
-        return error;
+        table_does_not_exist(table_name)
     } else if error_message
         .contains("query parse error: Parse error at 1:2\nUnexpected `unsupported float")
         || error_message
             .contains("query parse error: Parse error at 1:2\nUnexpected `unsupported integer")
     {
-        return illegal_table_name(table_name);
+        illegal_table_name(table_name)
     } else if re_unknown_field_on_type.is_match(error_message) {
-        return field_does_not_exist_on_table(field_name, table_name);
+        field_does_not_exist_on_table(field_name, table_name)
     } else if re_unsupported_float.is_match(error_message) {
-        return illegal_field_name(field_name);
+        illegal_field_name(field_name)
     } else {
-        return error_message.to_string();
+        error_message.to_string()
     }
 }
