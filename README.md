@@ -120,5 +120,6 @@ SUPABASE_KEY=
 Examples will be present in the docs
 
 ## Contributors
-[Izyuumi](https://github.com/izyuumi) - Improved row ID routing with updating methods
-[koya1616](https://github.com/koya1616) - fixed README
+- [Izyuumi](https://github.com/izyuumi) - Improved row ID routing with updating methods
+- [koya1616](https://github.com/koya1616) - fixed README
+- [strykejern](https://github.com/strykejern) - Refactored for maintainability & fixed a warnings
