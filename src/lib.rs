@@ -68,7 +68,7 @@
 //!     let supabase_client: SupabaseClient = SupabaseClient::new(
 //!         var("SUPABASE_URL").unwrap(),
 //!         var("SUPABASE_KEY").unwrap()
-//!         );
+//!         ).unwrap();
 //!
 //!         supabase_client
 //!    }
@@ -326,6 +326,7 @@
 
 use rand::prelude::ThreadRng;
 use rand::Rng;
+use reqwest::Client;
 
 pub mod delete;
 pub mod errors;
@@ -346,6 +347,8 @@ pub mod nightly;
 pub mod realtime;
 pub mod storage;
 
+use errors::Result;
+
 /// A client structure for interacting with Supabase services.
 ///
 /// This structure holds the necessary details to make requests to the Supabase API.
@@ -356,8 +359,9 @@ pub mod storage;
 /// - `api_key`: The API key used for authenticating requests to Supabase.
 #[derive(Debug, Clone)]
 pub struct SupabaseClient {
-    pub url: String,
-    pub api_key: String,
+    url: String,
+    api_key: String,
+    client: reqwest::Client,
 }
 
 impl SupabaseClient {
@@ -375,11 +379,18 @@ impl SupabaseClient {
     ///     "your-secret-key".to_string(),
     /// );
     /// ```
-    pub fn new(supabase_url: String, private_key: String) -> Self {
-        Self {
+    pub fn new(supabase_url: String, private_key: String) -> Result<Self> {
+        #[cfg(feature = "rustls")]
+        let client = Client::builder().use_rustls_tls().build()?;
+
+        #[cfg(not(feature = "rustls"))]
+        let client = Client::new();
+
+        Ok(Self {
             url: supabase_url,
             api_key: private_key,
-        }
+            client,
+        })
     }
 }
 

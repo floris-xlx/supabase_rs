@@ -24,7 +24,7 @@ impl SupabaseClient {
     ///     let supabase_client = SupabaseClient::new(
     ///         "your_supabase_url".to_string(),
     ///         "your_supabase_key".to_string()
-    ///     );
+    ///     ).unwrap();
     ///     let email = "example@email.com".to_string();
     ///     let table_name = "users".to_string();
     ///     let column_name = "email".to_string();

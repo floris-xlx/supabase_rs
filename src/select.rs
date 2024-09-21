@@ -131,7 +131,7 @@ use crate::SupabaseClient;
 
 use reqwest::header::HeaderMap;
 use reqwest::header::{HeaderName, HeaderValue};
-use reqwest::{Client, Response};
+use reqwest::Response;
 use serde_json::Value;
 
 impl SupabaseClient {
@@ -174,12 +174,6 @@ impl SupabaseClient {
         #[cfg(feature = "nightly")]
         println!("\x1b[33mEndpoint: {}\x1b[0m", endpoint);
 
-        #[cfg(feature = "rustls")]
-        let client = Client::builder().use_rustls_tls().build().unwrap();
-
-        #[cfg(not(feature = "rustls"))]
-        let client: Client = Client::new();
-
         #[cfg(feature = "nightly")]
         use crate::nightly::print_nightly_warning;
         #[cfg(feature = "nightly")]
@@ -204,7 +198,7 @@ impl SupabaseClient {
         }
 
         // send the request
-        let response: Response = match client.get(&endpoint).headers(header_map).send().await {
+        let response: Response = match self.client.get(&endpoint).headers(header_map).send().await {
             Ok(response) => response,
             Err(error) => return Err(error.to_string()),
         };

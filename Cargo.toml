@@ -20,6 +20,7 @@ anyhow = "1.0.86"
 deprecate-until = "0.1.1"
 regex = { version = "1.10.5", optional = false }
 serde = "1.0.204"
+thiserror = "1.0.63"
 
 
 

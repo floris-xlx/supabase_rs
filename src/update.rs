@@ -21,7 +21,7 @@
 //! async fn main() {
 //!     let client = SupabaseClient::new(
 //!         "your_supabase_url".to_string(), "your_supabase_key".to_string()
-//!     );
+//!     ).unwrap();
 //!     let update_result = client.update(
 //!         "your_table_name", "row_id", serde_json::json!({"column_name": "new_value"})
 //!     ).await;
@@ -36,7 +36,7 @@
 //! async fn main() {
 //!     let client = SupabaseClient::new(
 //!         "your_supabase_url".to_string(), "your_supabase_key".to_string()
-//!     );
+//!     ).unwrap();
 //!     let upsert_result = client.upsert(
 //!         "your_table_name", "row_id", serde_json::json!({"column_name": "value"})
 //!     ).await;
@@ -48,7 +48,7 @@
 //! Both `update` and `upsert` methods return a `Result<(), String>`, where `Ok(())` indicates a successful operation,
 //! and `Err(String)` contains an error message in case of failure.
 use crate::SupabaseClient;
-use reqwest::{Client, Response};
+use reqwest::Response;
 use serde_json::{json, Value};
 
 impl SupabaseClient {
@@ -70,9 +70,9 @@ impl SupabaseClient {
             "{}/rest/v1/{}?{}=eq.{}",
             self.url, table_name, column_name, id
         );
-        let client: Client = Client::new();
 
-        let response: Response = match client
+        let response: Response = match self
+            .client
             .patch(&endpoint)
             .header("apikey", &self.api_key)
             .header("Authorization", &format!("Bearer {}", &self.api_key))
@@ -116,18 +116,13 @@ impl SupabaseClient {
     ) -> Result<(), String> {
         let endpoint: String = format!("{}/rest/v1/{}", self.url, table_name);
 
-        #[cfg(feature = "rustls")]
-        let client = Client::builder().use_rustls_tls().build().unwrap();
-
-        #[cfg(not(feature = "rustls"))]
-        let client = Client::new();
-
         #[cfg(feature = "nightly")]
         use crate::nightly::print_nightly_warning;
         #[cfg(feature = "nightly")]
         print_nightly_warning();
 
-        let response: Response = match client
+        let response: Response = match self
+            .client
             .post(&endpoint)
             .header("apikey", &self.api_key)
             .header("Authorization", format!("Bearer {}", &self.api_key))
