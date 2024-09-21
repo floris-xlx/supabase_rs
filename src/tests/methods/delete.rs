@@ -1,6 +1,5 @@
 use crate::tests::methods::init::init;
 use crate::SupabaseClient;
-use serde_json::{json, Value};
 
 pub async fn delete() {
     /// Performs a select_filter operation in an isolated scope.
@@ -11,7 +10,7 @@ pub async fn delete() {
             supabase_client.delete("test", "1476105020679346924").await;
 
         match response_inner {
-            Ok(response_inner) => Ok(()),
+            Ok(_) => Ok(()),
 
             Err(error) => {
                 println!("Error: {:?}", error);

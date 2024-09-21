@@ -123,9 +123,6 @@
 //!     .await;
 //! ```
 //!
-#![allow(clippy::inherent_to_string)]
-#![allow(clippy::derivable_impls)]
-#![allow(rustdoc::invalid_rust_codeblocks)]
 
 use crate::query::QueryBuilder;
 use crate::request::Headers;
@@ -135,12 +132,7 @@ use crate::SupabaseClient;
 use reqwest::header::HeaderMap;
 use reqwest::header::{HeaderName, HeaderValue};
 use reqwest::{Client, Response};
-use serde_json::{json, Value};
-
-use deprecate_until::deprecate_until;
-
-#[cfg(feature = "nightly")]
-use crate::nightly::print_if_dev;
+use serde_json::Value;
 
 impl SupabaseClient {
     /// Initializes a `QueryBuilder` for a specified table.

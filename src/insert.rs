@@ -152,7 +152,7 @@ impl SupabaseClient {
     pub async fn insert_without_defined_key(
         &self,
         table_name: &str,
-        mut body: Value,
+        body: Value,
     ) -> Result<(), String> {
         let endpoint: String = format!("{}/rest/v1/{}", self.url, table_name);
 

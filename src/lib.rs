@@ -1,12 +1,3 @@
-#![allow(unused_imports)]
-#![allow(unused_variables)]
-#![allow(unused_mut)]
-#![allow(unused_assignments)]
-#![allow(unused_must_use)]
-#![allow(unused_parens)]
-#![allow(unused_braces)]
-#![allow(unused_macros)]
-
 //! # Supabase SDK for Rust
 //!
 //! This is an unofficial Rust SDK for [Supabase](https://supabase.io/), since there is no official SDK for Rust yet.
@@ -31,6 +22,7 @@
 //!
 //! ## Nightly Build
 //! - **`nightly`**: Enables the `GraphQL` module to interact with Supabase GraphQL API.
+//!
 //! Nightly features are not stable and may break at any time without notice, so use with caution.
 //!
 //! Nightly WILL send a warning message, to disable the `nightly` warning message

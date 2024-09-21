@@ -1,5 +1,3 @@
-#![allow(clippy::needless_return)]
-
 use crate::graphql::error_types::{
     failed_to_parse_json, field_does_not_exist_on_table, illegal_field_name, illegal_table_name,
     table_does_not_exist,
@@ -7,14 +5,13 @@ use crate::graphql::error_types::{
 use crate::graphql::parse::get_table_name;
 use crate::graphql::utils::format_endpoint::endpoint;
 use crate::graphql::utils::headers::headers;
-use crate::graphql::{Query, RootTypes};
+use crate::graphql::RootTypes;
 use crate::SupabaseClient;
 
 use anyhow::{Error as AnyError, Result};
 use regex::Regex;
 use reqwest::Client;
-use serde_json::{json, Value};
-use std::collections::HashMap;
+use serde_json::Value;
 
 #[derive(Debug)]
 pub struct Request {
@@ -84,7 +81,7 @@ impl Request {
             let message = errors[0]["message"].clone();
             let error_message: String = serde_json::from_value(message)
                 .unwrap_or_else(|_| "Failed to deserialize error message".to_string());
-            let error_message = error_router(&error_message, "eads", &table_name).await;
+            let _error_message = error_router(&error_message, "eads", &table_name).await;
 
             let parsed_data: Value = data["errors"][0]["message"]
                 .to_string()
@@ -125,19 +122,18 @@ pub async fn error_router(error_message: &str, field_name: &str, table_name: &st
     };
 
     if re_unknown_field.is_match(error_message) {
-        let error: String = table_does_not_exist(table_name);
-        return error;
+        table_does_not_exist(table_name)
     } else if error_message
         .contains("query parse error: Parse error at 1:2\nUnexpected `unsupported float")
         || error_message
             .contains("query parse error: Parse error at 1:2\nUnexpected `unsupported integer")
     {
-        return illegal_table_name(table_name);
+        illegal_table_name(table_name)
     } else if re_unknown_field_on_type.is_match(error_message) {
-        return field_does_not_exist_on_table(field_name, table_name);
+        field_does_not_exist_on_table(field_name, table_name)
     } else if re_unsupported_float.is_match(error_message) {
-        return illegal_field_name(field_name);
+        illegal_field_name(field_name)
     } else {
-        return error_message.to_string();
+        error_message.to_string()
     }
 }

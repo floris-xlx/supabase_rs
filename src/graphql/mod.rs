@@ -84,7 +84,6 @@ pub mod query;
 pub mod request;
 pub mod utils;
 
-use crate::SupabaseClient;
 use serde_json::Value;
 
 /// #### Query

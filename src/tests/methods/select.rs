@@ -1,6 +1,6 @@
 use crate::tests::methods::init::init;
 use crate::SupabaseClient;
-use serde_json::{json, Value};
+use serde_json::Value;
 
 pub async fn select() {
     /// Performs a select operation in an isolated scope.
@@ -11,7 +11,7 @@ pub async fn select() {
             supabase_client.select("test").execute().await;
 
         match response_inner {
-            Ok(response_inner) => Ok(()),
+            Ok(_) => Ok(()),
             Err(error) => {
                 println!("Error: {:?}", error);
                 Err(error)

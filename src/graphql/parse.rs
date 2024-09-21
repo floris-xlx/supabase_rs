@@ -1,7 +1,4 @@
-use crate::graphql::error_types::{
-    field_does_not_exist_on_table, illegal_table_name, table_does_not_exist,
-    table_name_does_not_end_with_collection,
-};
+use crate::graphql::error_types::table_name_does_not_end_with_collection;
 use anyhow::{Error, Result};
 use serde_json::Value;
 
