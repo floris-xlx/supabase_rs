@@ -22,14 +22,9 @@
 
 #[cfg(test)]
 mod methods {
-    use crate::SupabaseClient;
-    use dotenv::dotenv;
-    use serde_json::{json, Value};
-    use std::env::var;
-
     // import local method tests
     use crate::tests::methods::{
-        delete::delete as test_delete, init::init, insert::insert as test_insert,
+        delete::delete as test_delete, insert::insert as test_insert,
         insert_if_unique_numeric::insert_if_unique_numeric as test_insert_if_unique_numeric,
         insert_if_unique_string::insert_if_unique_string as test_insert_if_unique_string,
         insert_numeric::insert_numeric as test_insert_numeric,
@@ -38,7 +33,6 @@ mod methods {
         select_stacked_queries::select_stacked_queries as test_select_stacked_queries,
         select_with_columns::select_with_columns as test_select_with_columns,
         select_with_count::select_with_count as test_select_with_count,
-        select_with_count_and_filter::select_with_count_and_filter as test_select_with_count_and_filter,
         update_with_column::update_with_column as test_update_with_column,
         upsert_numeric::upsert_numeric as test_upsert_numeric,
         upsert_string::upsert_string as test_upsert_string,

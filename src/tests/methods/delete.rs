@@ -1,6 +1,5 @@
 use crate::tests::methods::init::init;
 use crate::SupabaseClient;
-use serde_json::{json, Value};
 
 pub async fn delete() {
     /// Performs a select_filter operation in an isolated scope.

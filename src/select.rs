@@ -135,9 +135,7 @@ use crate::SupabaseClient;
 use reqwest::header::HeaderMap;
 use reqwest::header::{HeaderName, HeaderValue};
 use reqwest::{Client, Response};
-use serde_json::{json, Value};
-
-use deprecate_until::deprecate_until;
+use serde_json::Value;
 
 #[cfg(feature = "nightly")]
 use crate::nightly::print_if_dev;

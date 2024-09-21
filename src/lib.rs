@@ -1,5 +1,3 @@
-#![allow(unused_imports)]
-
 //! # Supabase SDK for Rust
 //!
 //! This is an unofficial Rust SDK for [Supabase](https://supabase.io/), since there is no official SDK for Rust yet.

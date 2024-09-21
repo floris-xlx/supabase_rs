@@ -31,11 +31,6 @@
 // local imports
 use crate::SupabaseClient;
 
-// external imports
-use serde_json::Value;
-use std::collections::HashMap;
-use std::fmt::Formatter;
-
 /// Represents the type of comparison to be performed in a query filter.
 #[derive(Debug)]
 pub enum Operator {

@@ -1,6 +1,6 @@
 use crate::tests::methods::init::init;
 use crate::SupabaseClient;
-use serde_json::{json, Value};
+use serde_json::Value;
 
 pub async fn select() {
     /// Performs a select operation in an isolated scope.

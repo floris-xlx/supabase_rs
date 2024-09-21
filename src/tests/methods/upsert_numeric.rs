@@ -1,6 +1,6 @@
 use crate::tests::methods::init::init;
 use crate::SupabaseClient;
-use serde_json::{json, Value};
+use serde_json::json;
 
 pub async fn upsert_numeric() {
     /// Performs a select_filter operation in an isolated scope.
