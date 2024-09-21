@@ -20,8 +20,8 @@
 //!     value: "30".to_string(),
 //! };
 //! let sort = Sort {
-//!     _column: "name".to_string(),
-//!     _order: SortOrder::Ascending,
+//!     column: "name".to_string(),
+//!     order: SortOrder::Ascending,
 //! };
 //! query.add_filter(filter);
 //! query.add_sort(sort);

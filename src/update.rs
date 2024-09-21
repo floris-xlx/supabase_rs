@@ -16,14 +16,14 @@
 //! ### Update Example
 //!
 //! ```
-//! # use supabaase_rs::SupabaseClient;
+//! # use supabase_rs::SupabaseClient;
 //! #[tokio::main]
 //! async fn main() {
 //!     let client = SupabaseClient::new(
-//!         "your_supabase_url", "your_supabase_key"
+//!         "your_supabase_url".to_string(), "your_supabase_key".to_string()
 //!     );
 //!     let update_result = client.update(
-//!         "your_table_name", "row_id", json!({"column_name": "new_value"})
+//!         "your_table_name", "row_id", serde_json::json!({"column_name": "new_value"})
 //!     ).await;
 //! }
 //! ```
@@ -31,14 +31,14 @@
 //! ### Upsert Example
 //!
 //! ```
-//! # use supabaase_rs::SupabaseClient;
+//! # use supabase_rs::SupabaseClient;
 //! #[tokio::main]
 //! async fn main() {
 //!     let client = SupabaseClient::new(
-//!         "your_supabase_url", "your_supabase_key"
+//!         "your_supabase_url".to_string(), "your_supabase_key".to_string()
 //!     );
 //!     let upsert_result = client.upsert(
-//!         "your_table_name", "row_id", json!({"column_name": "value"})
+//!         "your_table_name", "row_id", serde_json::json!({"column_name": "value"})
 //!     ).await;
 //! }
 //! ```
