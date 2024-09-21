@@ -123,9 +123,6 @@
 //!     .await;
 //! ```
 //!
-#![allow(clippy::inherent_to_string)]
-#![allow(clippy::derivable_impls)]
-#![allow(rustdoc::invalid_rust_codeblocks)]
 
 use crate::query::QueryBuilder;
 use crate::request::Headers;
