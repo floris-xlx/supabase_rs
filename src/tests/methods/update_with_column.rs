@@ -8,7 +8,6 @@ pub async fn update_with_column() {
         // Usage example
 
         let id: String = "what da dog doing".to_string();
-        let email: i64 = 1234;
 
         let updated_body: Value = json!({
             "dog4": "what da dog doing"
@@ -20,7 +19,7 @@ pub async fn update_with_column() {
             .await;
 
         match response_inner {
-            Ok(response_inner) => Ok(()),
+            Ok(_) => Ok(()),
 
             Err(error) => {
                 println!("Error: {:?}", error);

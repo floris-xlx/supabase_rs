@@ -22,7 +22,7 @@ pub async fn upsert_numeric() {
             .await;
 
         match response_inner {
-            Ok(response_inner) => Ok(()),
+            Ok(_) => Ok(()),
 
             Err(error) => {
                 println!("Error: {:?}", error);

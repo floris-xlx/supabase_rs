@@ -22,7 +22,7 @@ pub async fn upsert_string() {
             .await;
 
         match response_inner {
-            Ok(response_inner) => Ok(()),
+            Ok(_) => Ok(()),
 
             Err(error) => {
                 eprintln!("\x1b[31mError: {:?}\x1b[0m", error);

@@ -15,7 +15,7 @@ pub async fn select_with_columns() {
             .await;
 
         match response_inner {
-            Ok(response_inner) => Ok(()),
+            Ok(_) => Ok(()),
             Err(error) => {
                 println!("Error: {:?}", error);
                 Err(error)

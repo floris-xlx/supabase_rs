@@ -1,5 +1,4 @@
 #![allow(unused_imports)]
-#![allow(unused_variables)]
 
 //! # Supabase SDK for Rust
 //!

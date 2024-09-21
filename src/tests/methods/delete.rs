@@ -11,7 +11,7 @@ pub async fn delete() {
             supabase_client.delete("test", "1476105020679346924").await;
 
         match response_inner {
-            Ok(response_inner) => Ok(()),
+            Ok(_) => Ok(()),
 
             Err(error) => {
                 println!("Error: {:?}", error);
