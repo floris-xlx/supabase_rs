@@ -1,11 +1,6 @@
 #![allow(unused_imports)]
 #![allow(unused_variables)]
 #![allow(unused_mut)]
-#![allow(unused_assignments)]
-#![allow(unused_must_use)]
-#![allow(unused_parens)]
-#![allow(unused_braces)]
-#![allow(unused_macros)]
 
 //! # Supabase SDK for Rust
 //!
