@@ -23,26 +23,26 @@ async fn main() {
 
     let supabase_client: SupabaseClient = SupabaseClient::new(
         std::env::var("SUPABASE_URL").unwrap(),
-        std::env::var("SUPABASE_KEY").unwrap()
+        std::env::var("SUPABASE_KEY").unwrap(),
     );
 
     let user_id = "xx-xx-xx-xx-xx";
-    
+
     // let request_graphql: Request = Request::new(
     //     supabase_client,
     //     json!({
     //         "query": format!(
     //             r#"
-    //             {{ 
-    //                 usersCollection(filter: {{user_id: {{eq: \"{}\"}}}}) {{ 
-    //                     edges {{ 
-    //                         node {{ 
+    //             {{
+    //                 usersCollection(filter: {{user_id: {{eq: \"{}\"}}}}) {{
+    //                     edges {{
+    //                         node {{
     //                             user_id,
     //                             username,
     //                             email
-    //                         }} 
-    //                     }} 
-    //                 }} 
+    //                         }}
+    //                     }}
+    //                 }}
     //             }}
     //             "#,
     //             user_id

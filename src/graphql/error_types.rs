@@ -1,7 +1,7 @@
 //! # Error Types
-//! 
+//!
 //! This module contains functions that generate error messages for various error types.
-//! 
+//!
 //! ## Functions
 //! - `illegal_table_name`: Generates an error message for an illegal table name.
 //! - `illegal_field_name`: Generates an error message for an illegal field name.
@@ -11,9 +11,9 @@
 //! - `failed_to_parse_json`: Generates an error message indicating that JSON parsing failed.
 //! - `print_red`: Prints a message in red color for errors.
 //!     
-//! 
+//!
 
-use anyhow::{Result, Error as AnyError};
+use anyhow::{Error as AnyError, Result};
 use serde_json::Value;
 
 /// Generates an error message for an illegal table name.
@@ -28,10 +28,7 @@ use serde_json::Value;
 ///
 /// A `String` containing the error message.
 pub fn illegal_table_name(table_name: &str) -> String {
-    let amount_of_numbers: usize = table_name
-        .chars()
-        .take_while(|c| c.is_numeric())
-        .count();
+    let amount_of_numbers: usize = table_name.chars().take_while(|c| c.is_numeric()).count();
     let arrow_amount: String = "^".repeat(amount_of_numbers);
 
     let is_plural: &str = if amount_of_numbers > 1 { "s" } else { "" };
@@ -60,10 +57,7 @@ pub fn illegal_table_name(table_name: &str) -> String {
 ///
 /// A `String` containing the error message.
 pub fn illegal_field_name(field_name: &str) -> String {
-    let amount_of_numbers: usize = field_name
-        .chars()
-        .take_while(|c| c.is_numeric())
-        .count();
+    let amount_of_numbers: usize = field_name.chars().take_while(|c| c.is_numeric()).count();
     let arrow_amount: String = "^".repeat(amount_of_numbers);
 
     let is_plural: &str = if amount_of_numbers > 1 { "s" } else { "" };
@@ -109,9 +103,9 @@ pub fn table_does_not_exist(name: &str) -> String {
 pub fn field_does_not_exist_on_table(field: &str, table: &str) -> String {
     let error: String = format!(
         "\x1b[1;31mField does not exist on table: \n {} -> {}\x1b[0m",
-        table,
-        field
-    ).to_string();
+        table, field
+    )
+    .to_string();
 
     print_red(&error);
 
@@ -128,8 +122,11 @@ pub fn field_does_not_exist_on_table(field: &str, table: &str) -> String {
 ///
 /// A `String` containing the error message.
 pub fn table_name_does_not_end_with_collection(table_name: &str) -> String {
-    let error: String =
-        format!("\x1b[1;31mTable name does not end with \x1b[1;34m`Collection`\x1b[1;31m: {}\x1b[0m", table_name).to_string();
+    let error: String = format!(
+        "\x1b[1;31mTable name does not end with \x1b[1;34m`Collection`\x1b[1;31m: {}\x1b[0m",
+        table_name
+    )
+    .to_string();
     let arrow_amount: String = "^".repeat(table_name.len());
 
     print_red(&error);

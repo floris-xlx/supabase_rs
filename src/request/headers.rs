@@ -28,7 +28,10 @@ impl Headers {
         headers.insert(HeadersTypes::ClientInfo.as_str(), "supabase-rs/0.3.7");
         headers.insert(HeadersTypes::ContentType.as_str(), "application/json");
         headers.insert(HeadersTypes::ApiKey.as_str(), api_key);
-        headers.insert(HeadersTypes::Authorization.as_str(), &format!("Bearer {}", auth_token));
+        headers.insert(
+            HeadersTypes::Authorization.as_str(),
+            &format!("Bearer {}", auth_token),
+        );
         headers
     }
 }

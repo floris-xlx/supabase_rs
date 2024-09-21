@@ -1,10 +1,9 @@
 // written by @izyuumi
-use crate::query::Query;
 use crate::query::Filter;
 use crate::query::Operator;
+use crate::query::Query;
 use crate::query::Sort;
 use crate::query::SortOrder;
-
 
 pub async fn test_query() {
     let mut query: Query = Query::new();

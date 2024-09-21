@@ -20,10 +20,6 @@
 //! are working as expected.
 //!
 
-
-
-
-
 #[cfg(test)]
 mod methods {
     use crate::SupabaseClient;
@@ -33,23 +29,19 @@ mod methods {
 
     // import local method tests
     use crate::tests::methods::{
-        init::init,
-        insert::insert as test_insert,
-        insert_string::insert_string as test_insert_string,
-        insert_numeric::insert_numeric as test_insert_numeric,
-        insert_if_unique_string::insert_if_unique_string as test_insert_if_unique_string,
+        delete::delete as test_delete, init::init, insert::insert as test_insert,
         insert_if_unique_numeric::insert_if_unique_numeric as test_insert_if_unique_numeric,
-        select::select as test_select,
-        select_filter::select_filter as test_select_filter,
+        insert_if_unique_string::insert_if_unique_string as test_insert_if_unique_string,
+        insert_numeric::insert_numeric as test_insert_numeric,
+        insert_string::insert_string as test_insert_string, query::test_query,
+        select::select as test_select, select_filter::select_filter as test_select_filter,
+        select_stacked_queries::select_stacked_queries as test_select_stacked_queries,
         select_with_columns::select_with_columns as test_select_with_columns,
         select_with_count::select_with_count as test_select_with_count,
         select_with_count_and_filter::select_with_count_and_filter as test_select_with_count_and_filter,
-        delete::delete as test_delete,
-        upsert_string::upsert_string as test_upsert_string,
-        upsert_numeric::upsert_numeric as test_upsert_numeric,
         update_with_column::update_with_column as test_update_with_column,
-        select_stacked_queries::select_stacked_queries as test_select_stacked_queries,
-        query::test_query,
+        upsert_numeric::upsert_numeric as test_upsert_numeric,
+        upsert_string::upsert_string as test_upsert_string,
     };
 
     /// Tests the `insert` method of `SupabaseClient`.
@@ -142,7 +134,6 @@ mod methods {
     async fn select_stacked_queries() {
         test_select_stacked_queries().await;
     }
-
 
     /// Tests the `query` method of `SupabaseClient`.
     /// This test is used to test the query builder.

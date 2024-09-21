@@ -1,6 +1,6 @@
-use serde_json::json;
-use crate::SupabaseClient;
 use crate::tests::methods::init::init;
+use crate::SupabaseClient;
+use serde_json::json;
 
 pub async fn insert_if_unique_string() {
     /// Performs an insert_if_unique operation in an isolated scope.

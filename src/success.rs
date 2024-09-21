@@ -4,7 +4,7 @@
 //!
 
 use reqwest::Response;
-use serde_json::{Value, json};
+use serde_json::{json, Value};
 
 use crate::errors::{
     api_key_missing_error, authorization_failed_error, invalid_query_error, unknown_error,

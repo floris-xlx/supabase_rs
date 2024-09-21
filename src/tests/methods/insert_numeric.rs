@@ -1,7 +1,6 @@
-use serde_json::json;
-use crate::SupabaseClient;
 use crate::tests::methods::init::init;
-
+use crate::SupabaseClient;
+use serde_json::json;
 
 pub async fn insert_numeric() {
     /// Performs an insert operation in an isolated scope.

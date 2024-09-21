@@ -1,13 +1,12 @@
-
-use serde_json::{json, Value};
-use crate::SupabaseClient;
 use crate::tests::methods::init::init;
-
+use crate::SupabaseClient;
+use serde_json::{json, Value};
 
 pub async fn select_with_count_and_filter() {
-
     /// Performs a select_filter operation in an isolated scope.
-    async fn select_with_count_and_filter_inner(supabase_client: SupabaseClient) -> Result<(), String> {
+    async fn select_with_count_and_filter_inner(
+        supabase_client: SupabaseClient,
+    ) -> Result<(), String> {
         // Usage example
 
         let response_inner: Result<Vec<Value>, String> = supabase_client
@@ -18,9 +17,7 @@ pub async fn select_with_count_and_filter() {
             .await;
 
         match response_inner {
-            Ok(response_inner) => {
-                Ok(())
-            }
+            Ok(response_inner) => Ok(()),
             Err(error) => {
                 eprintln!("\x1b[31mError: {:?}\x1b[0m", error);
                 Err(error)
@@ -31,7 +28,10 @@ pub async fn select_with_count_and_filter() {
     let supabase_client: SupabaseClient = match init().await {
         Ok(client) => client,
         Err(e) => {
-            eprintln!("\x1b[31mFailed to initialize Supabase client: {:?}\x1b[0m", e);
+            eprintln!(
+                "\x1b[31mFailed to initialize Supabase client: {:?}\x1b[0m",
+                e
+            );
             return;
         }
     };

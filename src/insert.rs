@@ -21,7 +21,7 @@
 //! #[tokio::main]
 //! async fn main() {
 //!     let client = SupabaseClient::new(
-//!         "your_supabase_url", "your_supabase_key"
+//!         "your_supabase_url".to_string(), "your_supabase_key".to_string()
 //!     );
 //!     let insert_result = client.insert(
 //!         "your_table_name", json!({"column_name": "value"})
@@ -37,7 +37,7 @@
 //! #[tokio::main]
 //! async fn main() {
 //!     let client = SupabaseClient::new(
-//!         "your_supabase_url", "your_supabase_key"
+//!         "your_supabase_url".to_string(), "your_supabase_key".to_string()
 //!     );
 //!     let unique_insert_result = client.insert_if_unique(
 //!         "your_table_name", json!({"unique_column_name": "unique_value"})
@@ -206,7 +206,7 @@ impl SupabaseClient {
     /// #[tokio::main]
     /// async fn main() {
     ///     // Initialize the Supabase client
-    ///     let client = SupabaseClient::new("your_supabase_url", "your_supabase_key");
+    ///     let client = SupabaseClient::new("your_supabase_url".to_string(), "your_supabase_key".to_string());
     ///
     ///     // This will insert a new row into the table if the value is unique
     ///     let unique_insert_result = client.insert_if_unique(

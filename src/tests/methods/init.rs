@@ -1,6 +1,6 @@
 use crate::SupabaseClient;
-use std::env::var;
 use dotenv::dotenv;
+use std::env::var;
 
 pub async fn init() -> Result<SupabaseClient, Box<dyn std::error::Error>> {
     dotenv().ok();

@@ -127,18 +127,17 @@
 #![allow(clippy::derivable_impls)]
 #![allow(rustdoc::invalid_rust_codeblocks)]
 
-use crate::SupabaseClient;
 use crate::query::QueryBuilder;
-use crate::success::handle_response;
 use crate::request::Headers;
+use crate::success::handle_response;
+use crate::SupabaseClient;
 
-use reqwest::{Client, Response};
 use reqwest::header::HeaderMap;
-use serde_json::{json, Value};
 use reqwest::header::{HeaderName, HeaderValue};
+use reqwest::{Client, Response};
+use serde_json::{json, Value};
 
 use deprecate_until::deprecate_until;
-
 
 #[cfg(feature = "nightly")]
 use crate::nightly::print_if_dev;
@@ -179,21 +178,20 @@ impl SupabaseClient {
     ) -> Result<Vec<Value>, String> {
         // Build the client and the endpoint
         let endpoint: String = format!("{}/rest/v1/{}?{}", self.url, table_name, query_string);
-    
+
         #[cfg(feature = "nightly")]
         println!("\x1b[33mEndpoint: {}\x1b[0m", endpoint);
-    
+
         #[cfg(feature = "rustls")]
         let client = Client::builder().use_rustls_tls().build().unwrap();
-    
+
         #[cfg(not(feature = "rustls"))]
         let client: Client = Client::new();
-    
+
         #[cfg(feature = "nightly")]
         use crate::nightly::print_nightly_warning;
         #[cfg(feature = "nightly")]
         print_nightly_warning();
-    
 
         let endpoint: String = if endpoint.ends_with("?count=exact") {
             endpoint.replace("?count=exact", "")
@@ -201,10 +199,9 @@ impl SupabaseClient {
             endpoint
         };
 
-    
         // create headers with default values
         let headers: Headers = Headers::with_defaults(&self.api_key, &self.api_key);
-    
+
         // convert headers to HeaderMap
         let mut header_map: HeaderMap = HeaderMap::new();
         for (key, value) in headers.get_headers() {
@@ -213,18 +210,13 @@ impl SupabaseClient {
                 HeaderValue::from_str(&value).map_err(|e| e.to_string())?,
             );
         }
-    
+
         // send the request
-        let response: Response = match client
-            .get(&endpoint)
-            .headers(header_map)
-            .send()
-            .await
-        {
+        let response: Response = match client.get(&endpoint).headers(header_map).send().await {
             Ok(response) => response,
             Err(error) => return Err(error.to_string()),
         };
-    
+
         // process the response
         handle_response(response).await
     }

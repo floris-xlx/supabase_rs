@@ -1,11 +1,9 @@
-use anyhow::{ Result, Error };
-use serde_json::Value;
 use crate::graphql::error_types::{
-    illegal_table_name,
-    table_does_not_exist,
-    field_does_not_exist_on_table,
+    field_does_not_exist_on_table, illegal_table_name, table_does_not_exist,
     table_name_does_not_end_with_collection,
 };
+use anyhow::{Error, Result};
+use serde_json::Value;
 
 pub fn parse_outer(query: &Value) -> bool {
     if let Some(query_str) = query.as_str() {
@@ -21,13 +19,13 @@ pub fn parse_outer(query: &Value) -> bool {
 }
 
 /// Get the table name from the query
-/// 
+///
 /// # Arguments
 /// - `query` - A JSON Value containing the query
-/// 
+///
 /// # Returns
 /// A `Result` containing the table name as a `String` if successful, or an `Error` if the outer structure is invalid
-/// 
+///
 pub fn get_table_name(query: &Value) -> Result<String, Error> {
     if parse_outer(query) {
         let query_str: &str = query["query"].as_str().unwrap_or("");
