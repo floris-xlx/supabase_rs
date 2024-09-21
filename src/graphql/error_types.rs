@@ -13,8 +13,7 @@
 //!     
 //!
 
-use anyhow::{Error as AnyError, Result};
-use serde_json::Value;
+use anyhow::Error as AnyError;
 
 /// Generates an error message for an illegal table name.
 ///

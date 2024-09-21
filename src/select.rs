@@ -137,9 +137,6 @@ use reqwest::header::{HeaderName, HeaderValue};
 use reqwest::{Client, Response};
 use serde_json::Value;
 
-#[cfg(feature = "nightly")]
-use crate::nightly::print_if_dev;
-
 impl SupabaseClient {
     /// Initializes a `QueryBuilder` for a specified table.
     ///

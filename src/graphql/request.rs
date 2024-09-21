@@ -7,14 +7,13 @@ use crate::graphql::error_types::{
 use crate::graphql::parse::get_table_name;
 use crate::graphql::utils::format_endpoint::endpoint;
 use crate::graphql::utils::headers::headers;
-use crate::graphql::{Query, RootTypes};
+use crate::graphql::RootTypes;
 use crate::SupabaseClient;
 
 use anyhow::{Error as AnyError, Result};
 use regex::Regex;
 use reqwest::Client;
-use serde_json::{json, Value};
-use std::collections::HashMap;
+use serde_json::Value;
 
 #[derive(Debug)]
 pub struct Request {
@@ -84,7 +83,7 @@ impl Request {
             let message = errors[0]["message"].clone();
             let error_message: String = serde_json::from_value(message)
                 .unwrap_or_else(|_| "Failed to deserialize error message".to_string());
-            let error_message = error_router(&error_message, "eads", &table_name).await;
+            let _error_message = error_router(&error_message, "eads", &table_name).await;
 
             let parsed_data: Value = data["errors"][0]["message"]
                 .to_string()

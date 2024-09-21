@@ -1,11 +1,7 @@
-use anyhow::{Error as AnyError, Result};
-use serde_json::Value;
+use anyhow::Result;
 
 use crate::graphql::parse::parse_outer;
-use crate::graphql::utils::format_endpoint::endpoint;
-use crate::graphql::utils::headers::headers;
-use crate::graphql::{Query, RootTypes};
-use crate::SupabaseClient;
+use crate::graphql::Query;
 
 // FIX ME: This is a temporary fix to suppress the warning
 impl Query {

@@ -63,7 +63,7 @@ impl SupabaseStorage {
     /// storage.save("local_file.txt").await.unwrap();
     /// ```
     pub async fn save(&self, file_path: &str) -> Result<(), Error> {
-        let bytes: Vec<u8> = self.download().await.map_err(|e| Error::new(e))?;
+        let bytes: Vec<u8> = self.download().await.map_err(Error::new)?;
 
         let mut file: File = File::create(file_path)?;
         file.write_all(&bytes)?;
