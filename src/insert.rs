@@ -22,7 +22,7 @@
 //! async fn main() {
 //!     let client = SupabaseClient::new(
 //!         "your_supabase_url".to_string(), "your_supabase_key".to_string()
-//!     );
+//!     ).unwrap();
 //!     let insert_result = client.insert(
 //!         "your_table_name", json!({"column_name": "value"})
 //!     ).await;
@@ -38,7 +38,7 @@
 //! async fn main() {
 //!     let client = SupabaseClient::new(
 //!         "your_supabase_url".to_string(), "your_supabase_key".to_string()
-//!     );
+//!     ).unwrap();
 //!     let unique_insert_result = client.insert_if_unique(
 //!         "your_table_name", json!({"unique_column_name": "unique_value"})
 //!     ).await;
@@ -51,7 +51,7 @@
 //! and `Err(String)` contains an error message in case of failure.
 
 use crate::{generate_random_id, SupabaseClient};
-use reqwest::{Client, Response};
+use reqwest::Response;
 use serde_json::{json, Value};
 
 impl SupabaseClient {
@@ -83,12 +83,6 @@ impl SupabaseClient {
     pub async fn insert(&self, table_name: &str, mut body: Value) -> Result<String, String> {
         let endpoint: String = format!("{}/rest/v1/{}", self.url, table_name);
 
-        #[cfg(feature = "rustls")]
-        let client = Client::builder().use_rustls_tls().build().unwrap();
-
-        #[cfg(not(feature = "rustls"))]
-        let client = Client::new();
-
         #[cfg(feature = "nightly")]
         use crate::nightly::print_nightly_warning;
         #[cfg(feature = "nightly")]
@@ -97,7 +91,8 @@ impl SupabaseClient {
         let new_id: i64 = generate_random_id();
         body["id"] = json!(new_id);
 
-        let response: Response = match client
+        let response: Response = match self
+            .client
             .post(&endpoint)
             .header("apikey", &self.api_key)
             .header("Authorization", format!("Bearer {}", &self.api_key))
@@ -156,18 +151,13 @@ impl SupabaseClient {
     ) -> Result<(), String> {
         let endpoint: String = format!("{}/rest/v1/{}", self.url, table_name);
 
-        #[cfg(feature = "rustls")]
-        let client = Client::builder().use_rustls_tls().build().unwrap();
-
-        #[cfg(not(feature = "rustls"))]
-        let client = Client::new();
-
         #[cfg(feature = "nightly")]
         use crate::nightly::print_nightly_warning;
         #[cfg(feature = "nightly")]
         print_nightly_warning();
 
-        let response: Response = match client
+        let response: Response = match self
+            .client
             .post(&endpoint)
             .header("apikey", &self.api_key)
             .header("Authorization", format!("Bearer {}", &self.api_key))
@@ -206,7 +196,7 @@ impl SupabaseClient {
     /// #[tokio::main]
     /// async fn main() {
     ///     // Initialize the Supabase client
-    ///     let client = SupabaseClient::new("your_supabase_url".to_string(), "your_supabase_key".to_string());
+    ///     let client = SupabaseClient::new("your_supabase_url".to_string(), "your_supabase_key".to_string()).unwrap();
     ///
     ///     // This will insert a new row into the table if the value is unique
     ///     let unique_insert_result = client.insert_if_unique(
@@ -300,18 +290,13 @@ impl SupabaseClient {
         };
         let endpoint: String = format!("{}/rest/v1/{}", self.url, table_name);
 
-        #[cfg(feature = "rustls")]
-        let client = Client::builder().use_rustls_tls().build().unwrap();
-
-        #[cfg(not(feature = "rustls"))]
-        let client = Client::new();
-
         #[cfg(feature = "nightly")]
         use crate::nightly::print_nightly_warning;
         #[cfg(feature = "nightly")]
         print_nightly_warning();
 
-        let response: Response = match client
+        let response: Response = match self
+            .client
             .post(&endpoint)
             .header("apikey", &self.api_key)
             .header("Authorization", format!("Bearer {}", &self.api_key))

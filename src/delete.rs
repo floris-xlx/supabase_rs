@@ -7,7 +7,7 @@
 //!     
 
 use crate::SupabaseClient;
-use reqwest::{Client, Response};
+use reqwest::Response;
 use serde_json::json;
 
 impl SupabaseClient {
@@ -32,7 +32,7 @@ impl SupabaseClient {
     ///     let client = SupabaseClient::new(
     ///         "your_supabase_url".to_string(),
     ///         "your_supabase_key".to_string()
-    ///     );
+    ///     ).unwrap();
     ///     let result = client.delete("your_table_name", "row_id").await;
     ///     match result {
     ///         Ok(_) => println!("Row deleted successfully"),
@@ -49,12 +49,6 @@ impl SupabaseClient {
         // Construct the endpoint URL for the delete operation
         let endpoint: String = format!("{}/rest/v1/{}?id=eq.{}", self.url, table_name, id);
 
-        #[cfg(feature = "rustls")]
-        let client = Client::builder().use_rustls_tls().build().unwrap();
-
-        #[cfg(not(feature = "rustls"))]
-        let client = Client::new();
-
         #[cfg(feature = "nightly")]
         use crate::nightly::print_nightly_warning;
         #[cfg(feature = "nightly")]
@@ -63,7 +57,8 @@ impl SupabaseClient {
         let body: serde_json::Value = json!({}); // this is temporary, will be used for more complex queries
 
         // Send the delete request and handle the response
-        let response: Response = match client
+        let response: Response = match self
+            .client
             .delete(&endpoint)
             .header("apikey", &self.api_key)
             .header("Authorization", &format!("Bearer {}", &self.api_key))
