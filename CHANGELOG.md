@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.4.0](https://github.com/floris-xlx/supabase_rs/compare/v0.3.5...v0.4.0) (2024-09-26)
+
+
+### Features
+
+* add upsert_without_defined_key method ([e632844](https://github.com/floris-xlx/supabase_rs/commit/e6328443168f0c427d03bb5c57c0a01d778a0c84))
+
+
+### Bug Fixes
+
+* return type of upsert_without_defined_key should be Result&lt;(), String&gt; ([eaee89b](https://github.com/floris-xlx/supabase_rs/commit/eaee89b43740f2b4bf5a8ae693669e9489de5ead))
+
 ## 0.1.0 (2024-07-10)
 
 
