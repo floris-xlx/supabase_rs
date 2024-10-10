@@ -11,7 +11,7 @@ repository = "https://github.com/floris-xlx/supabase_rs"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-reqwest = { version = "0.12.3", features = ["gzip", "json", "rustls-tls"] }
+reqwest = { version = "0.12.3", default-features = false, features = ["gzip", "json", "rustls-tls"] }
 rand = "0.8.5"
 serde_json = "1.0.111"
 tokio = { version = "1.37.0", features = ["full"] }
