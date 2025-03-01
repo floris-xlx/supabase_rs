@@ -126,6 +126,18 @@ impl QueryBuilder {
         self
     }
 
+    /// Adds a filter to the query to check if the column is null.
+    ///
+    /// # Arguments
+    /// * `column` - The column name to apply the filter.
+    ///
+    /// # Returns
+    /// Returns the `QueryBuilder` instance to allow for method chaining.
+    pub fn is_null(mut self, column: &str) -> Self {
+        self.query.add_param(column, "is.null");
+        self
+    }
+
     /// Executes the constructed query against the database.
     ///
     /// # Returns
