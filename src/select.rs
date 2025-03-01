@@ -11,6 +11,8 @@
 //! - [`lt`](#lt) - Less than the column value
 //! - [`gte`](#gte) - Greater than or equal to the column value
 //! - [`lte`](#lte) - Less than or equal to the column value
+//! - [`is_null`](#is_null) - Check if the column value is null
+//! - [`limit`](#limit) - Limit the number of rows to be returned
 //!
 //!
 //! ### Usage
