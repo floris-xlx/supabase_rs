@@ -20,6 +20,7 @@ regex = { version = "1.10.5", optional = false }
 serde = "1.0.204"
 thiserror = "1.0.63"
 
+
 [dev-dependencies]
 tokio = { version = "1.37.0", features = ["full"] }
 

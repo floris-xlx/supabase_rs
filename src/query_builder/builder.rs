@@ -114,6 +114,18 @@ impl QueryBuilder {
         self
     }
 
+    /// Adds a limit to the number of rows returned by the query.
+    ///
+    /// # Arguments
+    /// * `limit` - The maximum number of rows to return.
+    ///
+    /// # Returns
+    /// Returns the `QueryBuilder` instance to allow for method chaining.
+    pub fn limit(mut self, limit: usize) -> Self {
+        self.query.add_param("limit", &limit.to_string());
+        self
+    }
+
     /// Executes the constructed query against the database.
     ///
     /// # Returns
