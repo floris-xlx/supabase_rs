@@ -29,8 +29,8 @@ GraphQL and REST can be used together as the Client is shared from wherever it w
 - [x] Updating
 - [x] Inserting
 - [x] Inserting if unique
-- [ ] Bulk Inserting
-- [ ] Upserting
+- [x] Bulk Inserting
+- [x] Upserting
 - [ ] Bulk Upserting
 - [x] Delete (only per ID)
 - [x] Select
@@ -46,8 +46,9 @@ GraphQL and REST can be used together as the Client is shared from wherever it w
 - [x] Column is less than a value
 - [x] Column is greater than or equal to a value
 - [x] Column is less than or equal to a value
-- [ ] Order the results
-- [ ] Limit the number of rows returned
+- [x] Order the results
+- [x] Limit the number of rows returned
+- [x] Use text search
 - [ ] Retrieve as a CSV
 
 ## Storage
@@ -99,10 +100,10 @@ This is an unofficial Rust SDK for [Supabase](https://supabase.io/), since there
 ## Cargo.toml
 ```toml
 [dependencies]
-supabase_rs = "0.3.7"
+supabase_rs = "0.4.2"
 
 // With the [storage] feature
-supabase_rs = { version = "0.3.7", features = ["storage"] }
+supabase_rs = { version = "0.4.2", features = ["storage"] }
 ```
 //!
 ## Usage

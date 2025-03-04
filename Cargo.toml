@@ -1,6 +1,6 @@
 [package]
 name = "supabase_rs"
-version = "0.4.1"
+version = "0.4.2"
 edition = "2021"
 authors = ["Floris floris@xylex.ai"]
 description = "Lightweight Rust client for Supabase REST and GraphQL"
@@ -19,7 +19,6 @@ anyhow = "1.0.86"
 regex = { version = "1.10.5", optional = false }
 serde = "1.0.204"
 thiserror = "1.0.63"
-tokio = { version = "1.37.0", features = ["full"] }
 
 
 [dev-dependencies]
