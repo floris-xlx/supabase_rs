@@ -133,10 +133,13 @@ impl QueryBuilder {
     ///
     /// # Returns
     /// Returns the `QueryBuilder` instance to allow for method chaining.
-    pub fn is_null(mut self, column: &str) -> Self {
-        self.query.add_param(column, "is.null");
+    pub fn order(mut self, column: &str, ascending: bool) -> Self {
+        let order_value = if ascending { "asc" } else { "desc" };
+        self.query
+            .add_param("order", &format!("{}.{}", column, order_value));
         self
     }
+
 
     /// Executes the constructed query against the database.
     ///
