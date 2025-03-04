@@ -140,6 +140,18 @@ impl QueryBuilder {
         self
     }
 
+    /// Adds a full-text search filter to the query.
+    ///
+    /// # Arguments
+    /// * `column` - The column name to perform the text search on.
+    /// * `value` - The value to search for within the column.
+    ///
+    /// # Returns
+    /// Returns the `QueryBuilder` instance to allow for method chaining.
+    pub fn text_search(mut self, column: &str, value: &str) -> Self {
+        self.query.add_param(column, &format!("fts.{}", value));
+        self
+    }
 
     /// Executes the constructed query against the database.
     ///

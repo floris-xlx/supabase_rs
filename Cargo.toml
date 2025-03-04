@@ -19,6 +19,7 @@ anyhow = "1.0.86"
 regex = { version = "1.10.5", optional = false }
 serde = "1.0.204"
 thiserror = "1.0.63"
+tokio = { version = "1.37.0", features = ["full"] }
 
 
 [dev-dependencies]
