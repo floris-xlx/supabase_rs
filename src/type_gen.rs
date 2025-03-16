@@ -1,12 +1,12 @@
 use dotenv::dotenv;
 use std::collections::HashMap;
 use std::env;
+use std::fs::File;
 use std::fs::OpenOptions;
+use std::io::Read;
 use std::io::Write;
 use std::str::Chars;
 use tokio;
-use std::fs::File;
-use std::io::Read;
 use tokio_postgres::{Client, Config, NoTls};
 
 pub async fn generate_supabase_types() {
@@ -37,6 +37,7 @@ pub async fn generate_supabase_types() {
     ";
 
     let mut table_definitions: HashMap<String, Vec<(String, String)>> = HashMap::new();
+    let mut all_columns: HashMap<String, Vec<String>> = HashMap::new();
 
     for row in client
         .query(query, &[])
@@ -71,7 +72,13 @@ pub async fn generate_supabase_types() {
         table_definitions
             .entry(table_name.clone())
             .or_insert_with(Vec::new)
-            .push((column_name, rust_type));
+            .push((column_name.clone(), rust_type));
+
+        // Track column names for the columns method
+        all_columns
+            .entry(table_name)
+            .or_insert_with(Vec::new)
+            .push(column_name);
     }
 
     let mut output: String = String::new();
@@ -90,7 +97,10 @@ pub async fn generate_supabase_types() {
         let struct_name = pascal_case(table);
 
         // Generate the struct for the table
-        output.push_str(&format!("#[derive(Debug, Serialize, Deserialize)]\npub struct {} {{\n", struct_name));
+        output.push_str(&format!(
+            "#[derive(Debug, Serialize, Deserialize)]\npub struct {} {{\n",
+            struct_name
+        ));
 
         for (col, rust_type) in columns {
             let field_name = if col == "type" {
@@ -108,9 +118,35 @@ pub async fn generate_supabase_types() {
         }
         output.push_str("}\n\n");
 
+        // Generate the columns method for this table
+        output.push_str(&format!(
+            "impl {} {{\n    pub fn columns() -> &'static [&'static str] {{\n",
+            struct_name
+        ));
+        // Add column names dynamically
+        let column_names = all_columns.get(table).unwrap();
+        output.push_str("        &[\n");
+        for col in column_names {
+            output.push_str(&format!("            \"{}\",\n", col));
+        }
+        output.push_str("        ]\n");
+        output.push_str("    }\n}\n\n");
+
         // Generate the select method for this table
         output.push_str(&format!(
-            "impl SupabaseClient {{\n    #[cfg(feature = \"nightly\")]\n    pub fn select_{}(&self) -> QueryBuilder {{\n",
+            "impl SupabaseClient {{\n    /// ### Columns\n    /// | Column Name | Type | Optional |\n    /// |-------------|------|----------|\n"
+        ));
+
+        for (col, rust_type) in columns {
+            let optional = if rust_type.contains("Option<") { "Yes" } else { "Required" };
+            output.push_str(&format!(
+                "    /// | {} | {} | {} |\n",
+                col, rust_type.replace("Option<", "").replace(">", ""), optional
+            ));
+        }
+
+        output.push_str(&format!(
+            "    #[cfg(feature = \"nightly\")]\n    pub fn select_{}(&self) -> QueryBuilder {{\n",
             snake_case(&struct_name)
         ));
 
@@ -135,8 +171,10 @@ pub async fn generate_supabase_types() {
             .open("src/lib.rs")
             .expect("Failed to open lib.rs");
         let mut contents = String::new();
-        lib_rs.read_to_string(&mut contents).expect("Failed to read lib.rs");
-        
+        lib_rs
+            .read_to_string(&mut contents)
+            .expect("Failed to read lib.rs");
+
         if !contents.contains("pub mod supabase_types;") {
             let mut lib_rs: File = OpenOptions::new()
                 .write(true)
@@ -153,8 +191,10 @@ pub async fn generate_supabase_types() {
             .open("src/mod.rs")
             .expect("Failed to open mod.rs");
         let mut contents = String::new();
-        mod_rs.read_to_string(&mut contents).expect("Failed to read mod.rs");
-        
+        mod_rs
+            .read_to_string(&mut contents)
+            .expect("Failed to read mod.rs");
+
         if !contents.contains("pub mod supabase_types;") {
             let mut mod_rs: File = OpenOptions::new()
                 .write(true)
@@ -168,7 +208,8 @@ pub async fn generate_supabase_types() {
     }
 
     if fs::metadata("src/supabase_types.rs").is_ok() {
-        fs::remove_file("src/supabase_types.rs").expect("Failed to remove existing supabase_types.rs");
+        fs::remove_file("src/supabase_types.rs")
+            .expect("Failed to remove existing supabase_types.rs");
     }
 
     let mut file = OpenOptions::new()
