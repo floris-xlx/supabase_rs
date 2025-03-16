@@ -86,8 +86,8 @@ pub async fn generate_supabase_types(user: &str, password: &str) {
     output.push_str("use chrono::{NaiveDate, NaiveDateTime};\n");
     output.push_str("use uuid::Uuid;\n");
     output.push_str("use rust_decimal::Decimal;\n\n");
-    output.push_str("use crate::SupabaseClient;\n");
-    output.push_str("use crate::query::QueryBuilder;\n\n");
+    output.push_str("use supabase_rs::SupabaseClient;\n");
+    output.push_str("use supabase_rs::query::QueryBuilder;\n\n");
 
     let mut all_tables: Vec<String> = Vec::new();
 
