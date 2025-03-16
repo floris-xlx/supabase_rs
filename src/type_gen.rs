@@ -9,13 +9,13 @@ use std::str::Chars;
 use tokio;
 use tokio_postgres::{Client, Config, NoTls};
 
-pub async fn generate_supabase_types() {
+pub async fn generate_supabase_types(user: &str, password: &str) {
     let mut config: Config = Config::new();
     config
         .host("aws-0-eu-central-1.pooler.supabase.com")
         .port(6543)
-        .user(&env::var("SUPABASE_USER").expect("SUPABASE_USER must be set"))
-        .password(&env::var("SUPABASE_PASSWORD").expect("SUPABASE_PASSWORD must be set"))
+        .user(user)
+        .password(password)
         .dbname("postgres");
 
     let (client, connection) = config

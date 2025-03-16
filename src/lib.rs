@@ -401,4 +401,3 @@ pub fn generate_random_id() -> i64 {
     let mut rng: ThreadRng = rand::thread_rng();
     rng.gen_range(0..i64::MAX)
 }
-pub mod supabase_types;
