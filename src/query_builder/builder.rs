@@ -22,7 +22,7 @@ impl QueryBuilder {
 
     pub fn columns(mut self, columns: Vec<&str>) -> QueryBuilder {
         // add query params &select=column1,column2
-        let columns_str = columns.join(",");
+        let columns_str: String = columns.join(",");
         self.query.add_param("select", &columns_str);
         self
     }
@@ -134,7 +134,7 @@ impl QueryBuilder {
     /// # Returns
     /// Returns the `QueryBuilder` instance to allow for method chaining.
     pub fn order(mut self, column: &str, ascending: bool) -> Self {
-        let order_value = if ascending { "asc" } else { "desc" };
+        let order_value: &str = if ascending { "asc" } else { "desc" };
         self.query
             .add_param("order", &format!("{}.{}", column, order_value));
         self
@@ -270,6 +270,7 @@ impl Query {
                 .join("&")
                 .as_str(),
         );
+
         if !self.filters.is_empty() {
             // add filters
             if !query_string.is_empty() {
@@ -289,6 +290,7 @@ impl Query {
             if !query_string.is_empty() {
                 query_string.push('&');
             }
+
             query_string.push_str(
                 self.sorts
                     .iter()

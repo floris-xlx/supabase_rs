@@ -339,6 +339,8 @@ pub mod select;
 pub mod success;
 pub mod tests;
 pub mod update;
+pub mod type_gen;
+
 
 pub mod graphql;
 pub mod nightly;
@@ -399,3 +401,4 @@ pub fn generate_random_id() -> i64 {
     let mut rng: ThreadRng = rand::thread_rng();
     rng.gen_range(0..i64::MAX)
 }
+pub mod supabase_types;

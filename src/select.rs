@@ -136,6 +136,10 @@ use reqwest::header::{HeaderName, HeaderValue};
 use reqwest::Response;
 use serde_json::Value;
 
+#[cfg(feature = "nightly")]
+use crate::nightly::print_nightly_warning;
+
+
 impl SupabaseClient {
     /// Initializes a `QueryBuilder` for a specified table.
     ///
@@ -144,10 +148,12 @@ impl SupabaseClient {
     ///
     /// # Returns
     /// A `QueryBuilder` instance configured for the specified table.
-    // #[deprecate_until(remove = ">= 0.4.x", note = "`.select()` will be deprecated. Use `.from()` to specify the table name and then use `.select()` to pass the query string. This change will align with the official Supabase documentation for other languages.")]
+    // #[deprecate_until(remove = ">= 0.4.4", note = "`.select()` will be deprecated. Use `.from()` to specify the table name and then use `.select()` to pass the query string. This change will align with the official Supabase documentation for other languages.")]
+    // #[cfg(not(feature = "nightly"))]
     pub fn select(&self, table_name: &str) -> QueryBuilder {
         QueryBuilder::new(self.clone(), table_name)
     }
+
 
     pub fn from(&self, table_name: &str) -> QueryBuilder {
         QueryBuilder::new(self.clone(), table_name)
