@@ -150,7 +150,6 @@ impl SupabaseClient {
         QueryBuilder::new(self.clone(), table_name)
     }
 
-
     pub fn from(&self, table_name: &str) -> QueryBuilder {
         QueryBuilder::new(self.clone(), table_name)
     }

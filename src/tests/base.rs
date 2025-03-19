@@ -24,7 +24,8 @@
 mod methods {
     // import local method tests
     use crate::tests::methods::{
-        delete::delete as test_delete, insert::insert as test_insert,
+        bulk_insert::bulk_insert as test_bulk_insert, delete::delete as test_delete,
+        insert::insert as test_insert,
         insert_if_unique_numeric::insert_if_unique_numeric as test_insert_if_unique_numeric,
         insert_if_unique_string::insert_if_unique_string as test_insert_if_unique_string,
         insert_numeric::insert_numeric as test_insert_numeric,
@@ -42,6 +43,11 @@ mod methods {
     #[tokio::test]
     async fn insert() {
         test_insert().await;
+    }
+
+    #[tokio::test]
+    async fn bulk_insert() {
+        test_bulk_insert().await;
     }
 
     /// Tests the `insert` with a string method of `SupabaseClient`.

@@ -1,6 +1,7 @@
 pub mod base;
 
 pub mod methods {
+    pub mod bulk_insert;
     pub mod delete;
     pub mod init;
     pub mod insert;

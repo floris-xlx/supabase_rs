@@ -103,7 +103,6 @@ impl SupabaseClient {
             Err(e) => return Err(e.to_string()),
         };
 
-        dbg!(&response);
         if response.status().is_success() {
             Ok(())
         } else if response.status().as_u16() == 409 {
