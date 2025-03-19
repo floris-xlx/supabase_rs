@@ -47,7 +47,8 @@ impl SupabaseClient {
         //body: Value
     ) -> Result<(), String> {
         // Construct the endpoint URL for the delete operation
-        let endpoint: String = format!("{}/rest/v1/{}?id=eq.{}", self.url, table_name, id);
+        let endpoint: String = self.endpoint(table_name);
+        let endpoint: String = format!("{endpoint}?id=eq.{id}");
 
         #[cfg(feature = "nightly")]
         use crate::nightly::print_nightly_warning;

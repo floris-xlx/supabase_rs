@@ -66,10 +66,8 @@ impl SupabaseClient {
         body: Value,
     ) -> Result<String, String> {
         // endpoint and client construction
-        let endpoint: String = format!(
-            "{}/rest/v1/{}?{}=eq.{}",
-            self.url, table_name, column_name, id
-        );
+        let endpoint: String = self.endpoint(table_name);
+        let endpoint: String = format!("{endpoint}?{column_name}=eq.{id}");
 
         let response: Response = match self
             .client
@@ -114,7 +112,7 @@ impl SupabaseClient {
         table_name: &str,
         body: Value,
     ) -> Result<(), String> {
-        let endpoint: String = format!("{}/rest/v1/{}", self.url, table_name);
+        let endpoint: String = self.endpoint(table_name);
 
         #[cfg(feature = "nightly")]
         use crate::nightly::print_nightly_warning;
