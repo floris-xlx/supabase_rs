@@ -47,8 +47,8 @@
 //!
 //! ## Error Handling
 //!
-//! Both `insert` and `insert_if_unique` methods return a `Result<String, String>`, where `Ok(String)` contains the ID of the inserted row,
-//! and `Err(String)` contains an error message in case of failure.
+//! Both `insert` and `insert_if_unique` methods return a `Result<(), String>`.
+//! `Err(String)` contains an error message in case of failure.
 
 use crate::SupabaseClient;
 use reqwest::Response;
@@ -78,7 +78,7 @@ impl SupabaseClient {
     ///
     ///
     /// # Returns
-    /// This method returns a `Result<String, String>`. On success, it returns `Ok(())`,
+    /// This method returns a `Result<(), String>`. On success, it returns `Ok(())`,
     /// and on failure, it returns `Err(String)` with an error message.
     pub async fn insert(&self, table_name: &str, body: Value) -> Result<(), String> {
         let endpoint: String = format!("{}/rest/v1/{}", self.url, table_name);
