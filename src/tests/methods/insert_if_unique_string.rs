@@ -8,7 +8,7 @@ pub async fn insert_if_unique_string() {
         // Usage example
         let random_string: String = rand::random::<u64>().to_string();
 
-        let response_inner: Result<String, String> = supabase_client
+        let response_inner: Result<(), String> = supabase_client
             .insert_if_unique(
                 "test",
                 json!({

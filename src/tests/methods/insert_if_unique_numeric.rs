@@ -8,7 +8,7 @@ pub async fn insert_if_unique_numeric() {
         // Usage example
         let random_number: u64 = rand::random::<u64>();
 
-        let response_inner: Result<String, String> = supabase_client
+        let response_inner: Result<(), String> = supabase_client
             .insert_if_unique(
                 "test",
                 json!({

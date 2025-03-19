@@ -50,9 +50,9 @@
 //! Both `insert` and `insert_if_unique` methods return a `Result<String, String>`, where `Ok(String)` contains the ID of the inserted row,
 //! and `Err(String)` contains an error message in case of failure.
 
-use crate::{generate_random_id, SupabaseClient};
+use crate::SupabaseClient;
 use reqwest::Response;
-use serde_json::{json, Value};
+use serde_json::Value;
 
 impl SupabaseClient {
     /// Inserts a new row into the specified table with automatically generated ID for column `id`.
@@ -78,18 +78,15 @@ impl SupabaseClient {
     ///
     ///
     /// # Returns
-    /// This method returns a `Result<String, String>`. On success, it returns `Ok(String)` with the new row's ID,
+    /// This method returns a `Result<String, String>`. On success, it returns `Ok(())`,
     /// and on failure, it returns `Err(String)` with an error message.
-    pub async fn insert(&self, table_name: &str, mut body: Value) -> Result<String, String> {
+    pub async fn insert(&self, table_name: &str, body: Value) -> Result<(), String> {
         let endpoint: String = format!("{}/rest/v1/{}", self.url, table_name);
 
         #[cfg(feature = "nightly")]
         use crate::nightly::print_nightly_warning;
         #[cfg(feature = "nightly")]
         print_nightly_warning();
-
-        let new_id: i64 = generate_random_id();
-        body["id"] = json!(new_id);
 
         let response: Response = match self
             .client
@@ -106,8 +103,9 @@ impl SupabaseClient {
             Err(e) => return Err(e.to_string()),
         };
 
+        dbg!(&response);
         if response.status().is_success() {
-            Ok(new_id.to_string())
+            Ok(())
         } else if response.status().as_u16() == 409 {
             println!("\x1b[31mError 409: Duplicate entry. The value you're trying to insert may already exist in a column with a UNIQUE constraint.\x1b[0m");
 
@@ -207,9 +205,9 @@ impl SupabaseClient {
     /// ```
     ///
     /// # Returns
-    /// This method returns a `Result<String, String>`. On success, it returns `Ok(String)` with the new row's ID,
+    /// This method returns a `Result<(), String>`. On success, it returns `Ok(()))`,
     /// and on failure, it returns `Err(String)` with an error message indicating a duplicate entry.
-    pub async fn insert_if_unique(&self, table_name: &str, body: Value) -> Result<String, String> {
+    pub async fn insert_if_unique(&self, table_name: &str, body: Value) -> Result<(), String> {
         let conditions: &serde_json::Map<String, Value> = match body.as_object() {
             Some(map) => map,
             None => {

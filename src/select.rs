@@ -136,10 +136,6 @@ use reqwest::header::{HeaderName, HeaderValue};
 use reqwest::Response;
 use serde_json::Value;
 
-#[cfg(feature = "nightly")]
-use crate::nightly::print_nightly_warning;
-
-
 impl SupabaseClient {
     /// Initializes a `QueryBuilder` for a specified table.
     ///

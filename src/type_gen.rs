@@ -1,13 +1,11 @@
-use dotenv::dotenv;
 use std::collections::HashMap;
-use std::env;
 use std::fs::File;
 use std::fs::OpenOptions;
 use std::io::Read;
 use std::io::Write;
 use std::str::Chars;
 use tokio;
-use tokio_postgres::{Client, Config, NoTls};
+use tokio_postgres::{Config, NoTls};
 
 pub async fn generate_supabase_types(user: &str, password: &str) {
     let mut config: Config = Config::new();

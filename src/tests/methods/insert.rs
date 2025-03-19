@@ -6,7 +6,7 @@ pub async fn insert() {
     /// Performs an insert operation in an isolated scope.
     async fn insert_inner(supabase_client: SupabaseClient) -> Result<(), String> {
         // Usage example
-        let response_inner: Result<String, String> = supabase_client
+        let response_inner: Result<(), String> = supabase_client
             .insert(
                 "test",
                 json!({
