@@ -36,7 +36,7 @@ impl QueryBuilder {
     /// # Returns
     /// Returns the `QueryBuilder` instance to allow for method chaining.
     pub fn eq(mut self, column: &str, value: &str) -> Self {
-        self.query.add_param(column, &format!("eq.{}", value));
+        self.query.add_param(column, &format!("eq.{value}"));
         self
     }
 
@@ -49,7 +49,7 @@ impl QueryBuilder {
     /// # Returns
     /// Returns the `QueryBuilder` instance to allow for method chaining.
     pub fn neq(mut self, column: &str, value: &str) -> Self {
-        self.query.add_param(column, &format!("neq.{}", value));
+        self.query.add_param(column, &format!("neq.{value}"));
         self
     }
 
@@ -62,7 +62,7 @@ impl QueryBuilder {
     /// # Returns
     /// Returns the `QueryBuilder` instance to allow for method chaining.
     pub fn gt(mut self, column: &str, value: &str) -> Self {
-        self.query.add_param(column, &format!("gt.{}", value));
+        self.query.add_param(column, &format!("gt.{value}"));
         self
     }
 
@@ -75,7 +75,7 @@ impl QueryBuilder {
     /// # Returns
     /// Returns the `QueryBuilder` instance to allow for method chaining.
     pub fn lt(mut self, column: &str, value: &str) -> Self {
-        self.query.add_param(column, &format!("lt.{}", value));
+        self.query.add_param(column, &format!("lt.{value}"));
         self
     }
 
@@ -88,7 +88,7 @@ impl QueryBuilder {
     /// # Returns
     /// Returns the `QueryBuilder` instance to allow for method chaining.
     pub fn gte(mut self, column: &str, value: &str) -> Self {
-        self.query.add_param(column, &format!("gte.{}", value));
+        self.query.add_param(column, &format!("gte.{value}"));
         self
     }
 
@@ -101,7 +101,7 @@ impl QueryBuilder {
     /// # Returns
     /// Returns the `QueryBuilder` instance to allow for method chaining.
     pub fn lte(mut self, column: &str, value: &str) -> Self {
-        self.query.add_param(column, &format!("lte.{}", value));
+        self.query.add_param(column, &format!("lte.{value}"));
         self
     }
 
@@ -136,7 +136,7 @@ impl QueryBuilder {
     pub fn order(mut self, column: &str, ascending: bool) -> Self {
         let order_value: &str = if ascending { "asc" } else { "desc" };
         self.query
-            .add_param("order", &format!("{}.{}", column, order_value));
+            .add_param("order", &format!("{column}.{order_value}"));
         self
     }
 
@@ -149,7 +149,7 @@ impl QueryBuilder {
     /// # Returns
     /// Returns the `QueryBuilder` instance to allow for method chaining.
     pub fn text_search(mut self, column: &str, value: &str) -> Self {
-        self.query.add_param(column, &format!("fts.{}", value));
+        self.query.add_param(column, &format!("fts.{value}"));
         self
     }
 
@@ -255,7 +255,7 @@ impl Query {
     pub fn build(&self) -> String {
         self.params
             .iter()
-            .map(|(key, value)| format!("{}={}&", key, value))
+            .map(|(key, value)| format!("{key}={value}&"))
             .collect::<Vec<String>>()
             .join("");
 
@@ -265,7 +265,7 @@ impl Query {
         query_string.push_str(
             self.params
                 .iter()
-                .map(|(key, value)| format!("{}={}", key, value))
+                .map(|(key, value)| format!("{key}={value}"))
                 .collect::<Vec<String>>()
                 .join("&")
                 .as_str(),

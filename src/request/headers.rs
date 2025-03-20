@@ -30,7 +30,7 @@ impl Headers {
         headers.insert(HeadersTypes::ApiKey.as_str(), api_key);
         headers.insert(
             HeadersTypes::Authorization.as_str(),
-            &format!("Bearer {}", auth_token),
+            &format!("Bearer {auth_token}"),
         );
         headers
     }

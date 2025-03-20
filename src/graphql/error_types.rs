@@ -33,10 +33,7 @@ pub fn illegal_table_name(table_name: &str) -> String {
     let is_plural: &str = if amount_of_numbers > 1 { "s" } else { "" };
 
     let error: String = format!(
-        "\x1b[1;31mYour Query is invalid!!, there is a number as the first character{} in the table name: \n\n\x1b[1;34m{}\x1b[0m\n\x1b[1;34m{}\x1b[0m\n\x1b[1;31mremove these numbers and try again\x1b[0m",
-        is_plural,
-        table_name,
-        arrow_amount
+        "\x1b[1;31mYour Query is invalid!!, there is a number as the first character{is_plural} in the table name: \n\n\x1b[1;34m{table_name}\x1b[0m\n\x1b[1;34m{arrow_amount}\x1b[0m\n\x1b[1;31mremove these numbers and try again\x1b[0m"
     );
 
     print_red(&error);
@@ -62,10 +59,7 @@ pub fn illegal_field_name(field_name: &str) -> String {
     let is_plural: &str = if amount_of_numbers > 1 { "s" } else { "" };
 
     let error: String = format!(
-        "\x1b[1;31mYour Query is invalid!!, there is a number as the first character{} in the field name: \n\n\x1b[1;34m{}\x1b[0m\n\x1b[1;34m{}\x1b[0m\n\x1b[1;31mremove these numbers and try again\x1b[0m",
-        is_plural,
-        field_name,
-        arrow_amount
+        "\x1b[1;31mYour Query is invalid!!, there is a number as the first character{is_plural} in the field name: \n\n\x1b[1;34m{field_name}\x1b[0m\n\x1b[1;34m{arrow_amount}\x1b[0m\n\x1b[1;31mremove these numbers and try again\x1b[0m"
     );
 
     print_red(&error);
@@ -83,7 +77,7 @@ pub fn illegal_field_name(field_name: &str) -> String {
 ///
 /// A `String` containing the error message.
 pub fn table_does_not_exist(name: &str) -> String {
-    let error: String = format!("\x1b[1;31mTable does not exist: {}\x1b[0m", name).to_string();
+    let error: String = format!("\x1b[1;31mTable does not exist: {name}\x1b[0m");
     print_red(&error);
 
     "Table does not exist".to_string()
@@ -100,11 +94,8 @@ pub fn table_does_not_exist(name: &str) -> String {
 ///
 /// A `String` containing the error message.
 pub fn field_does_not_exist_on_table(field: &str, table: &str) -> String {
-    let error: String = format!(
-        "\x1b[1;31mField does not exist on table: \n {} -> {}\x1b[0m",
-        table, field
-    )
-    .to_string();
+    let error: String =
+        format!("\x1b[1;31mField does not exist on table: \n{table} -> {field}\x1b[0m");
 
     print_red(&error);
 
@@ -122,15 +113,14 @@ pub fn field_does_not_exist_on_table(field: &str, table: &str) -> String {
 /// A `String` containing the error message.
 pub fn table_name_does_not_end_with_collection(table_name: &str) -> String {
     let error: String = format!(
-        "\x1b[1;31mTable name does not end with \x1b[1;34m`Collection`\x1b[1;31m: {}\x1b[0m",
-        table_name
+        "\x1b[1;31mTable name does not end with \x1b[1;34m`Collection`\x1b[1;31m: {table_name}\x1b[0m"
     )
     .to_string();
     let arrow_amount: String = "^".repeat(table_name.len());
 
     print_red(&error);
-    println!("\x1b[1;34m{}\x1b[0m\x1b[1;32mCollection\x1b[0m", table_name);
-    println!("\x1b[1;34m{}\x1b[0m", arrow_amount);
+    println!("\x1b[1;34m{table_name}\x1b[0m\x1b[1;32mCollection\x1b[0m");
+    println!("\x1b[1;34m{arrow_amount}\x1b[0m");
     print_red("Add Collection to the end of the table name and try again");
 
     "Table name does not end with Collection".to_string()
@@ -146,7 +136,7 @@ pub fn table_name_does_not_end_with_collection(table_name: &str) -> String {
 ///
 /// An `AnyError` containing the formatted error message.
 pub fn failed_to_parse_json(error: String) -> AnyError {
-    let error: String = format!("Failed to parse JSON: \n{}", error);
+    let error: String = format!("Failed to parse JSON: \n{error}");
 
     print_red(&error);
 
@@ -159,5 +149,5 @@ pub fn failed_to_parse_json(error: String) -> AnyError {
 ///
 /// * `error` - A string slice that holds the error message.
 pub fn print_red(error: &str) {
-    println!("\x1b[1;31m{}\x1b[0m", error);
+    println!("\x1b[1;31m{error}\x1b[0m");
 }
