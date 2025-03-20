@@ -1,7 +1,7 @@
 //! Handles user deletion operations
 
 use crate::{AuthClient, AuthError};
-use tracing::{debug, instrument};
+use tracing::instrument;
 use uuid::Uuid;
 
 impl AuthClient {

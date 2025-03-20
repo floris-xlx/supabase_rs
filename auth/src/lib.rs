@@ -26,7 +26,7 @@ mod signup;
 mod util;
 
 /// Main client for interacting with Supabase Auth
-#[derive(Clone, Debug)]
+#[derive(Clone)]
 pub struct AuthClient {
     /// HTTP client for making requests
     http_client: reqwest::Client,
@@ -35,7 +35,7 @@ pub struct AuthClient {
     /// Anonymous API key for authentication
     supabase_anon_key: String,
     /// Client for making PostgreSQL REST API calls
-    #[allow(unused)]
+    #[allow(dead_code)]
     postgrest_client: Postgrest,
 }
 
