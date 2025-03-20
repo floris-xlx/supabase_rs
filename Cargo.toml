@@ -1,23 +1,52 @@
-[package]
-name = "supabase_rs"
-version = "0.4.3"
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+
+[workspace]
+members = [
+    "supabase",
+]
+
+resolver = "2"
+
+[workspace.package]
+version = "0.43.0"
 edition = "2021"
+rust-version = "1.74.0"
+keywords = ["avro", "data", "serialization"]
+categories = ["encoding"]
+documentation = "https://docs.rs/apache-avro"
 authors = ["Floris floris@xylex.ai"]
 description = "Lightweight Rust client for Supabase REST and GraphQL"
 license = "MIT"
 readme = "README.md"
 repository = "https://github.com/floris-xlx/supabase_rs"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
-[dependencies]
+# dependencies used by more than one members
+[workspace.dependencies]
+log = { default-features = false, version = "0.4.26" }
+serde = { default-features = false, version = "1.0.219", features = ["derive"] }
+serde_bytes = { default-features = false, version = "0.11.17", features = ["std"] }
+serde_json = { default-features = false, version = "1.0.140", features = ["std"] }
 reqwest = { version = "0.12.3", default-features = false, features = ["gzip", "json"] }
 rand = "0.8.5"
-serde_json = "1.0.111"
 dotenv = "0.15.0"
 anyhow = "1.0.86"
 regex = { version = "1.10.5", optional = false }
-serde  = { version = "1.0.196", features = ["derive"] }
 thiserror = "1.0.63"
 tokio = { version = "1.37.0", features = ["full"] }
 postgres = "0.19.10"
@@ -25,18 +54,3 @@ tokio-postgres = "0.7.13"
 uuid = { version = "1.16.0", features = ["serde"] }
 chrono = { version = "0.4.40", features = ["serde"] }
 rust_decimal = "1.36.0"
-
-[dev-dependencies]
-tokio = { version = "1.37.0", features = ["full"] }
-
-[features]
-default = ["native_tls", "nightly"]
-nightly = []
-storage = []
-rustls = ["reqwest/rustls-tls"]
-native_tls = ["reqwest/native-tls"]
-
-# default = ["nightly"]
-# # 
-# # 
-# realtime = []
