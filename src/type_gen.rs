@@ -1,13 +1,11 @@
-use dotenv::dotenv;
 use std::collections::HashMap;
-use std::env;
 use std::fs::File;
 use std::fs::OpenOptions;
 use std::io::Read;
 use std::io::Write;
 use std::str::Chars;
 use tokio;
-use tokio_postgres::{Client, Config, NoTls};
+use tokio_postgres::{Config, NoTls};
 
 pub async fn generate_supabase_types(user: &str, password: &str) {
     let mut config: Config = Config::new();
@@ -25,7 +23,7 @@ pub async fn generate_supabase_types(user: &str, password: &str) {
 
     tokio::spawn(async move {
         if let Err(e) = connection.await {
-            eprintln!("connection error: {}", e);
+            eprintln!("connection error: {e}");
         }
     });
 
@@ -64,7 +62,7 @@ pub async fn generate_supabase_types(user: &str, password: &str) {
         };
 
         let rust_type = if is_nullable == "YES" {
-            format!("Option<{}>", base_rust_type)
+            format!("Option<{base_rust_type}>")
         } else {
             base_rust_type.to_string()
         };
@@ -109,25 +107,24 @@ pub async fn generate_supabase_types(user: &str, password: &str) {
                 col.clone()
             };
             let rename_attr: String = if col == "type" {
-                format!("    #[serde(rename = \"{}\")]\n", col)
+                format!("    #[serde(rename = \"{col}\")]\n")
             } else {
                 String::new()
             };
             output.push_str(&rename_attr);
-            output.push_str(&format!("    pub {}: {},\n", field_name, rust_type));
+            output.push_str(&format!("    pub {field_name}: {rust_type},\n"));
         }
         output.push_str("}\n\n");
 
         // Generate the columns method for this table
         output.push_str(&format!(
-            "impl {} {{\n    pub fn columns() -> &'static [&'static str] {{\n",
-            struct_name
+            "impl {struct_name} {{\n    pub fn columns() -> &'static [&'static str] {{\n"
         ));
         // Add column names dynamically
         let column_names = all_columns.get(table).unwrap();
         output.push_str("        &[\n");
         for col in column_names {
-            output.push_str(&format!("            \"{}\",\n", col));
+            output.push_str(&format!("            \"{col}\",\n"));
         }
         output.push_str("        ]\n");
         output.push_str("    }\n}\n\n");
@@ -138,10 +135,14 @@ pub async fn generate_supabase_types(user: &str, password: &str) {
         ));
 
         for (col, rust_type) in columns {
-            let optional = if rust_type.contains("Option<") { "Yes" } else { "Required" };
+            let optional = if rust_type.contains("Option<") {
+                "Yes"
+            } else {
+                "Required"
+            };
             output.push_str(&format!(
-                "    /// | {} | {} | {} |\n",
-                col, rust_type.replace("Option<", "").replace(">", ""), optional
+                "    /// | {col} | {} | {optional} |\n",
+                rust_type.replace("Option<", "").replace(">", "")
             ));
         }
 
@@ -151,15 +152,14 @@ pub async fn generate_supabase_types(user: &str, password: &str) {
         ));
 
         output.push_str(&format!(
-            "        QueryBuilder::new(self.clone(), \"{}\")\n    }}\n}}\n\n",
-            table
+            "        QueryBuilder::new(self.clone(), \"{table}\")\n    }}\n}}\n\n"
         ));
     }
 
     // Add a part that contains all tables
     output.push_str("pub const ALL_TABLES: &[&str] = &[\n");
     for table in all_tables {
-        output.push_str(&format!("    \"{}\",\n", table));
+        output.push_str(&format!("    \"{table}\",\n"));
     }
     output.push_str("];\n\n");
 
