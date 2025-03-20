@@ -12,6 +12,8 @@ pub enum ErrorTypes {
     ApiKeyMissing,
     #[error("Authorization failed")]
     AuthorizationFailed,
+    #[error("Authentication failed")]
+    AuthenticationFailed,
     #[error("Invalid query")]
     InvalidQuery,
     #[error("Reqwest error: {0}")]
@@ -32,6 +34,10 @@ pub async fn api_key_missing_error() -> std::result::Result<(), Error> {
 
 pub async fn authorization_failed_error() -> std::result::Result<(), Error> {
     Err(Error::msg("SUPABASE_RS: Authorization failed"))
+}
+
+pub async fn authentication_failed_error() -> std::result::Result<(), Error> {
+    Err(Error::msg("SUPABASE_RS: Authentication failed"))
 }
 
 pub async fn invalid_query_error() -> std::result::Result<(), Error> {

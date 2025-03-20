@@ -4,7 +4,7 @@
 //! It handles authentication operations like signup, signin, token refresh,
 //! and user management.
 
-use std::fmt::{Display, Formatter};
+use std::fmt::{Debug, Display, Formatter};
 
 use postgrest::Postgrest;
 use serde::{Deserialize, Serialize};
@@ -25,8 +25,16 @@ mod signin_with_password;
 mod signup;
 mod util;
 
-/// Main client for interacting with Supabase Auth
 #[derive(Clone)]
+struct PostgrestNewtype(Postgrest);
+
+impl Debug for PostgrestNewtype {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        f.debug_tuple("Postgrest").finish()
+    }
+}
+/// Main client for interacting with Supabase Auth
+#[derive(Clone, Debug)]
 pub struct AuthClient {
     /// HTTP client for making requests
     http_client: reqwest::Client,
@@ -36,7 +44,7 @@ pub struct AuthClient {
     supabase_anon_key: String,
     /// Client for making PostgreSQL REST API calls
     #[allow(dead_code)]
-    postgrest_client: Postgrest,
+    postgrest_client: PostgrestNewtype,
 }
 
 impl AuthClient {
@@ -53,10 +61,17 @@ impl AuthClient {
             http_client: reqwest::Client::new(),
             supabase_api_url: api_url.to_owned(),
             supabase_anon_key: anon_key.to_owned(),
-            postgrest_client: Postgrest::new(format!("{}/rest/v1/", api_url.to_owned()))
-                .schema("auth")
-                .insert_header("apikey", anon_key.to_owned()),
+            postgrest_client: PostgrestNewtype(
+                Postgrest::new(format!("{}/rest/v1/", api_url.to_owned()))
+                    .schema("auth")
+                    .insert_header("apikey", anon_key.to_owned()),
+            ),
         })
+    }
+
+    #[allow(dead_code)]
+    fn postgrest(&self) -> &Postgrest {
+        &self.postgrest_client.0
     }
 }
 

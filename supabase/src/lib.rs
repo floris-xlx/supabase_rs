@@ -353,6 +353,11 @@ pub mod storage;
 
 use errors::Result;
 
+#[cfg(feature = "auth")]
+use crate::errors::ErrorTypes;
+#[cfg(feature = "auth")]
+use supabase_auth_rs::AuthClient;
+
 /// A client structure for interacting with Supabase services.
 ///
 /// This structure holds the necessary details to make requests to the Supabase API.
@@ -365,7 +370,9 @@ use errors::Result;
 pub struct SupabaseClient {
     url: String,
     api_key: String,
-    client: reqwest::Client,
+    client: Client,
+    #[cfg(feature = "auth")]
+    auth_client: AuthClient,
 }
 
 impl SupabaseClient {
@@ -387,6 +394,12 @@ impl SupabaseClient {
         #[cfg(feature = "rustls")]
         let client = Client::builder().use_rustls_tls().build()?;
 
+        #[cfg(feature = "auth")]
+        let auth_client = match AuthClient::new(&supabase_url, &private_key) {
+            Ok(client) => client,
+            Err(_err) => return Err(ErrorTypes::AuthenticationFailed),
+        };
+
         #[cfg(not(feature = "rustls"))]
         let client = Client::new();
 
@@ -394,7 +407,14 @@ impl SupabaseClient {
             url: supabase_url,
             api_key: private_key,
             client,
+            #[cfg(feature = "auth")]
+            auth_client,
         })
+    }
+
+    #[cfg(feature = "auth")]
+    pub fn auth(&self) -> &AuthClient {
+        &self.auth_client
     }
 
     /// Returns the base URL of the Supabase project and table.

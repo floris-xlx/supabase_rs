@@ -1,5 +1,7 @@
 pub mod base;
 
+pub mod auth;
+
 pub mod methods {
     pub mod delete;
     pub mod init;
