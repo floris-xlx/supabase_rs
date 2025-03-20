@@ -6,6 +6,7 @@
 //! ## Usage
 //!     
 
+use crate::request::headers::HeadersTypes;
 use crate::SupabaseClient;
 use reqwest::Response;
 use serde_json::json;
@@ -61,9 +62,13 @@ impl SupabaseClient {
         let response: Response = match self
             .client
             .delete(&endpoint)
-            .header("apikey", &self.api_key)
-            .header("Authorization", &format!("Bearer {}", &self.api_key))
-            .header("Content-Type", "application/json")
+            .header(HeadersTypes::ApiKey, &self.api_key)
+            .header(
+                HeadersTypes::Authorization,
+                format!("Bearer {}", &self.api_key),
+            )
+            .header(HeadersTypes::ContentType, "application/json")
+            .header(HeadersTypes::ClientInfo, &crate::client_info())
             .body(body.to_string())
             .send()
             .await

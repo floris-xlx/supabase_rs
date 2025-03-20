@@ -47,6 +47,7 @@
 //!
 //! Both `update` and `upsert` methods return a `Result<(), String>`, where `Ok(())` indicates a successful operation,
 //! and `Err(String)` contains an error message in case of failure.
+use crate::request::headers::HeadersTypes;
 use crate::SupabaseClient;
 use reqwest::Response;
 use serde_json::{json, Value};
@@ -72,9 +73,13 @@ impl SupabaseClient {
         let response: Response = match self
             .client
             .patch(&endpoint)
-            .header("apikey", &self.api_key)
-            .header("Authorization", &format!("Bearer {}", &self.api_key))
-            .header("Content-Type", "application/json")
+            .header(HeadersTypes::ApiKey, &self.api_key)
+            .header(
+                HeadersTypes::Authorization,
+                format!("Bearer {}", &self.api_key),
+            )
+            .header(HeadersTypes::ContentType, "application/json")
+            .header(HeadersTypes::ClientInfo, &crate::client_info())
             .body(body.to_string())
             .send()
             .await
@@ -122,10 +127,13 @@ impl SupabaseClient {
         let response: Response = match self
             .client
             .post(&endpoint)
-            .header("apikey", &self.api_key)
-            .header("Authorization", format!("Bearer {}", &self.api_key))
-            .header("Content-Type", "application/json")
-            .header("x_client_info", "supabase-rs/0.3.1")
+            .header(HeadersTypes::ApiKey, &self.api_key)
+            .header(
+                HeadersTypes::Authorization,
+                format!("Bearer {}", &self.api_key),
+            )
+            .header(HeadersTypes::ContentType, "application/json")
+            .header(HeadersTypes::ClientInfo, &crate::client_info())
             .header("Prefer", "resolution=merge-duplicates")
             .header("Prefer", "return=representation")
             .body(body.to_string())

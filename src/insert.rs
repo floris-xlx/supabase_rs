@@ -50,6 +50,7 @@
 //! Both `insert` and `insert_if_unique` methods return a `Result<String, String>`, where `Ok(String)` contains the ID of the inserted row,
 //! and `Err(String)` contains an error message in case of failure.
 
+use crate::request::headers::HeadersTypes;
 use crate::{generate_random_id, SupabaseClient};
 use reqwest::Response;
 use serde_json::{json, Value};
@@ -94,10 +95,13 @@ impl SupabaseClient {
         let response: Response = match self
             .client
             .post(&endpoint)
-            .header("apikey", &self.api_key)
-            .header("Authorization", format!("Bearer {}", &self.api_key))
-            .header("Content-Type", "application/json")
-            .header("x_client_info", "supabase-rs/0.3.7")
+            .header(HeadersTypes::ApiKey, &self.api_key)
+            .header(
+                HeadersTypes::Authorization,
+                format!("Bearer {}", &self.api_key),
+            )
+            .header(HeadersTypes::ContentType, "application/json")
+            .header(HeadersTypes::ClientInfo, &crate::client_info())
             .body(body.to_string())
             .send()
             .await
@@ -159,10 +163,13 @@ impl SupabaseClient {
         let response: Response = match self
             .client
             .post(&endpoint)
-            .header("apikey", &self.api_key)
-            .header("Authorization", format!("Bearer {}", &self.api_key))
-            .header("Content-Type", "application/json")
-            .header("x_client_info", "supabase-rs/0.3.7")
+            .header(HeadersTypes::ApiKey, &self.api_key)
+            .header(
+                HeadersTypes::Authorization,
+                format!("Bearer {}", &self.api_key),
+            )
+            .header(HeadersTypes::ContentType, "application/json")
+            .header(HeadersTypes::ClientInfo, &crate::client_info())
             .body(body.to_string())
             .send()
             .await
@@ -298,10 +305,13 @@ impl SupabaseClient {
         let response: Response = match self
             .client
             .post(&endpoint)
-            .header("apikey", &self.api_key)
-            .header("Authorization", format!("Bearer {}", &self.api_key))
-            .header("Content-Type", "application/json")
-            .header("x_client_info", "supabase-rs/0.3.7")
+            .header(HeadersTypes::ApiKey, &self.api_key)
+            .header(
+                HeadersTypes::Authorization,
+                format!("Bearer {}", &self.api_key),
+            )
+            .header(HeadersTypes::ContentType, "application/json")
+            .header(HeadersTypes::ClientInfo, &crate::client_info())
             .body(body.to_string())
             .send()
             .await
