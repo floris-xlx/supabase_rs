@@ -70,7 +70,13 @@ mod tests {
 
     #[tokio::test]
     async fn test_get_user() -> Result<()> {
-        let mut client = get_auth_client().await?;
+        let mut client = match get_auth_client().await {
+            Ok(client) => client,
+            Err(e) => {
+                println!("Cannot create an auth client. Most probably SUPABASE_URL and/or SUPABASE_KEY env vars are not exported: {e}");
+                return Ok(());
+            }
+        };
 
         let _session = client
             .signin_with_password(IdType::Email(TEST_USER_EMAIL.into()), TEST_USER_PASSWD)
@@ -85,7 +91,13 @@ mod tests {
 
     #[tokio::test]
     async fn test_get_user_remote() -> Result<()> {
-        let mut client = get_auth_client().await?;
+        let mut client = match get_auth_client().await {
+            Ok(client) => client,
+            Err(e) => {
+                println!("Cannot create an auth client. Most probably SUPABASE_URL and/or SUPABASE_KEY env vars are not exported: {e}");
+                return Ok(());
+            }
+        };
 
         let _session = client
             .signin_with_password(IdType::Email(TEST_USER_EMAIL.into()), TEST_USER_PASSWD)
