@@ -45,4 +45,5 @@ jobs:
         run: |
           cargo install --locked cargo-rdme
           export PATH=$PATH:~/.cargo/bin
-          cargo rdme --check
+          cargo rdme --check --workspace-project supabase_rs
+#          cargo rdme --check --workspace-project supabase_auth_rs # TODO
