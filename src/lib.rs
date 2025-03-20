@@ -338,9 +338,8 @@ pub mod routing;
 pub mod select;
 pub mod success;
 pub mod tests;
-pub mod update;
 pub mod type_gen;
-
+pub mod update;
 
 pub mod graphql;
 pub mod nightly;
@@ -393,6 +392,17 @@ impl SupabaseClient {
             api_key: private_key,
             client,
         })
+    }
+
+    /// Returns the base URL of the Supabase project and table.
+    ///
+    /// # Arguments
+    /// * `table_name` - The name of the table that will be used.
+    ///
+    /// # Returns
+    /// Returns a string containing the endpoint URL.
+    fn endpoint(&self, table_name: &str) -> String {
+        format!("{}/rest/v1/{table_name}", self.url)
     }
 }
 

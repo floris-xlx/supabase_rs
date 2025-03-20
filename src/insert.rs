@@ -81,7 +81,7 @@ impl SupabaseClient {
     /// This method returns a `Result<String, String>`. On success, it returns `Ok(String)` with the new row's ID,
     /// and on failure, it returns `Err(String)` with an error message.
     pub async fn insert(&self, table_name: &str, mut body: Value) -> Result<String, String> {
-        let endpoint: String = format!("{}/rest/v1/{}", self.url, table_name);
+        let endpoint: String = self.endpoint(table_name);
 
         #[cfg(feature = "nightly")]
         use crate::nightly::print_nightly_warning;
@@ -149,7 +149,7 @@ impl SupabaseClient {
         table_name: &str,
         body: Value,
     ) -> Result<(), String> {
-        let endpoint: String = format!("{}/rest/v1/{}", self.url, table_name);
+        let endpoint: String = self.endpoint(table_name);
 
         #[cfg(feature = "nightly")]
         use crate::nightly::print_nightly_warning;
@@ -288,7 +288,7 @@ impl SupabaseClient {
         let Ok(body) = serde_json::to_value(body) else {
             return Err("Failed to serialize body".to_string());
         };
-        let endpoint: String = format!("{}/rest/v1/{}", self.url, table_name);
+        let endpoint: String = self.endpoint(table_name);
 
         #[cfg(feature = "nightly")]
         use crate::nightly::print_nightly_warning;

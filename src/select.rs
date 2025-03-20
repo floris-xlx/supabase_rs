@@ -139,7 +139,6 @@ use serde_json::Value;
 #[cfg(feature = "nightly")]
 use crate::nightly::print_nightly_warning;
 
-
 impl SupabaseClient {
     /// Initializes a `QueryBuilder` for a specified table.
     ///
@@ -153,7 +152,6 @@ impl SupabaseClient {
     pub fn select(&self, table_name: &str) -> QueryBuilder {
         QueryBuilder::new(self.clone(), table_name)
     }
-
 
     pub fn from(&self, table_name: &str) -> QueryBuilder {
         QueryBuilder::new(self.clone(), table_name)
@@ -177,7 +175,8 @@ impl SupabaseClient {
         query_string: &str,
     ) -> Result<Vec<Value>, String> {
         // Build the client and the endpoint
-        let endpoint: String = format!("{}/rest/v1/{}?{}", self.url, table_name, query_string);
+        let endpoint: String = self.endpoint(table_name);
+        let endpoint: String = format!("{endpoint}?{query_string}");
 
         #[cfg(feature = "nightly")]
         println!("\x1b[33mEndpoint: {}\x1b[0m", endpoint);
