@@ -114,10 +114,10 @@ SUPABASE_RS_NO_NIGHTLY_MSG=true
 #### Cargo.toml
 ```toml
 [dependencies]
-supabase-rs = "0.3.7"
+supabase-rs = "..."
 
 // With the [storage] feature
-supabase-rs = { version = "0.3.7", features = ["storage"] }
+supabase-rs = { version = "...", features = ["storage"] }
 ```
 
 #### Usage
