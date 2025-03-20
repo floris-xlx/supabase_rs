@@ -20,3 +20,7 @@ anyhow.workspace = true
 serde_json.workspace = true
 time = { version = "0.3.36", features = ["parsing", "serde", "formatting"] }
 kinded = { version = "0.3.0" }
+
+[dev-dependencies]
+tokio.workspace = true
+dotenv.workspace = true

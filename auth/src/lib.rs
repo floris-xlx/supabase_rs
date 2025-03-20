@@ -45,6 +45,8 @@ pub struct AuthClient {
     /// Client for making PostgreSQL REST API calls
     #[allow(dead_code)]
     postgrest_client: PostgrestNewtype,
+
+    session: Option<AuthSession>,
 }
 
 impl AuthClient {
@@ -66,6 +68,7 @@ impl AuthClient {
                     .schema("auth")
                     .insert_header("apikey", anon_key.to_owned()),
             ),
+            session: None,
         })
     }
 
@@ -73,6 +76,16 @@ impl AuthClient {
     fn postgrest(&self) -> &Postgrest {
         &self.postgrest_client.0
     }
+}
+
+/// Represents an authenticated session with Supabase
+#[derive(Debug, Clone)]
+pub struct AuthSession {
+    pub access_token: String,
+    pub expires_in: u64,
+    pub refresh_token: String,
+    pub token_type: String,
+    pub user: Option<User>,
 }
 
 /// Represents an error response from the Supabase Auth API
@@ -109,4 +122,24 @@ pub enum IdType {
     Email(String),
     /// Phone number
     PhoneNumber(String),
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use anyhow::Result;
+
+    // Dummy email for testing
+    // A Supabase user with this email must exist
+    pub(crate) const TEST_USER_EMAIL: &'static str = "dummy@supabase.rs";
+    pub(crate) const TEST_USER_PASSWD: &'static str = "supabase";
+
+    pub(crate) async fn get_auth_client() -> Result<AuthClient> {
+        dotenv::dotenv().ok();
+
+        let supabase_url = std::env::var("SUPABASE_URL")?;
+        let supabase_key = std::env::var("SUPABASE_KEY")?;
+
+        AuthClient::new(&supabase_url, &supabase_key)
+    }
 }

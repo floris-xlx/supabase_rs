@@ -4,8 +4,8 @@ use tracing::{debug, error, info, instrument, trace_span, Instrument};
 use crate::error::AuthError;
 use crate::models::token::TokenResponse;
 use crate::util::handle_response_code;
-use crate::AuthClient;
 use crate::IdType;
+use crate::{AuthClient, AuthSession};
 
 #[derive(Debug, Deserialize, Serialize)]
 struct TokenPasswordGrant {
@@ -17,10 +17,10 @@ struct TokenPasswordGrant {
 impl AuthClient {
     #[instrument(skip_all)]
     pub async fn signin_with_password(
-        &self,
+        &mut self,
         id: IdType,
-        password: String,
-    ) -> Result<TokenResponse, AuthError> {
+        password: &str,
+    ) -> Result<AuthSession, AuthError> {
         if password.is_empty() {
             error!("empty password");
             return Err(AuthError::InvalidParameters);
@@ -37,7 +37,7 @@ impl AuthClient {
                 TokenPasswordGrant {
                     email: Some(email),
                     phone: None,
-                    password,
+                    password: password.to_string(),
                 }
             }
             IdType::PhoneNumber(phone_number) => {
@@ -50,7 +50,7 @@ impl AuthClient {
                 TokenPasswordGrant {
                     email: None,
                     phone: Some(phone_number),
-                    password,
+                    password: password.to_string(),
                 }
             }
         };
@@ -70,7 +70,7 @@ impl AuthClient {
         {
             Ok(resp) => resp,
             Err(e) => {
-                error!("{}", e);
+                error!("{e}");
                 return Err(AuthError::Http);
             }
         };
@@ -101,6 +101,36 @@ impl AuthClient {
             refresh_token = token_response.refresh_token
         );
 
-        Ok(token_response)
+        let session = AuthSession {
+            access_token: token_response.access_token,
+            expires_in: token_response.expires_in,
+            refresh_token: token_response.refresh_token,
+            token_type: token_response.token_type,
+            user: token_response.user,
+        };
+
+        self.session = Some(session.clone());
+
+        Ok(session)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::tests::{get_auth_client, TEST_USER_EMAIL, TEST_USER_PASSWD};
+    use anyhow::Result;
+
+    #[tokio::test]
+    async fn test_signin_with_password() -> Result<()> {
+        let mut client = get_auth_client().await?;
+
+        let session = client
+            .signin_with_password(IdType::Email(TEST_USER_EMAIL.into()), TEST_USER_PASSWD)
+            .await?;
+
+        assert_eq!(session.user.unwrap().email, Some(TEST_USER_EMAIL.into()));
+
+        Ok(())
     }
 }
