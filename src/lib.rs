@@ -35,10 +35,10 @@
 //! ## Cargo.toml
 //! ```toml
 //! [dependencies]
-//! supabase-rs = "0.3.7"
+//! supabase-rs = "..."
 //!
 //! // With the [storage] feature
-//! supabase-rs = { version = "0.3.7", features = ["storage"] }
+//! supabase-rs = { version = "...", features = ["storage"] }
 //! ```
 //!
 //! ## Usage
@@ -324,6 +324,9 @@
 //! ## Contributers
 //!
 
+const PKG_NAME: &'static str = env!("CARGO_PKG_NAME");
+const PKG_VERSION: &'static str = env!("CARGO_PKG_VERSION");
+
 use rand::prelude::ThreadRng;
 use rand::Rng;
 use reqwest::Client;
@@ -410,4 +413,8 @@ impl SupabaseClient {
 pub fn generate_random_id() -> i64 {
     let mut rng: ThreadRng = rand::thread_rng();
     rng.gen_range(0..i64::MAX)
+}
+
+pub(crate) fn client_info() -> String {
+    format!("{}/{PKG_VERSION}", PKG_NAME.replace("_", "-"))
 }

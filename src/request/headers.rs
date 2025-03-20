@@ -1,6 +1,6 @@
-use std::collections::HashMap;
-
 use crate::request::Headers;
+use reqwest::header::HeaderName;
+use std::collections::HashMap;
 
 impl Default for Headers {
     fn default() -> Self {
@@ -25,7 +25,7 @@ impl Headers {
 
     pub fn with_defaults(api_key: &str, auth_token: &str) -> Self {
         let mut headers = Headers::new();
-        headers.insert(HeadersTypes::ClientInfo.as_str(), "supabase-rs/0.3.7");
+        headers.insert(HeadersTypes::ClientInfo.as_str(), &crate::client_info());
         headers.insert(HeadersTypes::ContentType.as_str(), "application/json");
         headers.insert(HeadersTypes::ApiKey.as_str(), api_key);
         headers.insert(
@@ -53,5 +53,11 @@ impl HeadersTypes {
             HeadersTypes::Prefer => "prefer",
             HeadersTypes::ClientInfo => "x_client_info",
         }
+    }
+}
+
+impl From<HeadersTypes> for HeaderName {
+    fn from(value: HeadersTypes) -> Self {
+        HeaderName::from_bytes(value.as_str().as_bytes()).unwrap()
     }
 }
