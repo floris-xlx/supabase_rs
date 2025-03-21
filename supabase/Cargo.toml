@@ -21,7 +21,7 @@ serde.workspace = true
 thiserror.workspace = true
 tokio.workspace = true
 tokio-postgres.workspace = true
-supabase_auth_rs = { path = "../auth", optional = true }
+supabase_rs_auth = { path = "../auth", optional = true }
 
 [features]
 default = ["native_tls", "nightly"]
@@ -29,7 +29,7 @@ nightly = []
 storage = []
 rustls = ["reqwest/rustls-tls"]
 native_tls = ["reqwest/native-tls"]
-auth = ["dep:supabase_auth_rs"]
+auth = ["dep:supabase_rs_auth"]
 
 # default = ["nightly"]
 # # 

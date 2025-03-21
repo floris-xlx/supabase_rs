@@ -1,5 +1,5 @@
 [package]
-name = "supabase_auth_rs"
+name = "supabase_rs_auth"
 version.workspace = true
 edition.workspace = true
 authors.workspace = true

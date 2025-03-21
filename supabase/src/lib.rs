@@ -356,7 +356,7 @@ use errors::Result;
 #[cfg(feature = "auth")]
 use crate::errors::ErrorTypes;
 #[cfg(feature = "auth")]
-use supabase_auth_rs::AuthClient;
+use supabase_rs_auth::AuthClient;
 
 /// A client structure for interacting with Supabase services.
 ///
