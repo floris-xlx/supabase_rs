@@ -3,13 +3,17 @@ use supabase_rs_auth::{AuthClient, IdType};
 /// An integration test that signs up a user, signs them in, and then signs them out.
 #[tokio::test]
 async fn sign_up_in_out() -> anyhow::Result<()> {
-    dotenv::dotenv().ok();
-    env_logger::try_init().ok();
+    fn get_auth_client() -> anyhow::Result<AuthClient> {
+        dotenv::dotenv().ok();
+        env_logger::try_init().ok();
 
-    let supabase_url = std::env::var("SUPABASE_URL")?;
-    let supabase_key = std::env::var("SUPABASE_KEY")?;
+        let supabase_url = std::env::var("SUPABASE_URL")?;
+        let supabase_key = std::env::var("SUPABASE_KEY")?;
 
-    let auth_client = match AuthClient::new(&supabase_url, &supabase_key) {
+        AuthClient::new(&supabase_url, &supabase_key)
+    }
+
+    let auth_client = match get_auth_client() {
         Ok(client) => client,
         Err(e) => {
             println!("Cannot create an auth client. Most probably SUPABASE_URL and/or SUPABASE_KEY env vars are not exported: {e}");
