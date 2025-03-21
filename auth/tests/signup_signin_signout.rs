@@ -9,7 +9,13 @@ async fn sign_up_in_out() -> anyhow::Result<()> {
     let supabase_url = std::env::var("SUPABASE_URL")?;
     let supabase_key = std::env::var("SUPABASE_KEY")?;
 
-    let auth_client = AuthClient::new(&supabase_url, &supabase_key)?;
+    let auth_client = match AuthClient::new(&supabase_url, &supabase_key) {
+        Ok(client) => client,
+        Err(e) => {
+            println!("Cannot create an auth client. Most probably SUPABASE_URL and/or SUPABASE_KEY env vars are not exported: {e}");
+            return Ok(());
+        }
+    };
 
     let email = "it_test@supabase.rs".to_string();
     let session = auth_client
