@@ -1,10 +1,9 @@
 //! Error types for the Supabase Auth client
 
-use kinded::Kinded;
 use thiserror::Error;
 
 /// Possible errors that can occur during authentication operations
-#[derive(Debug, Default, Clone, Copy, Error, Kinded)]
+#[derive(Debug, Default, Clone, Copy, Error)]
 pub enum AuthError {
     /// User is not authorized to perform the requested operation
     #[error("not authorized")]
