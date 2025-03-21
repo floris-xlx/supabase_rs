@@ -25,7 +25,7 @@ tokio-postgres.workspace = true
 supabase_rs_auth = { path = "../auth", optional = true }
 
 [features]
-default = ["native_tls", "nightly"]
+default = ["auth", "native_tls", "nightly"]
 nightly = []
 storage = []
 rustls = ["reqwest/rustls-tls"]
