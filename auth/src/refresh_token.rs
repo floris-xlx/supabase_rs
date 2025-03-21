@@ -1,11 +1,10 @@
 //! Handles token refresh operations
 
 use serde::{Deserialize, Serialize};
-use tracing::{debug, error, info, instrument, trace_span, Instrument};
+use tracing::{debug, error, instrument, trace_span, Instrument};
 
 use crate::error::AuthError;
 use crate::models::token::TokenResponse;
-use crate::util::handle_response_code;
 use crate::AuthClient;
 
 /// Request payload for refreshing an authentication token
@@ -54,9 +53,9 @@ impl AuthClient {
             }
         };
 
-        let token_response: TokenResponse = handle_response_code(resp).await?;
+        let token_response: TokenResponse = self.handle_response_code(resp).await?.unwrap();
 
-        info!(
+        debug!(
             tokens_are_nonempty =
                 !token_response.access_token.is_empty() && !token_response.refresh_token.is_empty()
         );

@@ -8,7 +8,6 @@ use tracing::{trace_span, Instrument};
 
 use crate::error::AuthError;
 use crate::models::user::UserSchema;
-use crate::util::handle_response_code;
 use crate::{AuthClient, AuthSession, IdType};
 
 /// Request payload for user signup
@@ -80,7 +79,7 @@ impl AuthClient {
             }
         };
 
-        let session: AuthSession = handle_response_code(resp).await?;
+        let session: AuthSession = self.handle_response_code(resp).await?.unwrap();
 
         Ok(session)
     }

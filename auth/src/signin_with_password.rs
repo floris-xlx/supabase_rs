@@ -1,10 +1,9 @@
-use log::{debug, error, info};
+use log::{debug, error};
 use serde::{Deserialize, Serialize};
 use tracing::{instrument, trace_span, Instrument};
 
 use crate::error::AuthError;
 use crate::models::token::TokenResponse;
-use crate::util::handle_response_code;
 use crate::IdType;
 use crate::{AuthClient, AuthSession};
 
@@ -34,7 +33,7 @@ impl AuthClient {
                     return Err(AuthError::InvalidParameters);
                 }
 
-                info!("email = {email}");
+                debug!("email = {email}");
                 TokenPasswordGrant {
                     email: Some(email),
                     phone: None,
@@ -47,7 +46,7 @@ impl AuthClient {
                     return Err(AuthError::InvalidParameters);
                 }
 
-                info!("phone_number = {phone_number}");
+                debug!("phone_number = {phone_number}");
                 TokenPasswordGrant {
                     email: None,
                     phone: Some(phone_number),
@@ -76,9 +75,9 @@ impl AuthClient {
             }
         };
 
-        let token_response: TokenResponse = handle_response_code(resp).await?;
+        let token_response: TokenResponse = self.handle_response_code(resp).await?.unwrap();
 
-        info!(
+        debug!(
             "tokens_are_nonempty = {}",
             !token_response.access_token.is_empty() && !token_response.refresh_token.is_empty()
         );

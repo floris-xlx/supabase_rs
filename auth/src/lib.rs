@@ -4,26 +4,26 @@
 //! It handles authentication operations like signup, signin, token refresh,
 //! and user management.
 
-use reqwest::Client;
+pub use error::AuthError;
+use log::{debug, error, warn};
+pub use models::user::UserSchema as User;
+use reqwest::{Client, Response, StatusCode};
 use serde::{Deserialize, Serialize};
 use std::cell::RefCell;
 use std::fmt::{Debug, Display, Formatter};
 use thiserror::Error;
-
-pub use error::AuthError;
-pub use models::user::UserSchema as User;
+use tracing::instrument;
 #[allow(unused)]
 pub use ErrorSchema as Error;
 
 mod delete_user;
 mod error;
 mod get_user;
-mod logout;
 pub mod models;
 mod refresh_token;
 mod signin_with_password;
+mod signout;
 mod signup;
-mod util;
 
 /// Main client for interacting with Supabase Auth
 #[derive(Clone, Debug)]
@@ -65,10 +65,59 @@ impl AuthClient {
     pub fn session(&self) -> Option<AuthSession> {
         self.session.borrow().as_ref().cloned()
     }
+
+    /// Handles HTTP response status codes and maps them to appropriate AuthErrors
+    ///
+    /// # Arguments
+    /// * `http_response` - The HTTP response
+    ///
+    /// # Returns
+    /// `Result<T, AuthError>` - Ok with deserialized body if status is successful,
+    /// appropriate error otherwise
+    #[instrument]
+    async fn handle_response_code<T>(&self, http_response: Response) -> Result<Option<T>, AuthError>
+    where
+        T: serde::de::DeserializeOwned,
+    {
+        let status = http_response.status();
+        debug!("response.status = {}", status);
+        if status.is_success() {
+            if status == StatusCode::NO_CONTENT {
+                return Ok(None);
+            }
+
+            let resp_text = match http_response.text().await {
+                Ok(resp_text) => resp_text,
+                Err(e) => {
+                    error!("{e:?}");
+                    return Err(AuthError::Http);
+                }
+            };
+            let t = match serde_json::from_str::<T>(&resp_text) {
+                Ok(token_response) => token_response,
+                Err(e) => {
+                    error!("{e:?}");
+                    return Err(AuthError::Internal);
+                }
+            };
+
+            Ok(Some(t))
+        } else {
+            warn!("response.text = {}", &http_response.text().await.unwrap());
+            match status {
+                StatusCode::UNAUTHORIZED | StatusCode::FORBIDDEN => Err(AuthError::NotAuthorized),
+                StatusCode::UNPROCESSABLE_ENTITY | StatusCode::BAD_REQUEST => {
+                    Err(AuthError::InvalidParameters)
+                }
+                StatusCode::NOT_ACCEPTABLE => Err(AuthError::NotFound),
+                StatusCode::INTERNAL_SERVER_ERROR | _ => Err(AuthError::GeneralError),
+            }
+        }
+    }
 }
 
 /// Represents an authenticated session with Supabase
-#[derive(Debug, Clone, serde::Deserialize, serde::Serialize)]
+#[derive(Debug, Clone, PartialEq, serde::Deserialize, serde::Serialize)]
 pub struct AuthSession {
     pub access_token: String,
     pub expires_in: u64,
