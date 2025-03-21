@@ -403,7 +403,6 @@ impl SupabaseClient {
             Err(_err) => return Err(ErrorTypes::AuthenticationFailed),
         };
 
-
         Ok(Self {
             url: supabase_url,
             api_key: private_key,
