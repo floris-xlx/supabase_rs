@@ -37,8 +37,8 @@ impl AuthClient {
         let resp = match self
             .http_client
             .post(format!(
-                "{}/auth/v1/{}",
-                self.supabase_api_url, "token?grant_type=refresh_token"
+                "{}/auth/v1/token?grant_type=refresh_token",
+                self.supabase_api_url
             ))
             .bearer_auth(&self.supabase_anon_key)
             .header("apiKey", &self.supabase_anon_key)
@@ -49,29 +49,13 @@ impl AuthClient {
         {
             Ok(resp) => resp,
             Err(e) => {
-                error!("{}", e);
+                error!("{e:?}");
                 return Err(AuthError::Http);
             }
         };
 
-        let resp_code_result = handle_response_code(resp.status()).await;
-        let resp_text = match resp.text().await {
-            Ok(resp_text) => resp_text,
-            Err(e) => {
-                log::error!("{}", e);
-                return Err(AuthError::Http);
-            }
-        };
-        debug!("resp_text: {}", resp_text);
-        resp_code_result?;
+        let token_response: TokenResponse = handle_response_code(resp).await?;
 
-        let token_response = match serde_json::from_str::<TokenResponse>(&resp_text) {
-            Ok(token_response) => token_response,
-            Err(e) => {
-                error!("{}", e);
-                return Err(AuthError::Internal);
-            }
-        };
         info!(
             tokens_are_nonempty =
                 !token_response.access_token.is_empty() && !token_response.refresh_token.is_empty()

@@ -1,6 +1,6 @@
 //! Handles user logout operations
 
-use tracing::{debug, error, instrument, trace_span, Instrument};
+use tracing::{error, instrument, trace_span, Instrument};
 
 use crate::util::handle_response_code;
 use crate::{AuthClient, AuthError};
@@ -17,7 +17,7 @@ impl AuthClient {
     pub async fn logout(&self, token: &str) -> Result<(), AuthError> {
         let resp = match self
             .http_client
-            .post(format!("{}/auth/v1/{}", self.supabase_api_url, "logout"))
+            .post(format!("{}/auth/v1/logout", self.supabase_api_url))
             .bearer_auth(token)
             .header("apiKey", &self.supabase_anon_key)
             .send()
@@ -26,22 +26,13 @@ impl AuthClient {
         {
             Ok(resp) => resp,
             Err(e) => {
-                error!("{}", e);
+                error!("{e:?}");
                 return Err(AuthError::Http);
             }
         };
 
-        let resp_code_result = handle_response_code(resp.status()).await;
-        let resp_text = match resp.text().await {
-            Ok(resp_text) => resp_text,
-            Err(e) => {
-                log::error!("{}", e);
-                return Err(AuthError::Http);
-            }
-        };
-        debug!("resp_text: {}", resp_text);
-        resp_code_result?;
-
+        let logout_response: serde_json::Value = handle_response_code(resp).await?;
+        dbg!(&logout_response);
         Ok(())
     }
 }

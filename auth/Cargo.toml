@@ -23,3 +23,11 @@ time = { version = "0.3.36", features = ["parsing", "serde", "formatting"] }
 [dev-dependencies]
 tokio.workspace = true
 dotenv.workspace = true
+env_logger = "0.11.7"
+
+[features]
+default = ["native_tls"]
+nightly = []
+storage = []
+rustls = ["reqwest/rustls-tls"]
+native_tls = ["reqwest/native-tls"]

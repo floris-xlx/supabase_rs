@@ -2,13 +2,14 @@
 
 use std::collections::HashMap;
 
+use log::error;
 use serde::{Deserialize, Serialize};
-use tracing::{debug, error, info, trace_span, Instrument};
+use tracing::{trace_span, Instrument};
 
 use crate::error::AuthError;
 use crate::models::user::UserSchema;
 use crate::util::handle_response_code;
-use crate::{AuthClient, IdType};
+use crate::{AuthClient, AuthSession, IdType};
 
 /// Request payload for user signup
 #[derive(Debug, Serialize, Deserialize)]
@@ -44,27 +45,27 @@ impl AuthClient {
     pub async fn signup(
         &self,
         signup_id_type: IdType,
-        password: String,
-        _metadata: Option<HashMap<String, String>>,
-    ) -> Result<(UserSchema, String), AuthError> {
+        password: &str,
+        metadata: Option<HashMap<String, String>>,
+    ) -> Result<AuthSession, AuthError> {
         let body = match signup_id_type {
             IdType::Email(email) => SignupRequest {
                 email: Some(email),
                 phone_number: None,
-                password,
-                data: _metadata,
+                password: password.to_string(),
+                data: metadata,
             },
             IdType::PhoneNumber(phone_number) => SignupRequest {
                 email: None,
                 phone_number: Some(phone_number),
-                password,
-                data: _metadata,
+                password: password.to_string(),
+                data: metadata,
             },
         };
 
         let resp = match self
             .http_client
-            .post(format!("{}/auth/v1/{}", self.supabase_api_url, "signup"))
+            .post(format!("{}/auth/v1/signup", self.supabase_api_url))
             .header("apiKey", &self.supabase_anon_key)
             .bearer_auth(&self.supabase_anon_key)
             .json(&body)
@@ -74,33 +75,46 @@ impl AuthClient {
         {
             Ok(resp) => resp,
             Err(e) => {
-                error!("{}", e);
+                error!("{e:?}");
                 return Err(AuthError::Http);
             }
         };
 
-        let resp_code_result = handle_response_code(resp.status()).await;
-        let resp_text = match resp.text().await {
-            Ok(resp_text) => resp_text,
+        let session: AuthSession = handle_response_code(resp).await?;
+
+        Ok(session)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::tests::{get_auth_client, TEST_USER_PASSWD};
+    use anyhow::Result;
+
+    #[tokio::test]
+    async fn test_signup() -> Result<()> {
+        let client = match get_auth_client().await {
+            Ok(client) => client,
             Err(e) => {
-                log::error!("{}", e);
-                return Err(AuthError::Http);
+                println!("Cannot create an auth client. Most probably SUPABASE_URL and/or SUPABASE_KEY env vars are not exported: {e}");
+                return Ok(());
             }
         };
-        debug!("resp_text: {}", resp_text);
-        resp_code_result?;
 
-        let created_user_resp = match serde_json::from_str::<SignupResponse>(&resp_text) {
-            Ok(token_response) => token_response,
-            Err(e) => {
-                error!("{}", e);
-                return Err(AuthError::Internal);
-            }
-        };
+        let session = client
+            .signup(
+                IdType::Email("newuser@supabase.rs".into()),
+                TEST_USER_PASSWD,
+                None,
+            )
+            .await?;
 
-        let created_user = created_user_resp.user;
-        info!(user_id = created_user.id.to_string(), "created user");
+        assert_eq!(
+            session.user.unwrap().email,
+            Some("newuser@supabase.rs".into())
+        );
 
-        Ok((created_user, created_user_resp.access_token))
+        Ok(())
     }
 }

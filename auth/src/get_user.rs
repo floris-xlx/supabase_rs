@@ -42,7 +42,7 @@ impl AuthClient {
         {
             Ok(resp) => resp,
             Err(e) => {
-                error!("get_user() request failed: {e}");
+                error!("{e:?}");
                 return Err(AuthError::Http);
             }
         };
@@ -51,7 +51,7 @@ impl AuthClient {
             let user: UserSchema = match resp.json().await {
                 Ok(user) => user,
                 Err(e) => {
-                    error!("{e}");
+                    error!("{e:?}");
                     return Err(AuthError::NotAuthorized);
                 }
             };

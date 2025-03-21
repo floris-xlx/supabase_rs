@@ -4,10 +4,10 @@
 //! It handles authentication operations like signup, signin, token refresh,
 //! and user management.
 
+use reqwest::Client;
+use serde::{Deserialize, Serialize};
 use std::cell::RefCell;
 use std::fmt::{Debug, Display, Formatter};
-
-use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
 pub use error::AuthError;
@@ -48,8 +48,14 @@ impl AuthClient {
     /// # Returns
     /// * `Result<Self, anyhow::Error>` - New client instance or error
     pub fn new(api_url: &str, anon_key: &str) -> anyhow::Result<Self> {
+        #[cfg(feature = "rustls")]
+        let client = Client::builder().use_rustls_tls().build()?;
+
+        #[cfg(not(feature = "rustls"))]
+        let client = Client::new();
+
         Ok(Self {
-            http_client: reqwest::Client::new(),
+            http_client: client,
             supabase_api_url: api_url.to_owned(),
             supabase_anon_key: anon_key.to_owned(),
             session: RefCell::new(None),
@@ -62,7 +68,7 @@ impl AuthClient {
 }
 
 /// Represents an authenticated session with Supabase
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Deserialize, serde::Serialize)]
 pub struct AuthSession {
     pub access_token: String,
     pub expires_in: u64,
@@ -119,6 +125,7 @@ mod tests {
 
     pub(crate) async fn get_auth_client() -> Result<AuthClient> {
         dotenv::dotenv().ok();
+        env_logger::init();
 
         let supabase_url = std::env::var("SUPABASE_URL")?;
         let supabase_key = std::env::var("SUPABASE_KEY")?;

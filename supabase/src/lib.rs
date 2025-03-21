@@ -394,14 +394,15 @@ impl SupabaseClient {
         #[cfg(feature = "rustls")]
         let client = Client::builder().use_rustls_tls().build()?;
 
+        #[cfg(not(feature = "rustls"))]
+        let client = Client::new();
+
         #[cfg(feature = "auth")]
         let auth_client = match AuthClient::new(&supabase_url, &private_key) {
             Ok(client) => client,
             Err(_err) => return Err(ErrorTypes::AuthenticationFailed),
         };
 
-        #[cfg(not(feature = "rustls"))]
-        let client = Client::new();
 
         Ok(Self {
             url: supabase_url,
