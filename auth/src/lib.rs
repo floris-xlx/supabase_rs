@@ -1,0 +1,184 @@
+//! Supabase Auth client library for Rust
+//!
+//! This crate provides a Rust interface to the Supabase Auth API.
+//! It handles authentication operations like signup, signin, token refresh,
+//! and user management.
+
+pub use error::AuthError;
+use log::{debug, error, warn};
+pub use models::user::UserSchema as User;
+use reqwest::{Client, Response, StatusCode};
+use serde::{Deserialize, Serialize};
+use std::cell::RefCell;
+use std::fmt::{Debug, Display, Formatter};
+use thiserror::Error;
+use tracing::instrument;
+#[allow(unused)]
+pub use ErrorSchema as Error;
+
+mod delete_user;
+mod error;
+mod get_user;
+pub mod models;
+mod refresh_token;
+mod signin_with_password;
+mod signout;
+mod signup;
+
+/// Main client for interacting with Supabase Auth
+#[derive(Clone, Debug)]
+pub struct AuthClient {
+    /// HTTP client for making requests
+    http_client: reqwest::Client,
+    /// Base URL for the Supabase API
+    supabase_api_url: String,
+    /// Anonymous API key for authentication
+    supabase_anon_key: String,
+
+    session: RefCell<Option<AuthSession>>,
+}
+
+impl AuthClient {
+    /// Creates a new AuthClient instance
+    ///
+    /// # Arguments
+    /// * `api_url` - Base URL for the Supabase API
+    /// * `anon_key` - Anonymous API key for authentication
+    ///
+    /// # Returns
+    /// * `Result<Self, anyhow::Error>` - New client instance or error
+    pub fn new(api_url: &str, anon_key: &str) -> anyhow::Result<Self> {
+        #[cfg(feature = "rustls")]
+        let client = Client::builder().use_rustls_tls().build()?;
+
+        #[cfg(not(feature = "rustls"))]
+        let client = Client::new();
+
+        Ok(Self {
+            http_client: client,
+            supabase_api_url: api_url.to_owned(),
+            supabase_anon_key: anon_key.to_owned(),
+            session: RefCell::new(None),
+        })
+    }
+
+    pub fn session(&self) -> Option<AuthSession> {
+        self.session.borrow().as_ref().cloned()
+    }
+
+    /// Handles HTTP response status codes and maps them to appropriate AuthErrors
+    ///
+    /// # Arguments
+    /// * `http_response` - The HTTP response
+    ///
+    /// # Returns
+    /// `Result<T, AuthError>` - Ok with deserialized body if status is successful,
+    /// appropriate error otherwise
+    #[instrument]
+    async fn handle_response_code<T>(&self, http_response: Response) -> Result<Option<T>, AuthError>
+    where
+        T: serde::de::DeserializeOwned,
+    {
+        let status = http_response.status();
+        debug!("response.status = {}", status);
+        if status.is_success() {
+            if status == StatusCode::NO_CONTENT {
+                return Ok(None);
+            }
+
+            let resp_text = match http_response.text().await {
+                Ok(resp_text) => resp_text,
+                Err(e) => {
+                    error!("{e:?}");
+                    return Err(AuthError::Http);
+                }
+            };
+            let t = match serde_json::from_str::<T>(&resp_text) {
+                Ok(token_response) => token_response,
+                Err(e) => {
+                    error!("{e:?}");
+                    return Err(AuthError::Internal);
+                }
+            };
+
+            Ok(Some(t))
+        } else {
+            warn!("response.text = {}", &http_response.text().await.unwrap());
+            match status {
+                StatusCode::UNAUTHORIZED | StatusCode::FORBIDDEN => Err(AuthError::NotAuthorized),
+                StatusCode::UNPROCESSABLE_ENTITY | StatusCode::BAD_REQUEST => {
+                    Err(AuthError::InvalidParameters)
+                }
+                StatusCode::NOT_ACCEPTABLE => Err(AuthError::NotFound),
+                StatusCode::INTERNAL_SERVER_ERROR | _ => Err(AuthError::GeneralError),
+            }
+        }
+    }
+}
+
+/// Represents an authenticated session with Supabase
+#[derive(Debug, Clone, PartialEq, serde::Deserialize, serde::Serialize)]
+pub struct AuthSession {
+    pub access_token: String,
+    pub expires_in: u64,
+    pub refresh_token: String,
+    pub token_type: String,
+    pub user: Option<User>,
+}
+
+/// Represents an error response from the Supabase Auth API
+#[derive(Debug, Error, Deserialize, Serialize)]
+pub struct ErrorSchema {
+    /// Numeric error code
+    pub code: Option<u8>,
+    /// Error type/name
+    pub error: Option<String>,
+    /// Detailed error description
+    pub error_description: Option<String>,
+    /// Error message
+    pub msg: Option<String>,
+}
+
+impl Display for ErrorSchema {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        if let Some(ref e) = self.error {
+            f.write_str(e)?;
+            return Ok(());
+        }
+        if let Some(ref msg) = self.msg {
+            f.write_str(msg)?;
+            return Ok(());
+        }
+        Err(std::fmt::Error)
+    }
+}
+
+/// Types of user identifiers supported for authentication
+#[derive(Debug)]
+pub enum IdType {
+    /// Email address
+    Email(String),
+    /// Phone number
+    PhoneNumber(String),
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::AuthClient;
+    use anyhow::Result;
+
+    // Dummy email for testing
+    // A Supabase user with this email must exist
+    pub(crate) const TEST_USER_EMAIL: &'static str = "dummy@supabase.rs";
+    pub(crate) const TEST_USER_PASSWD: &'static str = "supabase";
+
+    pub(crate) async fn get_auth_client() -> Result<AuthClient> {
+        dotenv::dotenv().ok();
+        env_logger::try_init().ok();
+
+        let supabase_url = std::env::var("SUPABASE_URL")?;
+        let supabase_key = std::env::var("SUPABASE_KEY")?;
+
+        AuthClient::new(&supabase_url, &supabase_key)
+    }
+}

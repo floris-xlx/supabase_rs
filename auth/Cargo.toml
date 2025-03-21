@@ -1,0 +1,33 @@
+[package]
+name = "supabase_rs_auth"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+description.workspace = true
+license.workspace = true
+readme.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+serde.workspace = true
+thiserror.workspace = true
+log = "0.4.22"
+reqwest.workspace = true
+tracing = "0.1.40"
+uuid.workspace = true
+anyhow.workspace = true
+serde_json.workspace = true
+time = { version = "0.3.36", features = ["parsing", "serde", "formatting"] }
+
+[dev-dependencies]
+tokio.workspace = true
+dotenv.workspace = true
+env_logger = "0.11.7"
+
+[features]
+default = ["native_tls"]
+nightly = []
+storage = []
+rustls = ["reqwest/rustls-tls"]
+native_tls = ["reqwest/native-tls"]

@@ -73,11 +73,8 @@ impl SupabaseClient {
         let response: Response = match self
             .client
             .patch(&endpoint)
+            .bearer_auth(self.get_bearer_token())
             .header(HeadersTypes::ApiKey, &self.api_key)
-            .header(
-                HeadersTypes::Authorization,
-                format!("Bearer {}", &self.api_key),
-            )
             .header(HeadersTypes::ContentType, "application/json")
             .header(HeadersTypes::ClientInfo, &crate::client_info())
             .body(body.to_string())
@@ -127,11 +124,8 @@ impl SupabaseClient {
         let response: Response = match self
             .client
             .post(&endpoint)
+            .bearer_auth(self.get_bearer_token())
             .header(HeadersTypes::ApiKey, &self.api_key)
-            .header(
-                HeadersTypes::Authorization,
-                format!("Bearer {}", &self.api_key),
-            )
             .header(HeadersTypes::ContentType, "application/json")
             .header(HeadersTypes::ClientInfo, &crate::client_info())
             .header("Prefer", "resolution=merge-duplicates")

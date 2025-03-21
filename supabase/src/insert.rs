@@ -95,11 +95,8 @@ impl SupabaseClient {
         let response: Response = match self
             .client
             .post(&endpoint)
+            .bearer_auth(self.get_bearer_token())
             .header(HeadersTypes::ApiKey, &self.api_key)
-            .header(
-                HeadersTypes::Authorization,
-                format!("Bearer {}", &self.api_key),
-            )
             .header(HeadersTypes::ContentType, "application/json")
             .header(HeadersTypes::ClientInfo, &crate::client_info())
             .body(body.to_string())
@@ -163,11 +160,8 @@ impl SupabaseClient {
         let response: Response = match self
             .client
             .post(&endpoint)
+            .bearer_auth(self.get_bearer_token())
             .header(HeadersTypes::ApiKey, &self.api_key)
-            .header(
-                HeadersTypes::Authorization,
-                format!("Bearer {}", &self.api_key),
-            )
             .header(HeadersTypes::ContentType, "application/json")
             .header(HeadersTypes::ClientInfo, &crate::client_info())
             .body(body.to_string())
@@ -288,7 +282,7 @@ impl SupabaseClient {
     /// # Returns
     /// This method returns a `Result<(), String>`. On success, it returns `Ok(())`,
     /// and on failure, it returns `Err(String)` with an error message.
-    pub async fn bulk_insert<T>(&self, table_name: &str, body: Vec<T>) -> Result<(), String>
+    pub async fn bulk_insert<T>(&self, table_name: &str, body: &[T]) -> Result<(), String>
     where
         T: serde::Serialize,
     {
@@ -305,11 +299,8 @@ impl SupabaseClient {
         let response: Response = match self
             .client
             .post(&endpoint)
+            .bearer_auth(self.get_bearer_token())
             .header(HeadersTypes::ApiKey, &self.api_key)
-            .header(
-                HeadersTypes::Authorization,
-                format!("Bearer {}", &self.api_key),
-            )
             .header(HeadersTypes::ContentType, "application/json")
             .header(HeadersTypes::ClientInfo, &crate::client_info())
             .body(body.to_string())
