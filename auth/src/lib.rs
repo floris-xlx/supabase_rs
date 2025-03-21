@@ -117,20 +117,15 @@ pub enum IdType {
 mod tests {
     use crate::AuthClient;
     use anyhow::Result;
-    use std::sync::OnceLock;
 
     // Dummy email for testing
     // A Supabase user with this email must exist
     pub(crate) const TEST_USER_EMAIL: &'static str = "dummy@supabase.rs";
     pub(crate) const TEST_USER_PASSWD: &'static str = "supabase";
 
-    const INIT_ONCE: OnceLock<()> = OnceLock::new();
-
     pub(crate) async fn get_auth_client() -> Result<AuthClient> {
-        INIT_ONCE.get_or_init(|| {
-            dotenv::dotenv().ok();
-            env_logger::init();
-        });
+        dotenv::dotenv().ok();
+        env_logger::try_init().ok();
 
         let supabase_url = std::env::var("SUPABASE_URL")?;
         let supabase_key = std::env::var("SUPABASE_KEY")?;
