@@ -10,8 +10,8 @@ impl AuthClient {
     /// # Returns
     /// * `Result<Option<UserSchema>, AuthError>` - User data if found, None if not found, or error
     pub async fn get_user(&self) -> Result<Option<UserSchema>, AuthError> {
-        match self.session {
-            Some(ref session) => {
+        match self.session.borrow().as_ref() {
+            Some(session) => {
                 let user = session.user.clone();
                 Ok(user)
             }
@@ -26,8 +26,8 @@ impl AuthClient {
     /// # Returns
     /// * `Result<Option<UserSchema>, AuthError>` - User data if found, None if not found, or error
     pub async fn get_user_remote(&self) -> Result<Option<UserSchema>, AuthError> {
-        let access_token = match self.session {
-            Some(ref session) => session.access_token.clone(),
+        let access_token = match self.session.borrow().as_ref() {
+            Some(session) => session.access_token.clone(),
             None => return Err(AuthError::NotAuthorized),
         };
 
@@ -70,7 +70,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_get_user() -> Result<()> {
-        let mut client = match get_auth_client().await {
+        let client = match get_auth_client().await {
             Ok(client) => client,
             Err(e) => {
                 println!("Cannot create an auth client. Most probably SUPABASE_URL and/or SUPABASE_KEY env vars are not exported: {e}");
@@ -91,7 +91,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_get_user_remote() -> Result<()> {
-        let mut client = match get_auth_client().await {
+        let client = match get_auth_client().await {
             Ok(client) => client,
             Err(e) => {
                 println!("Cannot create an auth client. Most probably SUPABASE_URL and/or SUPABASE_KEY env vars are not exported: {e}");

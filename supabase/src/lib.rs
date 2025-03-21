@@ -417,6 +417,19 @@ impl SupabaseClient {
         &self.auth_client
     }
 
+    #[cfg(not(feature = "auth"))]
+    fn get_bearer_token(&self) -> &str {
+        &self.api_key
+    }
+
+    #[cfg(feature = "auth")]
+    fn get_bearer_token(&self) -> String {
+        match self.auth().session() {
+            Some(session) => session.access_token.clone(),
+            None => String::from(&self.api_key),
+        }
+    }
+
     /// Returns the base URL of the Supabase project and table.
     ///
     /// # Arguments

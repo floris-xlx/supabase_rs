@@ -4,6 +4,7 @@
 //! It handles authentication operations like signup, signin, token refresh,
 //! and user management.
 
+use std::cell::RefCell;
 use std::fmt::{Debug, Display, Formatter};
 
 use postgrest::Postgrest;
@@ -46,7 +47,7 @@ pub struct AuthClient {
     #[allow(dead_code)]
     postgrest_client: PostgrestNewtype,
 
-    session: Option<AuthSession>,
+    session: RefCell<Option<AuthSession>>,
 }
 
 impl AuthClient {
@@ -68,8 +69,12 @@ impl AuthClient {
                     .schema("auth")
                     .insert_header("apikey", anon_key.to_owned()),
             ),
-            session: None,
+            session: RefCell::new(None),
         })
+    }
+
+    pub fn session(&self) -> Option<AuthSession> {
+        self.session.borrow().as_ref().cloned()
     }
 
     #[allow(dead_code)]

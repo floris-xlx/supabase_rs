@@ -17,7 +17,7 @@ struct TokenPasswordGrant {
 impl AuthClient {
     #[instrument(skip_all)]
     pub async fn signin_with_password(
-        &mut self,
+        &self,
         id: IdType,
         password: &str,
     ) -> Result<AuthSession, AuthError> {
@@ -109,7 +109,7 @@ impl AuthClient {
             user: token_response.user,
         };
 
-        self.session = Some(session.clone());
+        *self.session.borrow_mut() = Some(session.clone());
 
         Ok(session)
     }
@@ -123,7 +123,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_signin_with_password() -> Result<()> {
-        let mut client = match get_auth_client().await {
+        let client = match get_auth_client().await {
             Ok(client) => client,
             Err(e) => {
                 println!("Cannot create an auth client. Most probably SUPABASE_URL and/or SUPABASE_KEY env vars are not exported: {e}");
