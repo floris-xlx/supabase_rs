@@ -98,8 +98,8 @@ impl AuthClient {
     /// * `http_response` - The HTTP response
     ///
     /// # Returns
-    /// `Result<T, AuthError>` - Ok with deserialized body if status is successful,
-    /// appropriate error otherwise
+    /// `Result<Option<T>, AuthError>` - Ok(Some) with deserialized body if status is successful,
+    /// Ok(None) when the response is successful but has no body, and appropriate error otherwise
     #[instrument]
     async fn handle_response_code<T>(&self, http_response: Response) -> Result<Option<T>, AuthError>
     where
