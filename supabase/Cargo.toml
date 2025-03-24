@@ -1,0 +1,38 @@
+[package]
+name = "supabase_rs"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+description.workspace = true
+license.workspace = true
+readme.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+reqwest.workspace = true
+rand.workspace = true
+serde_json.workspace = true
+dotenv.workspace = true
+anyhow.workspace = true
+regex.workspace = true
+serde.workspace = true
+thiserror.workspace = true
+tokio.workspace = true
+tokio-postgres.workspace = true
+supabase_rs_auth = { path = "../auth", optional = true }
+
+[features]
+default = ["auth", "native_tls", "nightly"]
+nightly = []
+storage = []
+rustls = ["reqwest/rustls-tls"]
+native_tls = ["reqwest/native-tls"]
+auth = ["dep:supabase_rs_auth"]
+
+# default = ["nightly"]
+# # 
+# # 
+# realtime = []
