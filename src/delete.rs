@@ -7,11 +7,11 @@
 //!     
 
 use crate::request::headers::HeadersTypes;
-use crate::SupabaseClient;
+use crate::FromTable;
 use reqwest::Response;
 use serde_json::json;
 
-impl SupabaseClient {
+impl<'s> FromTable<'s> {
     /// Deletes a row in the specified table based on the provided ID.
     ///
     /// # Arguments
@@ -34,7 +34,7 @@ impl SupabaseClient {
     ///         "your_supabase_url".to_string(),
     ///         "your_supabase_key".to_string()
     ///     ).unwrap();
-    ///     let result = client.delete("your_table_name", "row_id").await;
+    ///     let result = client.from("your_table_name").delete("row_id").await;
     ///     match result {
     ///         Ok(_) => println!("Row deleted successfully"),
     ///         Err(e) => println!("Failed to delete row: {}", e),
@@ -43,13 +43,11 @@ impl SupabaseClient {
     /// ```
     pub async fn delete(
         &self,
-        table_name: &str,
         id: &str,
         //body: Value
     ) -> Result<(), String> {
         // Construct the endpoint URL for the delete operation
-        let endpoint: String = self.endpoint(table_name);
-        let endpoint: String = format!("{endpoint}?id=eq.{id}");
+        let endpoint: String = format!("{}?id=eq.{id}", self.endpoint());
 
         #[cfg(feature = "nightly")]
         use crate::nightly::print_nightly_warning;
@@ -60,9 +58,9 @@ impl SupabaseClient {
 
         // Send the delete request and handle the response
         let response: Response = match self
-            .client
+            .http_client
             .delete(&endpoint)
-            .header(HeadersTypes::ApiKey, &self.api_key)
+            .header(HeadersTypes::ApiKey, self.api_key)
             .header(
                 HeadersTypes::Authorization,
                 format!("Bearer {}", &self.api_key),

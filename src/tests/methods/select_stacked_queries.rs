@@ -6,7 +6,8 @@ pub async fn select_stacked_queries() {
     async fn upsert_inner(supabase_client: SupabaseClient) -> Result<(), String> {
         // Usage example
         let response_inner = supabase_client
-            .select("test")
+            .from("test")
+            .select()
             .gt("number", "10")
             .gt("number", "20")
             .execute()

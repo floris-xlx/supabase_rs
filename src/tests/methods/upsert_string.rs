@@ -12,8 +12,8 @@ pub async fn upsert_string() {
 
         // Usage example
         let response_inner = supabase_client
+            .from("test")
             .upsert(
-                "test",
                 &id,
                 json!({
                     "email": email

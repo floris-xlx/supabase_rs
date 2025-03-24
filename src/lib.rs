@@ -397,6 +397,34 @@ impl SupabaseClient {
         })
     }
 
+    pub fn from(&self, table_name: &str) -> FromTable {
+        FromTable::new(table_name, &self.url, &self.api_key, &self.client)
+    }
+}
+
+#[derive(Debug)]
+pub struct FromTable<'s> {
+    table_name: String,
+    supabase_url: &'s str,
+    api_key: &'s str,
+    http_client: &'s Client,
+}
+
+impl<'s> FromTable<'s> {
+    fn new(
+        table_name: impl Into<String>,
+        url: &'s str,
+        key: &'s str,
+        http_client: &'s Client,
+    ) -> Self {
+        Self {
+            table_name: table_name.into(),
+            supabase_url: url,
+            api_key: key,
+            http_client,
+        }
+    }
+
     /// Returns the base URL of the Supabase project and table.
     ///
     /// # Arguments
@@ -404,8 +432,8 @@ impl SupabaseClient {
     ///
     /// # Returns
     /// Returns a string containing the endpoint URL.
-    fn endpoint(&self, table_name: &str) -> String {
-        format!("{}/rest/v1/{table_name}", self.url)
+    fn endpoint(&self) -> String {
+        format!("{}/rest/v1/{}", self.supabase_url, self.table_name)
     }
 }
 

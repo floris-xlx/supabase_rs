@@ -7,12 +7,10 @@ pub async fn insert_numeric() {
     async fn insert_inner(supabase_client: SupabaseClient) -> Result<(), String> {
         // Usage example
         let response_inner: Result<String, String> = supabase_client
-            .insert(
-                "test",
-                json!({
-                    "dog": 1234
-                }),
-            )
+            .from("test")
+            .insert(json!({
+                "dog": 1234
+            }))
             .await;
 
         match response_inner {

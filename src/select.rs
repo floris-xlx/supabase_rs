@@ -129,7 +129,7 @@
 use crate::query::QueryBuilder;
 use crate::request::Headers;
 use crate::success::handle_response;
-use crate::SupabaseClient;
+use crate::FromTable;
 
 use reqwest::header::HeaderMap;
 use reqwest::header::{HeaderName, HeaderValue};
@@ -139,7 +139,7 @@ use serde_json::Value;
 #[cfg(feature = "nightly")]
 use crate::nightly::print_nightly_warning;
 
-impl SupabaseClient {
+impl<'s> FromTable<'s> {
     /// Initializes a `QueryBuilder` for a specified table.
     ///
     /// # Arguments
@@ -149,12 +149,8 @@ impl SupabaseClient {
     /// A `QueryBuilder` instance configured for the specified table.
     // #[deprecate_until(remove = ">= 0.4.4", note = "`.select()` will be deprecated. Use `.from()` to specify the table name and then use `.select()` to pass the query string. This change will align with the official Supabase documentation for other languages.")]
     // #[cfg(not(feature = "nightly"))]
-    pub fn select(&self, table_name: &str) -> QueryBuilder {
-        QueryBuilder::new(self.clone(), table_name)
-    }
-
-    pub fn from(&self, table_name: &str) -> QueryBuilder {
-        QueryBuilder::new(self.clone(), table_name)
+    pub fn select(&self) -> QueryBuilder {
+        QueryBuilder::new(self)
     }
 
     /// Executes a query against a specified table with a given query string.
@@ -169,14 +165,9 @@ impl SupabaseClient {
     ///
     /// # Errors
     /// This function will return an error if the HTTP request fails or if the server returns a non-success status code.
-    pub async fn execute(
-        &self,
-        table_name: &str,
-        query_string: &str,
-    ) -> Result<Vec<Value>, String> {
+    pub async fn execute(&self, query_string: &str) -> Result<Vec<Value>, String> {
         // Build the client and the endpoint
-        let endpoint: String = self.endpoint(table_name);
-        let endpoint: String = format!("{endpoint}?{query_string}");
+        let endpoint: String = format!("{}?{query_string}", self.endpoint());
 
         #[cfg(feature = "nightly")]
         println!("\x1b[33mEndpoint: {}\x1b[0m", endpoint);
@@ -205,7 +196,13 @@ impl SupabaseClient {
         }
 
         // send the request
-        let response: Response = match self.client.get(&endpoint).headers(header_map).send().await {
+        let response: Response = match self
+            .http_client
+            .get(&endpoint)
+            .headers(header_map)
+            .send()
+            .await
+        {
             Ok(response) => response,
             Err(error) => return Err(error.to_string()),
         };

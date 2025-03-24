@@ -29,7 +29,7 @@
 //! ```
 
 // local imports
-use crate::SupabaseClient;
+use crate::FromTable;
 
 /// Represents the type of comparison to be performed in a query filter.
 #[derive(Debug)]
@@ -97,8 +97,7 @@ pub struct Query {
 /// - `query`: A `Query` object that stores the parameters and conditions of the SQL query.
 /// - `table_name`: The name of the table in the database to which the query will be applied.
 #[derive(Debug)]
-pub struct QueryBuilder {
-    pub client: SupabaseClient,
+pub struct QueryBuilder<'s> {
+    pub from_table: &'s FromTable<'s>,
     pub query: Query,
-    pub table_name: String, // option columns
 }

@@ -15,7 +15,8 @@ pub async fn update_with_column() {
 
         // Usage example
         let response_inner: Result<String, String> = supabase_client
-            .update_with_column_name("test", "dog", &id, updated_body)
+            .from("test")
+            .update_with_column_name("dog", &id, updated_body)
             .await;
 
         match response_inner {

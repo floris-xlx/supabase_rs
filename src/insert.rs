@@ -23,8 +23,8 @@
 //!     let client = SupabaseClient::new(
 //!         "your_supabase_url".to_string(), "your_supabase_key".to_string()
 //!     ).unwrap();
-//!     let insert_result = client.insert(
-//!         "your_table_name", json!({"column_name": "value"})
+//!     let insert_result = client.from("your_table_name").insert(
+//!         json!({"column_name": "value"})
 //!     ).await;
 //! }
 //! ```
@@ -39,8 +39,8 @@
 //!     let client = SupabaseClient::new(
 //!         "your_supabase_url".to_string(), "your_supabase_key".to_string()
 //!     ).unwrap();
-//!     let unique_insert_result = client.insert_if_unique(
-//!         "your_table_name", json!({"unique_column_name": "unique_value"})
+//!     let unique_insert_result = client.from("your_table_name").insert_if_unique(
+//!         json!({"unique_column_name": "unique_value"})
 //!     ).await;
 //! }
 //! ```
@@ -51,11 +51,11 @@
 //! and `Err(String)` contains an error message in case of failure.
 
 use crate::request::headers::HeadersTypes;
-use crate::{generate_random_id, SupabaseClient};
+use crate::{generate_random_id, FromTable};
 use reqwest::Response;
 use serde_json::{json, Value};
 
-impl SupabaseClient {
+impl<'s> FromTable<'s> {
     /// Inserts a new row into the specified table with automatically generated ID for column `id`.
     ///
     /// # Arguments
@@ -81,9 +81,7 @@ impl SupabaseClient {
     /// # Returns
     /// This method returns a `Result<String, String>`. On success, it returns `Ok(String)` with the new row's ID,
     /// and on failure, it returns `Err(String)` with an error message.
-    pub async fn insert(&self, table_name: &str, mut body: Value) -> Result<String, String> {
-        let endpoint: String = self.endpoint(table_name);
-
+    pub async fn insert(&self, mut body: Value) -> Result<String, String> {
         #[cfg(feature = "nightly")]
         use crate::nightly::print_nightly_warning;
         #[cfg(feature = "nightly")]
@@ -93,9 +91,9 @@ impl SupabaseClient {
         body["id"] = json!(new_id);
 
         let response: Response = match self
-            .client
-            .post(&endpoint)
-            .header(HeadersTypes::ApiKey, &self.api_key)
+            .http_client
+            .post(&self.endpoint())
+            .header(HeadersTypes::ApiKey, self.api_key)
             .header(
                 HeadersTypes::Authorization,
                 format!("Bearer {}", &self.api_key),
@@ -148,22 +146,16 @@ impl SupabaseClient {
     /// # Returns
     /// This method returns a `Result<(), String>`. On success, it returns `Ok(())`,
     /// and on failure, it returns `Err(String)` with an error message.
-    pub async fn insert_without_defined_key(
-        &self,
-        table_name: &str,
-        body: Value,
-    ) -> Result<(), String> {
-        let endpoint: String = self.endpoint(table_name);
-
+    pub async fn insert_without_defined_key(&self, body: Value) -> Result<(), String> {
         #[cfg(feature = "nightly")]
         use crate::nightly::print_nightly_warning;
         #[cfg(feature = "nightly")]
         print_nightly_warning();
 
         let response: Response = match self
-            .client
-            .post(&endpoint)
-            .header(HeadersTypes::ApiKey, &self.api_key)
+            .http_client
+            .post(&self.endpoint())
+            .header(HeadersTypes::ApiKey, self.api_key)
             .header(
                 HeadersTypes::Authorization,
                 format!("Bearer {}", &self.api_key),
@@ -206,8 +198,7 @@ impl SupabaseClient {
     ///     let client = SupabaseClient::new("your_supabase_url".to_string(), "your_supabase_key".to_string()).unwrap();
     ///
     ///     // This will insert a new row into the table if the value is unique
-    ///     let unique_insert_result = client.insert_if_unique(
-    ///         "your_table_name",
+    ///     let unique_insert_result = client.from("your_table_name").insert_if_unique(
     ///         json!({"unique_column_name": "unique_value"})
     ///     ).await;
     /// }
@@ -216,7 +207,7 @@ impl SupabaseClient {
     /// # Returns
     /// This method returns a `Result<String, String>`. On success, it returns `Ok(String)` with the new row's ID,
     /// and on failure, it returns `Err(String)` with an error message indicating a duplicate entry.
-    pub async fn insert_if_unique(&self, table_name: &str, body: Value) -> Result<String, String> {
+    pub async fn insert_if_unique(&self, body: Value) -> Result<String, String> {
         let conditions: &serde_json::Map<String, Value> = match body.as_object() {
             Some(map) => map,
             None => {
@@ -226,7 +217,7 @@ impl SupabaseClient {
         };
 
         // Check if any row in the table matches all the column-value pairs in the body
-        let mut query: crate::query::QueryBuilder = self.select(table_name);
+        let mut query: crate::query::QueryBuilder = self.select();
         for (column_name, column_value) in conditions {
             // turn column_value into a string before passing it to the query
             // ONLY if it's NOT a string
@@ -244,7 +235,7 @@ impl SupabaseClient {
         // If no existing row matches all conditions, proceed with the insert
         if let Ok(results) = response {
             if results.is_empty() {
-                return self.insert(table_name, body).await;
+                return self.insert(body).await;
             }
         } else {
             println!("\x1b[31mFailed to execute select query\x1b[0m");
@@ -288,14 +279,13 @@ impl SupabaseClient {
     /// # Returns
     /// This method returns a `Result<(), String>`. On success, it returns `Ok(())`,
     /// and on failure, it returns `Err(String)` with an error message.
-    pub async fn bulk_insert<T>(&self, table_name: &str, body: Vec<T>) -> Result<(), String>
+    pub async fn bulk_insert<T>(&self, body: Vec<T>) -> Result<(), String>
     where
         T: serde::Serialize,
     {
         let Ok(body) = serde_json::to_value(body) else {
             return Err("Failed to serialize body".to_string());
         };
-        let endpoint: String = self.endpoint(table_name);
 
         #[cfg(feature = "nightly")]
         use crate::nightly::print_nightly_warning;
@@ -303,12 +293,12 @@ impl SupabaseClient {
         print_nightly_warning();
 
         let response: Response = match self
-            .client
-            .post(&endpoint)
-            .header(HeadersTypes::ApiKey, &self.api_key)
+            .http_client
+            .post(&self.endpoint())
+            .header(HeadersTypes::ApiKey, self.api_key)
             .header(
                 HeadersTypes::Authorization,
-                format!("Bearer {}", &self.api_key),
+                format!("Bearer {}", self.api_key),
             )
             .header(HeadersTypes::ContentType, "application/json")
             .header(HeadersTypes::ClientInfo, &crate::client_info())

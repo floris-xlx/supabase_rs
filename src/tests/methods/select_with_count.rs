@@ -7,8 +7,12 @@ pub async fn select_with_count() {
     async fn select_with_count_inner(supabase_client: SupabaseClient) -> Result<(), String> {
         // Usage example
 
-        let response_inner: Result<Vec<Value>, String> =
-            supabase_client.select("test").count().execute().await;
+        let response_inner: Result<Vec<Value>, String> = supabase_client
+            .from("test")
+            .select()
+            .count()
+            .execute()
+            .await;
 
         match response_inner {
             Ok(_) => Ok(()),
