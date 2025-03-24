@@ -22,8 +22,8 @@
 //!     let client = SupabaseClient::new(
 //!         "your_supabase_url".to_string(), "your_supabase_key".to_string()
 //!     ).unwrap();
-//!     let update_result = client.update(
-//!         "your_table_name", "row_id", serde_json::json!({"column_name": "new_value"})
+//!     let update_result = client.from("your_table_name").update(
+//!         "row_id", serde_json::json!({"column_name": "new_value"})
 //!     ).await;
 //! }
 //! ```
