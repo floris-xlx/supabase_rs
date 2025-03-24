@@ -6,8 +6,10 @@ pub async fn delete() {
     async fn delete_inner(supabase_client: SupabaseClient) -> Result<(), String> {
         // Usage example
 
-        let response_inner: Result<(), String> =
-            supabase_client.delete("test", "1476105020679346924").await;
+        let response_inner: Result<(), String> = supabase_client
+            .from("test")
+            .delete("1476105020679346924")
+            .await;
 
         match response_inner {
             Ok(_) => Ok(()),

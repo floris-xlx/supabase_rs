@@ -41,7 +41,8 @@ impl SupabaseClient {
         column_name: String,
     ) -> Result<String, String> {
         let response: Result<Vec<Value>, String> = self
-            .select(&table_name)
+            .from(&table_name)
+            .select()
             .eq(&column_name, &email)
             .execute()
             .await;

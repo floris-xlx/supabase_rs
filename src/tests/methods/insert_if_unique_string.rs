@@ -9,12 +9,10 @@ pub async fn insert_if_unique_string() {
         let random_string: String = rand::random::<u64>().to_string();
 
         let response_inner: Result<String, String> = supabase_client
-            .insert_if_unique(
-                "test",
-                json!({
-                    "dog": random_string,
-                }),
-            )
+            .from("test")
+            .insert_if_unique(json!({
+                "dog": random_string,
+            }))
             .await;
 
         match response_inner {

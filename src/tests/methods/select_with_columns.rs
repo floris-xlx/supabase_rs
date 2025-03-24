@@ -8,7 +8,8 @@ pub async fn select_with_columns() {
         // Usage example
 
         let response_inner: Result<Vec<Value>, String> = supabase_client
-            .select("test")
+            .from("test")
+            .select()
             .columns(["dog"].to_vec())
             .eq("dog", "what da dog doing")
             .execute()

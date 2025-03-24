@@ -1,9 +1,9 @@
 use crate::query::{Filter, Query, QueryBuilder, Sort};
-use crate::SupabaseClient;
+use crate::FromTable;
 
 use serde_json::Value;
 
-impl QueryBuilder {
+impl<'s> QueryBuilder<'s> {
     /// Constructs a new `QueryBuilder` for a specified table.
     ///
     /// # Arguments
@@ -12,15 +12,14 @@ impl QueryBuilder {
     ///
     /// # Returns
     /// Returns a new instance of `QueryBuilder`.
-    pub fn new(client: SupabaseClient, table_name: &str) -> Self {
+    pub fn new(from_table: &'s FromTable<'s>) -> Self {
         QueryBuilder {
-            client,
+            from_table,
             query: Query::new(),
-            table_name: table_name.to_string(),
         }
     }
 
-    pub fn columns(mut self, columns: Vec<&str>) -> QueryBuilder {
+    pub fn columns(mut self, columns: Vec<&str>) -> Self {
         // add query params &select=column1,column2
         let columns_str: String = columns.join(",");
         self.query.add_param("select", &columns_str);
@@ -158,9 +157,7 @@ impl QueryBuilder {
     /// # Returns
     /// Returns a `Result` containing either a vector of `Value` representing the fetched records, or a `String` error message.
     pub async fn execute(self) -> Result<Vec<Value>, String> {
-        self.client
-            .execute(&self.table_name, self.query.build().as_str())
-            .await
+        self.from_table.execute(self.query.build().as_str()).await
     }
 }
 
