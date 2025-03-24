@@ -76,8 +76,20 @@ impl AuthClient {
         })
     }
 
+    /// Gets the current user details if there is an existing session, or None if not.
+    ///
+    /// # Returns
+    /// * `Option<AuthSession>` - User's session data if authenticated, None if not found
     pub fn session(&self) -> Option<AuthSession> {
         self.session.borrow().as_ref().cloned()
+    }
+
+    /// Checks if the client has an active session
+    ///
+    /// # Returns
+    /// * `bool` - True if the client has an active session, false otherwise
+    pub fn is_authenticated(&self) -> bool {
+        self.session.borrow().is_some()
     }
 
     /// Handles HTTP response status codes and maps them to appropriate AuthErrors
@@ -127,6 +139,32 @@ impl AuthClient {
                 StatusCode::INTERNAL_SERVER_ERROR | _ => Err(AuthError::GeneralError),
             }
         }
+    }
+
+    fn apply_http_headers(&self, request: reqwest::RequestBuilder) -> reqwest::RequestBuilder {
+        let session = self.session.borrow();
+        let bearer_token = match session.as_ref() {
+            Some(session) => &session.access_token,
+            None => &self.supabase_anon_key,
+        };
+
+        request
+            .header("apiKey", &self.supabase_anon_key)
+            .bearer_auth(bearer_token)
+    }
+
+    fn http_get(&self, url: &str) -> reqwest::RequestBuilder {
+        let request = self
+            .http_client
+            .get(format!("{}/auth/v1/{}", self.supabase_api_url, url));
+        self.apply_http_headers(request)
+    }
+
+    fn http_post(&self, url: &str) -> reqwest::RequestBuilder {
+        let request = self
+            .http_client
+            .post(format!("{}/auth/v1/{}", self.supabase_api_url, url));
+        self.apply_http_headers(request)
     }
 }
 

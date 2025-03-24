@@ -26,16 +26,8 @@ impl AuthClient {
     /// # Returns
     /// * `Result<Option<UserSchema>, AuthError>` - User data if found, None if not found, or error
     pub async fn get_user_remote(&self) -> Result<Option<UserSchema>, AuthError> {
-        let access_token = match self.session.borrow().as_ref() {
-            Some(session) => session.access_token.clone(),
-            None => return Err(AuthError::NotAuthorized),
-        };
-
         let resp = match self
-            .http_client
-            .get(format!("{}/auth/v1/user", self.supabase_api_url))
-            .bearer_auth(access_token)
-            .header("apiKey", &self.supabase_anon_key)
+            .http_get("user")
             .send()
             .instrument(trace_span!("gotrue get_user"))
             .await

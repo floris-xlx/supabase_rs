@@ -55,13 +55,7 @@ impl AuthClient {
         };
 
         let resp = match self
-            .http_client
-            .post(format!(
-                "{}/auth/v1/token?grant_type=password",
-                self.supabase_api_url,
-            ))
-            .bearer_auth(&self.supabase_anon_key)
-            .header("apiKey", &self.supabase_anon_key)
+            .http_post("token?grant_type=password")
             .json(&token_password_grant)
             .send()
             .instrument(trace_span!("gotrue token password"))

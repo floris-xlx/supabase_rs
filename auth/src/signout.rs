@@ -26,33 +26,28 @@ impl AuthClient {
 
     #[instrument(skip_all)]
     pub async fn signout_with_scope(&self, scope: SignOutScope) -> Result<(), AuthError> {
-        match self.session.borrow().as_ref() {
-            Some(session) => {
-                let body = serde_json::to_string(&scope)?;
-                let resp = match self
-                    .http_client
-                    .post(format!("{}/auth/v1/logout", self.supabase_api_url))
-                    .bearer_auth(session.access_token.clone())
-                    .header("apiKey", &self.supabase_anon_key)
-                    .body(body)
-                    .send()
-                    .instrument(trace_span!("gotrue logout user"))
-                    .await
-                {
-                    Ok(resp) => resp,
-                    Err(e) => {
-                        error!("{e:?}");
-                        return Err(AuthError::Http);
-                    }
-                };
+        if self.is_authenticated() {
+            let body = serde_json::to_string(&scope)?;
+            let resp = match self
+                .http_post("logout")
+                .body(body)
+                .send()
+                .instrument(trace_span!("gotrue logout user"))
+                .await
+            {
+                Ok(resp) => resp,
+                Err(e) => {
+                    error!("{e:?}");
+                    return Err(AuthError::Http);
+                }
+            };
 
-                self.handle_response_code::<String>(resp).await?;
-            }
-            None => {
-                debug!("no session found");
-            }
+            self.handle_response_code::<String>(resp).await?;
+
+            *self.session.borrow_mut() = None;
+        } else {
+            debug!("no session found");
         }
-        *self.session.borrow_mut() = None;
         Ok(())
     }
 }
