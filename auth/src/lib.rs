@@ -188,7 +188,7 @@ mod tests {
 
     pub(crate) async fn get_auth_client() -> Result<AuthClient> {
         dotenv::dotenv().ok();
-        tracing_subscriber::fmt::init();
+        tracing_subscriber::fmt::try_init().ok();
 
         let supabase_url = std::env::var("SUPABASE_URL")?;
         let supabase_key = std::env::var("SUPABASE_KEY")?;

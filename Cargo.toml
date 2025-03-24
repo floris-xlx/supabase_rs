@@ -40,7 +40,6 @@ repository = "https://github.com/floris-xlx/supabase_rs"
 # dependencies used by more than one members
 [workspace.dependencies]
 dotenv = "0.15.0"
-log = { default-features = false, version = "0.4.26" }
 serde = { default-features = false, version = "1.0.219", features = ["derive"] }
 serde_json = { default-features = false, version = "1.0.140", features = ["std"] }
 reqwest = { version = "0.12.3", default-features = false, features = ["gzip", "json"] }
