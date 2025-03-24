@@ -1,6 +1,5 @@
-use log::{debug, error};
 use serde::{Deserialize, Serialize};
-use tracing::{instrument, trace_span, Instrument};
+use tracing::{debug, error, instrument, trace_span, Instrument};
 
 use crate::error::AuthError;
 use crate::models::token::TokenResponse;

@@ -2,9 +2,8 @@
 
 use std::collections::HashMap;
 
-use log::error;
 use serde::{Deserialize, Serialize};
-use tracing::{trace_span, Instrument};
+use tracing::{error, trace_span, Instrument};
 
 use crate::error::AuthError;
 use crate::models::user::UserSchema;

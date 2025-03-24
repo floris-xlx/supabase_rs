@@ -5,14 +5,13 @@
 //! and user management.
 
 pub use error::AuthError;
-use log::{debug, error, warn};
 pub use models::user::UserSchema as User;
 use reqwest::{Client, Response, StatusCode};
 use serde::{Deserialize, Serialize};
 use std::cell::RefCell;
 use std::fmt::{Debug, Display, Formatter};
 use thiserror::Error;
-use tracing::instrument;
+use tracing::{debug, error, instrument, warn};
 #[allow(unused)]
 pub use ErrorSchema as Error;
 
@@ -189,7 +188,7 @@ mod tests {
 
     pub(crate) async fn get_auth_client() -> Result<AuthClient> {
         dotenv::dotenv().ok();
-        env_logger::try_init().ok();
+        tracing_subscriber::fmt::init();
 
         let supabase_url = std::env::var("SUPABASE_URL")?;
         let supabase_key = std::env::var("SUPABASE_KEY")?;

@@ -1,7 +1,6 @@
 //! Handles user logout operations
 
-use log::debug;
-use tracing::{error, instrument, trace_span, Instrument};
+use tracing::{debug, error, instrument, trace_span, Instrument};
 
 use crate::{AuthClient, AuthError};
 

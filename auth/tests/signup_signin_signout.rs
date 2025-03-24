@@ -5,7 +5,7 @@ use supabase_rs_auth::{AuthClient, IdType};
 async fn sign_up_in_out() -> anyhow::Result<()> {
     fn get_auth_client() -> anyhow::Result<AuthClient> {
         dotenv::dotenv().ok();
-        env_logger::try_init().ok();
+        tracing_subscriber::fmt::init();
 
         let supabase_url = std::env::var("SUPABASE_URL")?;
         let supabase_key = std::env::var("SUPABASE_KEY")?;
