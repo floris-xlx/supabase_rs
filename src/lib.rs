@@ -439,8 +439,8 @@ impl<'s> FromTable<'s> {
 
 /// Generates a random 64-bit signed integer within a larger range
 pub fn generate_random_id() -> i64 {
-    let mut rng: ThreadRng = rand::thread_rng();
-    rng.gen_range(0..i64::MAX)
+    let mut rng: ThreadRng = rand::rng();
+    rng.random_range(0..i64::MAX)
 }
 
 pub(crate) fn client_info() -> String {
