@@ -25,8 +25,7 @@ impl AuthClient {
     #[instrument(skip(self))]
     pub async fn refresh_token(&self, token: &str) -> Result<TokenResponse, AuthError> {
         if token.is_empty() {
-            error!("empty token");
-            return Err(AuthError::InvalidParameters);
+            return Err(AuthError::InvalidParameters("empty token".to_string()));
         }
 
         let token_grant = TokenRefreshGrant {

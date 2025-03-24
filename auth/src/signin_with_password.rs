@@ -21,15 +21,13 @@ impl AuthClient {
         password: &str,
     ) -> Result<AuthSession, AuthError> {
         if password.is_empty() {
-            error!("empty password");
-            return Err(AuthError::InvalidParameters);
+            return Err(AuthError::InvalidParameters("empty password".to_string()));
         }
 
         let token_password_grant = match id {
             IdType::Email(email) => {
                 if email.is_empty() {
-                    error!("empty email");
-                    return Err(AuthError::InvalidParameters);
+                    return Err(AuthError::InvalidParameters("empty email".to_string()));
                 }
 
                 debug!("email = {email}");
@@ -41,8 +39,9 @@ impl AuthClient {
             }
             IdType::PhoneNumber(phone_number) => {
                 if phone_number.is_empty() {
-                    error!("empty phone_number");
-                    return Err(AuthError::InvalidParameters);
+                    return Err(AuthError::InvalidParameters(
+                        "empty phone_number".to_string(),
+                    ));
                 }
 
                 debug!("phone_number = {phone_number}");
@@ -114,6 +113,32 @@ mod tests {
             .await?;
 
         assert_eq!(session.user.unwrap().email, Some(TEST_USER_EMAIL.into()));
+
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn test_signin_with_email_invalid() -> Result<()> {
+        let client = match get_auth_client().await {
+            Ok(client) => client,
+            Err(e) => {
+                println!("Cannot create an auth client. Most probably SUPABASE_URL and/or SUPABASE_KEY env vars are not exported: {e}");
+                return Ok(());
+            }
+        };
+
+        match client
+            .signin_with_password(
+                IdType::Email("non.existing@supabase.rs".into()),
+                TEST_USER_PASSWD,
+            )
+            .await
+        {
+            Ok(_) => panic!("Expected an error"),
+            Err(e) => {
+                dbg!(e);
+            }
+        }
 
         Ok(())
     }

@@ -129,13 +129,17 @@ impl AuthClient {
 
             Ok(Some(t))
         } else {
-            warn!("response.text = {}", &http_response.text().await.unwrap());
+            let response_text = match &http_response.text().await {
+                Ok(text) => text.clone(),
+                Err(e) => e.to_string(),
+            };
+            debug!("response.text = {response_text}");
             match status {
                 StatusCode::UNAUTHORIZED | StatusCode::FORBIDDEN => Err(AuthError::NotAuthorized),
                 StatusCode::UNPROCESSABLE_ENTITY | StatusCode::BAD_REQUEST => {
-                    Err(AuthError::InvalidParameters)
+                    Err(AuthError::InvalidParameters(response_text.to_string()))
                 }
-                StatusCode::NOT_ACCEPTABLE => Err(AuthError::NotFound),
+                StatusCode::NOT_FOUND | StatusCode::NOT_ACCEPTABLE => Err(AuthError::NotFound),
                 StatusCode::INTERNAL_SERVER_ERROR | _ => Err(AuthError::GeneralError),
             }
         }

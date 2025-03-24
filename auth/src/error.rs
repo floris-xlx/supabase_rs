@@ -11,8 +11,8 @@ pub enum AuthError {
     NotAuthorized,
 
     /// Invalid parameters were provided
-    #[error("invalid parameters")]
-    InvalidParameters,
+    #[error("invalid parameters: {0}")]
+    InvalidParameters(String),
 
     /// HTTP request failed
     #[error("http error")]
