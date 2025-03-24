@@ -81,7 +81,11 @@ impl SupabaseClient {
     /// # Returns
     /// This method returns a `Result<String, String>`. On success, it returns `Ok(String)` with the new row's ID,
     /// and on failure, it returns `Err(String)` with an error message.
-    pub async fn insert_with_generated_id(&self, table_name: &str, mut body: Value) -> Result<String, String> {
+    pub async fn insert_with_generated_id(
+        &self,
+        table_name: &str,
+        mut body: Value,
+    ) -> Result<String, String> {
         let endpoint: String = self.endpoint(table_name);
 
         #[cfg(feature = "nightly")]
@@ -148,11 +152,7 @@ impl SupabaseClient {
     /// # Returns
     /// This method returns a `Result<String, String>`. On success, it returns `Ok(String)` with the new row's ID,
     /// and on failure, it returns `Err(String)` with an error message.
-    pub async fn insert(
-        &self,
-        table_name: &str,
-        body: Value,
-    ) -> Result<String, String> {
+    pub async fn insert(&self, table_name: &str, body: Value) -> Result<String, String> {
         let endpoint: String = self.endpoint(table_name);
 
         #[cfg(feature = "nightly")]
