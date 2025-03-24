@@ -16,7 +16,6 @@ use tracing::instrument;
 #[allow(unused)]
 pub use ErrorSchema as Error;
 
-mod delete_user;
 mod error;
 mod get_user;
 pub mod models;
@@ -29,7 +28,7 @@ mod signup;
 #[derive(Clone, Debug)]
 pub struct AuthClient {
     /// HTTP client for making requests
-    http_client: reqwest::Client,
+    http_client: Client,
     /// Base URL for the Supabase API
     supabase_api_url: String,
     /// Anonymous API key for authentication
@@ -49,13 +48,29 @@ impl AuthClient {
     /// * `Result<Self, anyhow::Error>` - New client instance or error
     pub fn new(api_url: &str, anon_key: &str) -> anyhow::Result<Self> {
         #[cfg(feature = "rustls")]
-        let client = Client::builder().use_rustls_tls().build()?;
+        let http_client = Client::builder().use_rustls_tls().build()?;
 
         #[cfg(not(feature = "rustls"))]
-        let client = Client::new();
+        let http_client = Client::new();
 
+        Self::with_http_client(api_url, anon_key, http_client)
+    }
+
+    /// Creates a new AuthClient instance
+    ///
+    /// # Arguments
+    /// * `api_url` - Base URL for the Supabase API
+    /// * `anon_key` - Anonymous API key for authentication
+    ///
+    /// # Returns
+    /// * `Result<Self, anyhow::Error>` - New client instance or error
+    pub fn with_http_client(
+        api_url: &str,
+        anon_key: &str,
+        http_client: Client,
+    ) -> anyhow::Result<Self> {
         Ok(Self {
-            http_client: client,
+            http_client,
             supabase_api_url: api_url.to_owned(),
             supabase_anon_key: anon_key.to_owned(),
             session: RefCell::new(None),

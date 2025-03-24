@@ -392,21 +392,22 @@ impl SupabaseClient {
     /// ```
     pub fn new(supabase_url: String, private_key: String) -> Result<Self> {
         #[cfg(feature = "rustls")]
-        let client = Client::builder().use_rustls_tls().build()?;
+        let http_client = Client::builder().use_rustls_tls().build()?;
 
         #[cfg(not(feature = "rustls"))]
-        let client = Client::new();
+        let http_client = Client::new();
 
         #[cfg(feature = "auth")]
-        let auth_client = match AuthClient::new(&supabase_url, &private_key) {
-            Ok(client) => client,
-            Err(_err) => return Err(ErrorTypes::AuthenticationFailed),
-        };
+        let auth_client =
+            match AuthClient::with_http_client(&supabase_url, &private_key, http_client.clone()) {
+                Ok(client) => client,
+                Err(_err) => return Err(ErrorTypes::AuthenticationFailed),
+            };
 
         Ok(Self {
             url: supabase_url,
             api_key: private_key,
-            client,
+            client: http_client,
             #[cfg(feature = "auth")]
             auth_client,
         })
