@@ -353,6 +353,9 @@ pub mod storage;
 
 use errors::Result;
 
+#[cfg(feature = "auth")]
+use supabase_auth::models::AuthClient;
+
 /// A client structure for interacting with Supabase services.
 ///
 /// This structure holds the necessary details to make requests to the Supabase API.
@@ -365,7 +368,9 @@ use errors::Result;
 pub struct SupabaseClient {
     url: String,
     api_key: String,
-    client: reqwest::Client,
+    client: Client,
+    #[cfg(feature = "auth")]
+    auth_client: AuthClient,
 }
 
 impl SupabaseClient {
@@ -390,10 +395,15 @@ impl SupabaseClient {
         #[cfg(not(feature = "rustls"))]
         let client = Client::new();
 
+        #[cfg(feature = "auth")]
+        let auth_client = AuthClient::new(&supabase_url, &private_key, "");
+
         Ok(Self {
             url: supabase_url,
             api_key: private_key,
             client,
+            #[cfg(feature = "auth")]
+            auth_client,
         })
     }
 
@@ -407,12 +417,30 @@ impl SupabaseClient {
     fn endpoint(&self, table_name: &str) -> String {
         format!("{}/rest/v1/{table_name}", self.url)
     }
+
+    #[cfg(feature = "auth")]
+    pub fn auth(&self) -> &AuthClient {
+        &self.auth_client
+    }
+
+    #[cfg(not(feature = "auth"))]
+    fn get_bearer_token(&self) -> &str {
+        &self.api_key
+    }
+
+    #[cfg(feature = "auth")]
+    fn get_bearer_token(&self) -> String {
+        match self.auth().session() {
+            Some(session) => session.access_token.clone(),
+            None => String::from(&self.api_key),
+        }
+    }
 }
 
 /// Generates a random 64-bit signed integer within a larger range
 pub fn generate_random_id() -> i64 {
-    let mut rng: ThreadRng = rand::thread_rng();
-    rng.gen_range(0..i64::MAX)
+    let mut rng: ThreadRng = rand::rng();
+    rng.random_range(0..i64::MAX)
 }
 
 pub(crate) fn client_info() -> String {
