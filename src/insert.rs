@@ -56,7 +56,7 @@ use reqwest::Response;
 use serde_json::{json, Value};
 
 impl SupabaseClient {
-    /// Inserts a new row into the specified table with automatically generated ID for column `id`.
+    /// Inserts a new row into the specified table with a randomly generated ID for column `id`.
     ///
     /// # Arguments
     /// * `table_name` - A string slice that holds the name of the table.
@@ -81,7 +81,11 @@ impl SupabaseClient {
     /// # Returns
     /// This method returns a `Result<String, String>`. On success, it returns `Ok(String)` with the new row's ID,
     /// and on failure, it returns `Err(String)` with an error message.
-    pub async fn insert(&self, table_name: &str, mut body: Value) -> Result<String, String> {
+    pub async fn insert_with_generated_id(
+        &self,
+        table_name: &str,
+        mut body: Value,
+    ) -> Result<String, String> {
         let endpoint: String = self.endpoint(table_name);
 
         #[cfg(feature = "nightly")]
@@ -122,7 +126,81 @@ impl SupabaseClient {
         }
     }
 
+    /// Inserts a new row into the specified table.
+    ///
+    /// # Arguments
+    /// * `table_name` - A string slice that holds the name of the table.
+    /// * `body` - A JSON value containing the data to be inserted.
+    ///
+    /// # Example
+    /// ```ignore
+    /// // Initialize the Supabase client
+    /// let client = SupabaseClient::new("your_supabase_url", "your_supabase_key");
+    ///
+    /// // This will insert a new row into the table
+    /// let insert_result = client.insert(
+    ///   "your_table_name",
+    ///   json!(
+    ///     {
+    ///         "id": "your_id", // Optional
+    ///         "column_name": "value"
+    ///     }
+    ///   )
+    /// ).await;
+    /// ```
+    ///
+    /// # Returns
+    /// This method returns a `Result<String, String>`. On success, it returns `Ok(String)` with the new row's ID,
+    /// and on failure, it returns `Err(String)` with an error message.
+    pub async fn insert(&self, table_name: &str, body: Value) -> Result<String, String> {
+        let endpoint: String = self.endpoint(table_name);
+
+        #[cfg(feature = "nightly")]
+        use crate::nightly::print_nightly_warning;
+        #[cfg(feature = "nightly")]
+        print_nightly_warning();
+
+        let response: Response = match self
+            .client
+            .post(&endpoint)
+            .header(HeadersTypes::ApiKey, &self.api_key)
+            .header(
+                HeadersTypes::Authorization,
+                format!("Bearer {}", &self.api_key),
+            )
+            .header(HeadersTypes::ContentType, "application/json")
+            .header(HeadersTypes::ClientInfo, &crate::client_info())
+            .header(HeadersTypes::Prefer, "return=representation")
+            .body(body.to_string())
+            .send()
+            .await
+        {
+            Ok(response) => response,
+            Err(e) => return Err(e.to_string()),
+        };
+
+        if response.status().is_success() {
+            let res_text: String = match response.text().await {
+                Ok(text) => text,
+                Err(e) => return Err(format!("Failed to get response text: {}", e)),
+            };
+            let id: String = match serde_json::from_str::<Value>(&res_text) {
+                Ok(json) => json["id"].to_string(),
+                Err(e) => return Err(format!("Failed to parse response text: {}", e)),
+            };
+            Ok(id)
+        } else if response.status().as_u16() == 409 {
+            println!("\x1b[31mError 409: Duplicate entry. The value you're trying to insert may already exist in a column with a UNIQUE constraint.\x1b[0m");
+
+            return Err("\x1b[31mError 409: Duplicate entry. The value you're trying to insert may already exist in a column with a UNIQUE constraint.\x1b[0m".to_string());
+        } else {
+            println!("\x1b[31mError: {:?}\x1b[0m", response);
+            return Err(response.status().to_string());
+        }
+    }
+
     /// Inserts a new row into the specified table with a user-defined ID or Supabase backend generated ID.
+    /// This method is identical to the `insert` method.
     ///
     /// # Arguments
     /// * `table_name` - A string slice that holds the name of the table.
@@ -152,42 +230,8 @@ impl SupabaseClient {
         &self,
         table_name: &str,
         body: Value,
-    ) -> Result<(), String> {
-        let endpoint: String = self.endpoint(table_name);
-
-        #[cfg(feature = "nightly")]
-        use crate::nightly::print_nightly_warning;
-        #[cfg(feature = "nightly")]
-        print_nightly_warning();
-
-        let response: Response = match self
-            .client
-            .post(&endpoint)
-            .header(HeadersTypes::ApiKey, &self.api_key)
-            .header(
-                HeadersTypes::Authorization,
-                format!("Bearer {}", &self.api_key),
-            )
-            .header(HeadersTypes::ContentType, "application/json")
-            .header(HeadersTypes::ClientInfo, &crate::client_info())
-            .body(body.to_string())
-            .send()
-            .await
-        {
-            Ok(response) => response,
-            Err(e) => return Err(e.to_string()),
-        };
-
-        if response.status().is_success() {
-            Ok(())
-        } else if response.status().as_u16() == 409 {
-            println!("\x1b[31mError 409: Duplicate entry. The value you're trying to insert may already exist in a column with a UNIQUE constraint.\x1b[0m");
-
-            return Err("\x1b[31mError 409: Duplicate entry. The value you're trying to insert may already exist in a column with a UNIQUE constraint.\x1b[0m".to_string());
-        } else {
-            println!("\x1b[31mError: {:?}\x1b[0m", response);
-            return Err(response.status().to_string());
-        }
+    ) -> Result<String, String> {
+        self.insert(table_name, body).await
     }
 
     /// Inserts a row into the specified table if the value is unique and does not exist in the table already.
