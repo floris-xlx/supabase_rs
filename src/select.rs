@@ -202,7 +202,14 @@ impl SupabaseClient {
         }
 
         // send the request
-        let response: Response = match self.client.get(&endpoint).headers(header_map).send().await {
+        let response: Response = match self
+            .client
+            .get(&endpoint)
+            .bearer_auth(self.get_bearer_token())
+            .headers(header_map)
+            .send()
+            .await
+        {
             Ok(response) => response,
             Err(error) => return Err(error.to_string()),
         };

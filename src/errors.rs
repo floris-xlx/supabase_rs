@@ -12,6 +12,8 @@ pub enum ErrorTypes {
     ApiKeyMissing,
     #[error("Authorization failed")]
     AuthorizationFailed,
+    #[error("Authentication failed")]
+    AuthenticationFailed,
     #[error("Invalid query")]
     InvalidQuery,
     #[error("Reqwest error: {0}")]
