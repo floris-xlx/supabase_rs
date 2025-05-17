@@ -84,4 +84,48 @@ impl SupabaseClient {
             Err(response.status().to_string())
         }
     }
+
+    pub async fn delete_without_defined_key(
+        &self,
+        table_name: &str,
+        key: &str,
+        value: &str,
+    ) -> Result<(), String> {
+        // Construct the endpoint URL for the delete operation with dynamic key
+        let endpoint: String = self.endpoint(table_name);
+        let endpoint: String = format!("{endpoint}?{key}=eq.{value}");
+
+        #[cfg(feature = "nightly")]
+        use crate::nightly::print_nightly_warning;
+        #[cfg(feature = "nightly")]
+        print_nightly_warning();
+
+        let body: serde_json::Value = json!({});
+
+        // Send the delete request and handle the response
+        let response: Response = match self
+            .client
+            .delete(&endpoint)
+            .header(HeadersTypes::ApiKey, &self.api_key)
+            .header(
+                HeadersTypes::Authorization,
+                format!("Bearer {}", &self.api_key),
+            )
+            .header(HeadersTypes::ContentType, "application/json")
+            .header(HeadersTypes::ClientInfo, &crate::client_info())
+            .body(body.to_string())
+            .send()
+            .await
+        {
+            Ok(response) => response,
+            Err(error) => return Err(error.to_string()),
+        };
+
+        // Check the HTTP status code of the response
+        if response.status().is_success() {
+            Ok(())
+        } else {
+            Err(response.status().to_string())
+        }
+    }
 }
