@@ -119,7 +119,7 @@ impl SupabaseClient {
         } else if response.status().as_u16() == 409 {
             println!("\x1b[31mError 409: Duplicate entry. The value you're trying to insert may already exist in a column with a UNIQUE constraint.\x1b[0m");
 
-            return Err("\x1b[31mError 409: Duplicate entry. The value you're trying to insert may already exist in a column with a UNIQUE constraint.\x1b[0m".to_string());
+            return Err("Error 409: Duplicate entry. The value you're trying to insert may already exist in a column with a UNIQUE constraint.".to_string());
         } else {
             println!("\x1b[31mError: {:?}\x1b[0m", response);
             return Err(response.status().to_string());
@@ -192,7 +192,7 @@ impl SupabaseClient {
         } else if response.status().as_u16() == 409 {
             println!("\x1b[31mError 409: Duplicate entry. The value you're trying to insert may already exist in a column with a UNIQUE constraint.\x1b[0m");
 
-            return Err("\x1b[31mError 409: Duplicate entry. The value you're trying to insert may already exist in a column with a UNIQUE constraint.\x1b[0m".to_string());
+            return Err("Error 409: Duplicate entry. The value you're trying to insert may already exist in a column with a UNIQUE constraint.".to_string());
         } else {
             println!("\x1b[31mError: {:?}\x1b[0m", response);
             return Err(response.status().to_string());
@@ -369,7 +369,7 @@ impl SupabaseClient {
         } else if response.status().as_u16() == 409 {
             println!("\x1b[31mError 409: Duplicate entry. The value you're trying to insert may already exist in a column with a UNIQUE constraint.\x1b[0m");
 
-            return Err("\x1b[31mError 409: Duplicate entry. The value you're trying to insert may already exist in a column with a UNIQUE constraint.\x1b[0m".to_string());
+            return Err("Error 409: Duplicate entry. The value you're trying to insert may already exist in a column with a UNIQUE constraint.".to_string());
         } else {
             println!("\x1b[31mError: {:?}\x1b[0m", response);
             return Err(response.status().to_string());
