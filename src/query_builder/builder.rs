@@ -153,6 +153,27 @@ impl QueryBuilder {
         self
     }
 
+    /// Filters results where `column` is in the given list.
+    ///
+    /// # Arguments
+    /// * `column` - The column name to apply the filter.
+    /// * `values` - A slice of values to check against the column.
+    ///
+    /// # Returns
+    /// Returns the `QueryBuilder` instance to allow for method chaining.
+    pub fn in_<T>(mut self, column: &str, values: &[T]) -> Self
+    where
+        T: ToString,
+    {
+        let list = values
+            .iter()
+            .map(ToString::to_string)
+            .collect::<Vec<_>>()
+            .join(",");
+        self.query.add_param(column, &format!("in.({})", list));
+        self
+    }
+
     /// Executes the constructed query against the database.
     ///
     /// # Returns
