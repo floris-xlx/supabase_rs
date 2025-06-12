@@ -397,6 +397,9 @@ impl SupabaseClient {
         })
     }
 
+
+
+
     /// Returns the base URL of the Supabase project and table.
     ///
     /// # Arguments
@@ -405,7 +408,15 @@ impl SupabaseClient {
     /// # Returns
     /// Returns a string containing the endpoint URL.
     fn endpoint(&self, table_name: &str) -> String {
-        format!("{}/rest/v1/{table_name}", self.url)
+        let dont_use_rest_v1: bool = std::env::var("SUPABASE_RS_DONT_REST_V1_URL")
+            .map(|val| val.to_lowercase() == "true")
+            .unwrap_or(false);
+
+        if dont_use_rest_v1 {
+            format!("{}/{}", self.url, table_name)
+        } else {
+            format!("{}/rest/v1/{}", self.url, table_name)
+        }
     }
 }
 
