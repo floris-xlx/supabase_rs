@@ -103,7 +103,7 @@ pub async fn generate_supabase_types(user: &str, password: &str) {
 
         // struct
         output.push_str(&format!(
-            "#[derive(Debug, Serialize, Deserialize)]\npub struct {} {{\n",
+            "#[derive(Debug, Serialize, Deserialize, Clone)]\npub struct {} {{\n",
             struct_name
         ));
         for (col, rust_type) in columns {
