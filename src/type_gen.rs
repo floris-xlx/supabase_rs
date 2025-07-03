@@ -57,7 +57,8 @@ pub async fn generate_supabase_types(user: &str, password: &str) {
             "boolean" => "bool",
             "real" | "double precision" => "f64",
             "numeric" | "decimal" => "Decimal",
-            "timestamp without time zone" | "timestamp with time zone" => "NaiveDateTime",
+            "timestamp without time zone" => "NaiveDateTime",
+            "timestamp with time zone" => "DateTime<Utc>",
             "date" => "NaiveDate",
             "uuid" => "Uuid",
             "json" | "jsonb" => "Value",
@@ -86,7 +87,7 @@ pub async fn generate_supabase_types(user: &str, password: &str) {
     output.push_str("#![allow(dead_code)]\n\n");
     output.push_str("use serde::{Serialize, Deserialize};\n\n");
     output.push_str("use serde_json::Value;\n\n");
-    output.push_str("use chrono::{NaiveDate, NaiveDateTime};\n");
+    output.push_str("use chrono::{DateTime, Utc, NaiveDate, NaiveDateTime};\n");
     output.push_str("use uuid::Uuid;\n");
     output.push_str("use rust_decimal::Decimal;\n\n");
     output.push_str("use supabase_rs::SupabaseClient;\n");
