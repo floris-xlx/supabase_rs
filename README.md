@@ -37,6 +37,7 @@ GraphQL and REST can be used together as the Client is shared from wherever it w
 - [x] Select specific columns
 - [x] Applying Filters
 - [x] Counting total records
+- [x] Type generator from schema
 
 ## Advanced Filtering over `select()`
 
@@ -414,10 +415,10 @@ I'll be adding more methods and enriching the SDK over the next few weeks, for n
 ## Cargo.toml
 ```toml
 [dependencies]
-supabase_rs = "0.4.2"
+supabase_rs = "0.4.3"
 
 // With the [storage] feature
-supabase_rs = { version = "0.4.2", features = ["storage"] }
+supabase_rs = { version = "0.4.3", features = ["storage"] }
 ```
 //!
 ## Usage
@@ -435,6 +436,8 @@ SUPABASE_KEY=
 Examples will be present in the docs
 
 ## Contributors
+- [Hadi](https://github.com/hadi-xlx) - Improved & fixed the schema to type generator
 - [Izyuumi](https://github.com/izyuumi) - Improved row ID routing with updating methods
 - [koya1616](https://github.com/koya1616) - fixed README
 - [strykejern](https://github.com/strykejern) - Refactored for maintainability & fixed a warnings
+
