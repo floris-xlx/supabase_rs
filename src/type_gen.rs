@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 use std::fs;
 use std::fs::{File, OpenOptions};
 use std::io::{Read, Write};
@@ -36,8 +36,8 @@ pub async fn generate_supabase_types(user: &str, password: &str) {
         ORDER BY table_name, ordinal_position;
     ";
 
-    let mut table_definitions: HashMap<String, Vec<(String, String)>> = HashMap::new();
-    let mut all_columns: HashMap<String, Vec<String>> = HashMap::new();
+    let mut table_definitions: BTreeMap<String, Vec<(String, String)>> = BTreeMap::new();
+    let mut all_columns: BTreeMap<String, Vec<String>> = BTreeMap::new();
 
     for row in client
         .query(query, &[])
@@ -97,7 +97,11 @@ pub async fn generate_supabase_types(user: &str, password: &str) {
     let mut trait_methods: String = String::new();
     let mut impl_methods: String = String::new();
 
-    for (table, columns) in &table_definitions {
+    // ensure tables are emitted in sorted order:
+    let mut tables: Vec<_> = table_definitions.keys().cloned().collect();
+    tables.sort();
+    for table in &tables {
+        let columns = &table_definitions[table];
         let struct_name: String = pascal_case(table);
         all_tables.push(table.clone());
 
