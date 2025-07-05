@@ -397,9 +397,6 @@ impl SupabaseClient {
         })
     }
 
-
-
-
     /// Returns the base URL of the Supabase project and table.
     ///
     /// # Arguments
