@@ -63,10 +63,7 @@ impl SupabaseClient {
             .client
             .delete(&endpoint)
             .header(HeadersTypes::ApiKey, &self.api_key)
-            .header(
-                HeadersTypes::Authorization,
-                format!("Bearer {}", &self.api_key),
-            )
+            .bearer_auth(self.get_bearer_token())
             .header(HeadersTypes::ContentType, "application/json")
             .header(HeadersTypes::ClientInfo, &crate::client_info())
             .body(body.to_string())

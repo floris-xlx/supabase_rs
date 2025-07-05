@@ -25,11 +25,14 @@ tokio-postgres = "0.7.13"
 uuid = { version = "1.16.0", features = ["serde"] }
 chrono = { version = "0.4.40", features = ["serde"] }
 rust_decimal = "1.36.0"
+#supabase-auth = {  version = "0.10.12", optional = true }
+supabase-auth = {  path = "/home/martin/git/rust/supabase-auth-rs", optional = true }
 
 [dev-dependencies]
 tokio = { version = "1.37.0", features = ["full"] }
 
 [features]
+auth = ["dep:supabase-auth"]
 default = ["native_tls", "nightly"]
 nightly = []
 storage = []
