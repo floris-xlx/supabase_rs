@@ -101,7 +101,7 @@ pub async fn generate_supabase_types(user: &str, password: &str) {
     let mut tables: Vec<_> = table_definitions.keys().cloned().collect();
     tables.sort();
     for table in &tables {
-        let columns = &table_definitions[table];
+        let columns: &Vec<(String, String)> = &table_definitions[table];
         let struct_name: String = pascal_case(table);
         all_tables.push(table.clone());
 
@@ -111,13 +111,16 @@ pub async fn generate_supabase_types(user: &str, password: &str) {
             struct_name
         ));
         for (col, rust_type) in columns {
+            let is_all_upper: bool = col.chars().all(|c| c.is_ascii_uppercase());
             let field_name: String = if col == "type" {
                 "type_".to_string()
+            } else if is_all_upper {
+                col.to_lowercase()
             } else {
-                col.clone()
+                snake_case(col)
             };
-            let rename: String = if col == "type" {
-                format!("    #[serde(rename = \"{col}\")]\n")
+            let rename: String = if &field_name != col {
+                format!("    #[serde(rename = \"{}\")]\n", col)
             } else {
                 String::new()
             };
@@ -170,7 +173,7 @@ pub async fn generate_supabase_types(user: &str, password: &str) {
         let mut contents: String = String::new();
         lib_rs.read_to_string(&mut contents).unwrap();
         if !contents.contains("pub mod supabase_types;") {
-            let mut lib_rs = OpenOptions::new()
+            let mut lib_rs: File = OpenOptions::new()
                 .write(true)
                 .append(true)
                 .open("src/lib.rs")
