@@ -1,3 +1,4 @@
+use cruet::string::singularize::to_singular;
 use std::collections::BTreeMap;
 use std::fs;
 use std::fs::{File, OpenOptions};
@@ -6,7 +7,7 @@ use std::str::Chars;
 use tokio;
 use tokio_postgres::{Config, NoTls};
 
-pub async fn generate_supabase_types(user: &str, password: &str) {
+pub async fn generate_supabase_types(user: &str, password: &str, singularize_struct_name: bool) {
     // connect to your supabase Postgres pooler
     let mut config: Config = Config::new();
     config
@@ -102,10 +103,16 @@ pub async fn generate_supabase_types(user: &str, password: &str) {
     tables.sort();
     for table in &tables {
         let columns: &Vec<(String, String)> = &table_definitions[table];
-        let struct_name: String = pascal_case(table);
+        let struct_name: String = if singularize_struct_name {
+            pascal_case(&to_singular(table))
+        } else {
+            pascal_case(table)
+        };
         all_tables.push(table.clone());
 
-        // struct
+        if singularize_struct_name {
+            output.push_str(&format!("// table name: {}\n", table));
+        }
         output.push_str(&format!(
             "#[derive(Debug, Serialize, Deserialize, Clone)]\npub struct {} {{\n",
             struct_name
@@ -140,8 +147,8 @@ pub async fn generate_supabase_types(user: &str, password: &str) {
         }
         output.push_str("        ]\n    }\n}\n\n");
 
-        // extension trait entries
-        let snake: String = snake_case(&struct_name);
+        // extension trait entries — use the raw table name for the method suffix
+        let snake: String = table.clone();
         trait_methods.push_str(&format!(
             "    fn select_{}(&self) -> QueryBuilder;\n",
             snake
