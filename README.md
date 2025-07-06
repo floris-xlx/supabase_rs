@@ -415,10 +415,10 @@ I'll be adding more methods and enriching the SDK over the next few weeks, for n
 ## Cargo.toml
 ```toml
 [dependencies]
-supabase_rs = "0.4.3"
+supabase_rs = "0.4.5"
 
 // With the [storage] feature
-supabase_rs = { version = "0.4.3", features = ["storage"] }
+supabase_rs = { version = "0.4.5", features = ["storage"] }
 ```
 //!
 ## Usage
