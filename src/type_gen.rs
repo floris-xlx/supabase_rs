@@ -7,7 +7,12 @@ use std::str::Chars;
 use tokio;
 use tokio_postgres::{Config, NoTls};
 
-pub async fn generate_supabase_types(user: &str, password: &str, singularize_struct_name: bool) {
+pub async fn generate_supabase_types(
+    user: &str,
+    password: &str,
+    singularize_struct_name: bool,
+    excluded_tables: &[&str],
+) {
     // connect to your supabase Postgres pooler
     let mut config: Config = Config::new();
     config
@@ -49,6 +54,9 @@ pub async fn generate_supabase_types(user: &str, password: &str, singularize_str
 
     for row in client.query(query, &[]).await.expect("query") {
         let table_name: String = row.get("table_name");
+        if excluded_tables.contains(&table_name.as_str()) {
+            continue;
+        }
         let column_name: String = row.get("column_name");
         let data_type: String = row.get("data_type");
         let is_nullable: String = row.get("is_nullable");
