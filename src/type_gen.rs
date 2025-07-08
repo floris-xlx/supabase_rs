@@ -176,7 +176,9 @@ pub async fn generate_supabase_types(
         for col in &all_columns[table] {
             output.push_str(&format!("            \"{col}\",\n"));
         }
-        output.push_str("        ]\n    }\n}\n\n");
+        output.push_str("        ]\n    }\n\n");
+        output.push_str(&format!("    pub fn table_name() -> &'static str {{ \"{}\" }}\n", table));
+        output.push_str("}\n\n");
 
         // — extension trait methods
         trait_methods.push_str(&format!("    fn select_{table}(&self) -> QueryBuilder;\n"));
