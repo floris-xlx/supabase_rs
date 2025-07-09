@@ -177,7 +177,10 @@ pub async fn generate_supabase_types(
             output.push_str(&format!("            \"{col}\",\n"));
         }
         output.push_str("        ]\n    }\n\n");
-        output.push_str(&format!("    pub fn table_name() -> &'static str {{ \"{}\" }}\n", table));
+        output.push_str(&format!(
+            "    pub fn table_name() -> &'static str {{ \"{}\" }}\n",
+            table
+        ));
         output.push_str("}\n\n");
 
         // — extension trait methods
@@ -201,6 +204,27 @@ pub async fn generate_supabase_types(
     output.push_str("impl SupabaseClientExt for SupabaseClient {\n");
     output.push_str(&impl_methods);
     output.push_str("}\n");
+
+    if singularize_struct_name {
+        output.push_str("\n/// Map a singular resource name to its table\n");
+        output.push_str("pub fn get_resource_table(resource_type: &str) -> Result<&'static str, std::io::Error> {\n");
+        output.push_str("    match resource_type {\n");
+        for table in &tables {
+            let singular = to_singular(table);
+            output.push_str(&format!(
+                "        \"{singular}\" => Ok(\"{table}\"),\n",
+                singular = singular,
+                table = table
+            ));
+        }
+        output.push_str(
+            "        _ => Err(std::io::Error::new(\n\
+             std::io::ErrorKind::InvalidInput,\n\
+             format!(\"Unknown resource type: {}\", resource_type)\n\
+             )),\n",
+        );
+        output.push_str("    }\n}\n");
+    }
 
     if fs::metadata("src/lib.rs").is_ok() {
         let mut lib_rs: File = OpenOptions::new().read(true).open("src/lib.rs").unwrap();
