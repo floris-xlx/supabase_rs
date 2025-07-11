@@ -5,7 +5,7 @@ use std::fs::{File, OpenOptions};
 use std::io::{Read, Write};
 use std::str::Chars;
 use tokio;
-use tokio_postgres::{Config, NoTls};
+use tokio_postgres::{Config, NoTls, SimpleQueryMessage, SimpleQueryRow};
 
 pub async fn generate_supabase_types(
     user: &str,
@@ -52,16 +52,53 @@ pub async fn generate_supabase_types(
         BTreeMap::new();
     let mut all_columns: BTreeMap<String, Vec<String>> = BTreeMap::new();
 
-    for row in client.query(query, &[]).await.expect("query") {
-        let table_name: String = row.get("table_name");
-        if excluded_tables.contains(&table_name.as_str()) {
+    let rows: Vec<SimpleQueryRow> = client
+        .simple_query(query)
+        .await
+        .expect("simple_query")
+        .into_iter()
+        .filter_map(|m| match m {
+            SimpleQueryMessage::Row(r) => Some(r),
+            _ => None,
+        })
+        .collect();
+
+    for row in rows {
+        let table_name: String = row.get::<usize>(0).expect("table_name not found").to_string();
+
+        if excluded_tables.contains(&table_name.as_ref()) {
             continue;
         }
-        let column_name: String = row.get("column_name");
-        let data_type: String = row.get("data_type");
-        let is_nullable: String = row.get("is_nullable");
-        let column_default: Option<String> = row.get("column_default");
-        let is_identity: String = row.get("is_identity");
+
+        //println!("Row: {:?}", row);
+
+        let column_name: String = row
+            .get::<usize>(1)
+            .expect("column_name not found")
+            .to_string();
+
+        let data_type: String = row
+            .get::<usize>(2)
+            .expect("data_type not found")
+            .to_string();
+
+        let is_nullable: String = row
+            .get::<usize>(3)
+            .expect("is_nullable not found")
+            .to_string();
+
+        let column_default: Option<String> = row.get::<usize>(4).and_then(|s| {
+            if s.is_empty() {
+                None
+            } else {
+                Some(s.to_string())
+            }
+        });
+
+        let is_identity: String = row
+            .get::<usize>(5)
+            .expect("is_identity not found")
+            .to_string();
 
         let base_rust_type: &'static str = match data_type.as_str() {
             "integer" => "i32",
