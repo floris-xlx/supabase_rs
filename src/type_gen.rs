@@ -138,13 +138,13 @@ pub async fn generate_supabase_types(
 
     let mut output: String = String::new();
     output.push_str("#![allow(dead_code)]\n\n");
-    output.push_str("use serde::{Serialize, Deserialize};\n\n");
-    output.push_str("use serde_json::Value;\n\n");
+    output.push_str("use serde::{Serialize, Deserialize};\n");
+    output.push_str("use serde_json::Value;\n");
+    output.push_str("use serde_with::skip_serializing_none;\n");
     output.push_str("use chrono::{DateTime, Utc, NaiveDate, NaiveDateTime};\n");
     output.push_str("use uuid::Uuid;\n");
     output.push_str("use rust_decimal::Decimal;\n\n");
-    output.push_str("use supabase_rs::SupabaseClient;\n");
-    output.push_str("use supabase_rs::query::QueryBuilder;\n\n");
+
 
     let mut all_tables: Vec<String> = Vec::new();
     let mut trait_methods: String = String::new();
@@ -161,10 +161,6 @@ pub async fn generate_supabase_types(
             pascal_case(table)
         };
         all_tables.push(table.clone());
-
-        if singularize_struct_name {
-            output.push_str(&format!("// table name: {}\n", table));
-        }
 
         // — Primary struct
         output.push_str(&format!(
@@ -184,6 +180,7 @@ pub async fn generate_supabase_types(
         let new_name: String = format!("New{struct_name}");
         output.push_str(&format!(
             "#[derive(Debug, Serialize, Deserialize, Clone, Default)]\n\
+             #[skip_serializing_none]\n\
              pub struct {new_name} {{\n"
         ));
         for (col, ty, nullable, default) in columns {
@@ -197,7 +194,6 @@ pub async fn generate_supabase_types(
                 output.push_str(&format!("    #[serde(rename = \"{col}\")]\n"));
             }
             if *nullable || *default {
-                output.push_str("    #[serde(skip_serializing_if = \"Option::is_none\")]\n");
                 output.push_str(&format!("    pub {field}: Option<{inner}>,\n"));
             } else {
                 output.push_str(&format!("    pub {field}: {inner},\n"));
@@ -233,14 +229,6 @@ pub async fn generate_supabase_types(
         output.push_str(&format!("    \"{t}\",\n"));
     }
     output.push_str("];\n\n");
-
-    // emit extension trait + impl
-    output.push_str("pub trait SupabaseClientExt {\n");
-    output.push_str(&trait_methods);
-    output.push_str("}\n\n");
-    output.push_str("impl SupabaseClientExt for SupabaseClient {\n");
-    output.push_str(&impl_methods);
-    output.push_str("}\n");
 
     if singularize_struct_name {
         output.push_str("\n/// Map a singular resource name to its table\n");
