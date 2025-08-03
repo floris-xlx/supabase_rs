@@ -152,7 +152,15 @@ impl SupabaseClient {
     /// # Returns
     /// This method returns a `Result<String, String>`. On success, it returns `Ok(String)` with the new row's ID,
     /// and on failure, it returns `Err(String)` with an error message.
-    pub async fn insert(&self, table_name: &str, body: Value) -> Result<String, String> {
+    pub async fn insert<T>(&self, table_name: &str, body: T) -> Result<String, String>
+    where
+        T: serde::Serialize,
+    {
+        let body = match serde_json::to_value(body) {
+            Ok(v) => v,
+            Err(e) => return Err(format!("Failed to serialize body: {}", e)),
+        };
+
         let endpoint: String = self.endpoint(table_name);
 
         #[cfg(feature = "nightly")]
@@ -226,11 +234,14 @@ impl SupabaseClient {
     /// # Returns
     /// This method returns a `Result<(), String>`. On success, it returns `Ok(())`,
     /// and on failure, it returns `Err(String)` with an error message.
-    pub async fn insert_without_defined_key(
+    pub async fn insert_without_defined_key<T>(
         &self,
         table_name: &str,
-        body: Value,
-    ) -> Result<String, String> {
+        body: T,
+    ) -> Result<String, String>
+    where
+        T: serde::Serialize,
+    {
         self.insert(table_name, body).await
     }
 
@@ -260,7 +271,15 @@ impl SupabaseClient {
     /// # Returns
     /// This method returns a `Result<String, String>`. On success, it returns `Ok(String)` with the new row's ID,
     /// and on failure, it returns `Err(String)` with an error message indicating a duplicate entry.
-    pub async fn insert_if_unique(&self, table_name: &str, body: Value) -> Result<String, String> {
+    pub async fn insert_if_unique<T>(&self, table_name: &str, body: T) -> Result<String, String>
+    where
+        T: serde::Serialize + Clone,
+    {
+        let body = match serde_json::to_value(body.clone()) {
+            Ok(v) => v,
+            Err(e) => return Err(format!("Failed to serialize body: {}", e)),
+        };
+
         let conditions: &serde_json::Map<String, Value> = match body.as_object() {
             Some(map) => map,
             None => {
