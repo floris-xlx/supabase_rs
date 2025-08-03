@@ -11,7 +11,7 @@ pub async fn generate_supabase_types(
     user: &str,
     password: &str,
     singularize_struct_name: bool,
-    excluded_tables: &[&str],
+    included_tables: &[&str],
 ) {
     // connect to your supabase Postgres pooler
     let mut config: Config = Config::new();
@@ -66,7 +66,7 @@ pub async fn generate_supabase_types(
     for row in rows {
         let table_name: String = row.get::<usize>(0).expect("table_name not found").to_string();
 
-        if excluded_tables.contains(&table_name.as_ref()) {
+        if !included_tables.contains(&table_name.as_ref()) {
             continue;
         }
 
