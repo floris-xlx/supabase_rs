@@ -150,6 +150,24 @@ impl SupabaseClient {
         QueryBuilder::new(self.clone(), table_name)
     }
 
+    /// Alias for `select` which is closer to the official Supabase API style.
+    ///
+    /// This returns a `QueryBuilder` pointed at the given table. You can then chain
+    /// filters like `.eq`, `.lte`, ordering via `.order`, and finally call `.execute()`.
+    ///
+    /// # Examples
+    /// ```rust,no_run
+    /// # use supabase_rs::SupabaseClient;
+    /// # async fn run(client: SupabaseClient) -> Result<(), String> {
+    /// let rows = client
+    ///     .from("pets")
+    ///     .eq("name", "scooby")
+    ///     .limit(5)
+    ///     .execute()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn from(&self, table_name: &str) -> QueryBuilder {
         QueryBuilder::new(self.clone(), table_name)
     }

@@ -2,6 +2,7 @@ pub mod base;
 
 pub mod methods {
     pub mod delete;
+    // Unit tests that don't require network. New lightweight suites.
     pub mod init;
     pub mod insert;
     pub mod insert_if_unique_numeric;
@@ -18,6 +19,10 @@ pub mod methods {
     pub mod update_with_column;
     pub mod upsert_numeric;
     pub mod upsert_string;
+    // New: pure unit tests
+    pub mod unit_filters_and_sort;
+    pub mod unit_query_build;
+    pub mod unit_utils;
 }
 
 #[cfg(test)]

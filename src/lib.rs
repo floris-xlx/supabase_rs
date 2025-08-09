@@ -6,13 +6,13 @@
 //! - [**`Insert`**](#insert): Add new rows to a table.
 //! - [**`Insert if unique`**](#insert-if-unique): Add a new row only if it does not violate a UNIQUE constraint.
 //! - [**`Update`**](#update): Modify existing rows in a table based on a unique identifier.
-//! - [**`Select`**](#select): Insert a new row into a table if it does not exist, or update it if it does.
+//! - [**`Select`**](#select): Retrieve rows from a table with fluent filtering and sorting.
 //! - [**`Select with count`**](#select-with-count): Select rows from a table and count the number of rows that match the filter criteria.
 //! - [**`Select with filter`**](#select-with-filter): Select rows from a table based on a filter criteria.
 //! - [**`Select with filter and count`**](#selecting-with-filter-and-count): Select rows from a table based on a filter criteria and count the number of rows that match the filter criteria.
 //! - [**`Delete`**](#delete): Delete a row from a table based on a unique identifier.
 //!
-//! ## Graphql features
+//! ## GraphQL features
 //! - [**`Query request`**](#query-request): Runs a GraphQL query to supabase
 //!
 //! ## Feature flags
@@ -43,7 +43,19 @@
 //!
 //! ## Usage
 //! First make sure you have initialized the Supabase Client
-//! [Initalizing the SupabaseClient](#initialize-the-supabase-client)
+//! [Initializing the SupabaseClient](#initialize-the-supabase-client)
+//!
+//! ### Quickstart
+//! ```rust,no_run
+//! use supabase_rs::SupabaseClient;
+//!
+//! fn client() -> SupabaseClient {
+//!     SupabaseClient::new(
+//!         std::env::var("SUPABASE_URL").unwrap(),
+//!         std::env::var("SUPABASE_KEY").unwrap(),
+//!     ).unwrap()
+//! }
+//! ```
 //!
 //! ## Authentication
 //! The Supabase Client is initialized with the Supabase URL and the Supabase Key.
@@ -56,7 +68,7 @@
 //! ## Examples
 //!
 //! ### Initialize the Supabase Client
-//!  ```rust
+//!  ```rust,no_run
 //! use supabase_rs::SupabaseClient;
 //!
 //! use dotenv::dotenv;
@@ -78,7 +90,7 @@
 //! ### Insert
 //! This will insert a new row into the `test` table with the value `value_test` in the `dog` column.
 //!
-//! ```rust,ignore
+//! ```rust,no_run
 //! // i know the imports are self explanatory but it makes it easier for beginners:)
 //! use serde_json::json;
 //! use supabase_rs::SupabaseClient;
@@ -104,7 +116,7 @@
 //! This will insert a new row into the `test` table with the value `value_test` in the `dog` column if the value is unique.
 //! It's a drop-in replacement for `insert` without relying on Supabase's unique constraints on the database.
 //!
-//! ```rust,ignore
+//! ```rust,no_run
 //! use serde_json::json;
 //! use supabase_rs::SupabaseClient;
 //!
@@ -128,7 +140,7 @@
 //! ### Update
 //! This will update the row in the `test` table with the value `value_test` in the `dog` column where the `id` is `1`.
 //!
-//! ```rust,ignore
+//! ```rust,no_run
 //! use serde_json::json;
 //! use supabase_rs::SupabaseClient;
 //!
@@ -153,7 +165,7 @@
 //! ### Select
 //! This will return all `dog` rows where the value is `scooby` in the `animals` table
 //!
-//! ```rust,ignore
+//! ```rust,no_run
 //! use supabase_rs::SupabaseClient;
 //!
 //! // always pass an initialized SupabaseClient to the method
@@ -175,7 +187,7 @@
 //! ### Select on specific column
 //! This will return all the `dog` rows where the value is `scooby` in the `animals` table and only return the `dog` column.
 //!
-//! ```rust,ignore
+//! ```rust,no_run
 //! use supabase_rs::SupabaseClient;
 //!
 //! // always pass an initialized SupabaseClient to the method
@@ -200,7 +212,7 @@
 //!
 //! This will return all `dog` rows where the value is `scooby` in the `animals` table and count the number of rows that match the filter criteria.
 //!
-//! ```rust,ignore
+//! ```rust,no_run
 //! use supabase_rs::SupabaseClient;
 //!
 //! // always pass an initialized SupabaseClient to the method
@@ -221,7 +233,7 @@
 //! ### Select with Filter
 //! This will return all `dog` rows where the value is `scooby` in the `animals` table
 //!
-//! ```rust,ignore
+//! ```rust
 //! use supabase_rs::SupabaseClient;
 //!
 //! // always pass an initialized SupabaseClient to the method
@@ -361,6 +373,23 @@ use errors::Result;
 /// # Fields
 /// - `url`: The base URL of the Supabase project.
 /// - `api_key`: The API key used for authenticating requests to Supabase.
+/// - `client`: The underlying HTTP client used to perform requests.
+///
+/// # Concurrency
+/// `SupabaseClient` is `Clone` and cheap to clone. Internally it holds a `reqwest::Client`,
+/// which is already connection-pooled. Prefer cloning and reusing it across tasks.
+///
+/// # TLS
+/// If the `rustls` feature is enabled, requests use `rustls` instead of OpenSSL.
+///
+/// # Examples
+/// ```rust,no_run
+/// # use supabase_rs::SupabaseClient;
+/// let client = SupabaseClient::new(
+///     "https://your-project.supabase.co".to_string(),
+///     "your-secret-key".to_string(),
+/// ).unwrap();
+/// ```
 #[derive(Debug, Clone)]
 pub struct SupabaseClient {
     url: String,
@@ -383,6 +412,14 @@ impl SupabaseClient {
     ///     "your-secret-key".to_string(),
     /// );
     /// ```
+    /// ```rust
+    /// # use supabase_rs::SupabaseClient;
+    /// let client = SupabaseClient::new(
+    ///     "https://example.supabase.co".to_string(),
+    ///     "service-role-or-anon-key".to_string(),
+    /// );
+    /// assert!(client.is_ok());
+    /// ```
     pub fn new(supabase_url: String, private_key: String) -> Result<Self> {
         #[cfg(feature = "rustls")]
         let client = Client::builder().use_rustls_tls().build()?;
@@ -404,6 +441,9 @@ impl SupabaseClient {
     ///
     /// # Returns
     /// Returns a string containing the endpoint URL.
+    ///
+    /// The default format is `"{url}/rest/v1/{table}"`. If the environment variable
+    /// `SUPABASE_RS_DONT_REST_V1_URL=true` is set, it becomes `"{url}/{table}"`.
     fn endpoint(&self, table_name: &str) -> String {
         let dont_use_rest_v1: bool = std::env::var("SUPABASE_RS_DONT_REST_V1_URL")
             .map(|val| val.to_lowercase() == "true")
@@ -417,12 +457,22 @@ impl SupabaseClient {
     }
 }
 
-/// Generates a random 64-bit signed integer within a larger range
+/// Generates a random 64-bit signed integer within a larger range.
+///
+/// This is used by insert helpers that need a default `id` value.
+/// The range is `[0, i64::MAX)`, uniform from `rand`.
+///
+/// # Examples
+/// ```
+/// let id = supabase_rs::generate_random_id();
+/// assert!(id >= 0);
+/// ```
 pub fn generate_random_id() -> i64 {
     let mut rng: ThreadRng = rand::rng();
     rng.random_range(0..i64::MAX)
 }
 
+/// Returns an identifier string `{package-name}/{package-version}` used for a `Client-Info` header.
 pub(crate) fn client_info() -> String {
     format!("{}/{PKG_VERSION}", PKG_NAME.replace("_", "-"))
 }
