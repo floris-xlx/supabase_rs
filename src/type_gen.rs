@@ -64,13 +64,14 @@ pub async fn generate_supabase_types(
         .collect();
 
     for row in rows {
-        let table_name: String = row.get::<usize>(0).expect("table_name not found").to_string();
+        let table_name: String = row
+            .get::<usize>(0)
+            .expect("table_name not found")
+            .to_string();
 
         if !included_tables.contains(&table_name.as_ref()) {
             continue;
         }
-
-        //println!("Row: {:?}", row);
 
         let column_name: String = row
             .get::<usize>(1)
@@ -144,7 +145,6 @@ pub async fn generate_supabase_types(
     output.push_str("use chrono::{DateTime, Utc, NaiveDate, NaiveDateTime};\n");
     output.push_str("use uuid::Uuid;\n");
     output.push_str("use rust_decimal::Decimal;\n\n");
-
 
     let mut all_tables: Vec<String> = Vec::new();
     let mut trait_methods: String = String::new();

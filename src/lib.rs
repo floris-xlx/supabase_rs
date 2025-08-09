@@ -97,12 +97,12 @@
 //!
 //! // always pass an initialized SupabaseClient to the method
 //! let client = SupabaseClient::new(
-//!     "your_supabase_url", "your_supabase_key"
+//!     "your_supabase_url".to_string(), "your_supabase_key".to_string()
 //! );
 //!
 //! async fn insert_example(
 //!    client: SupabaseClient
-//! ) -> Result<(), String> {
+//! ) -> () {
 //!     let insert_result = client
 //!         .insert(
 //!             "test",
@@ -110,6 +110,7 @@
 //!                 "dog": "value_test"
 //!             }),
 //!        ).await;
+//! }
 //! ```
 //!
 //! ### Insert if unique
