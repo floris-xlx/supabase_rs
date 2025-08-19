@@ -1,81 +1,233 @@
 #![cfg(feature = "nightly")]
 
-//! # GraphQL for Supabase
-//! This module provides a GraphQL client for interacting with the Supabase API.
+//! # GraphQL Support for Supabase
 //!
-//! ## Features
-//! - **Query**: Send queries to the Supabase API.
+//! This module provides experimental GraphQL capabilities for advanced querying and data manipulation.
+//! It complements the REST API with more flexible query structures and relational data fetching.
 //!
-//! ## Usage
-//! Before using the GraphQL client, ensure you have a valid `SupabaseClient` instance.
+//! > **⚠️ Experimental Feature**: This module requires the `nightly` feature flag and is not recommended for production use.
 //!
-//! ### Example: Authenticate with Supabase
-//! ```ignore
+//! ## 🎯 Core Features
+//!
+//! - **[`Query`]**: Execute GraphQL queries for complex data retrieval
+//! - **[`Request`]**: Build and send GraphQL requests with variables
+//! - **[`RootTypes`]**: Type-safe operation classification (Query, Mutation, Subscription)
+//! - **Variable Support**: Dynamic query parameters with type safety
+//! - **Error Handling**: Structured GraphQL error responses
+//!
+//! ## 🏗️ GraphQL vs REST
+//!
+//! | Aspect | REST | GraphQL |
+//! |--------|------|---------|
+//! | **Data Fetching** | Fixed endpoints | Flexible queries |
+//! | **Relations** | Multiple requests | Single request |
+//! | **Caching** | HTTP caching | Query-based caching |
+//! | **Complexity** | Simple | More complex |
+//! | **Performance** | Predictable | Variable |
+//! | **Stability** | ✅ Stable | ⚠️ Experimental |
+//!
+//! ## 📖 Usage Examples
+//!
+//! ### Basic GraphQL Query
+//!
+//! ```rust,no_run
 //! use supabase_rs::SupabaseClient;
+//! use supabase_rs::graphql::{Request, RootTypes};
+//! use serde_json::json;
 //!
-//! #[tokio::main]
-//! async fn main() {
-//! let supabase_client: SupabaseClient = SupabaseClient::new(
-//!     std::env::var("SUPABASE_URL").unwrap(),
-//!     std::env::var("SUPABASE_KEY").unwrap()
-//! );
-//! ```
+//! # async fn example() -> Result<(), Box<dyn std::error::Error>> {
+//! let client = SupabaseClient::new(
+//!     std::env::var("SUPABASE_URL")?,
+//!     std::env::var("SUPABASE_KEY")?,
+//! )?;
 //!
-//! ### Example: Send a GraphQL query
-//! ```ignore
-//! let request_graphql: Request = Request::new(
-//!     supabase_client,
+//! let request = Request::new(
+//!     client,
 //!     json!({
 //!         "query": r#"
 //!             {
-//!                 usersCollection(first: 1) {
+//!                 usersCollection(first: 10) {
 //!                     edges {
 //!                         node {
-//!                             user_id,
-//!                             username,
+//!                             id
+//!                             email
+//!                             created_at
+//!                         }
+//!                     }
+//!                     pageInfo {
+//!                         hasNextPage
+//!                         endCursor
+//!                     }
+//!                 }
+//!             }
+//!         "#
+//!     }),
+//!     RootTypes::Query
+//! );
+//!
+//! let response = request.send().await?;
+//! println!("GraphQL Response: {:#?}", response);
+//! # Ok(())
+//! # }
+//! ```
+//!
+//! ### GraphQL with Variables
+//!
+//! ```rust,no_run
+//! # use supabase_rs::SupabaseClient;
+//! # use supabase_rs::graphql::{Request, RootTypes};
+//! # use serde_json::json;
+//! # async fn example() -> Result<(), Box<dyn std::error::Error>> {
+//! # let client = SupabaseClient::new("url".to_string(), "key".to_string())?;
+//! let query_with_variables = Request::new(
+//!     client,
+//!     json!({
+//!         "query": r#"
+//!             query GetUsersByAge($minAge: Int!, $limit: Int!) {
+//!                 usersCollection(
+//!                     filter: { age: { gte: $minAge } }
+//!                     first: $limit
+//!                 ) {
+//!                     edges {
+//!                         node {
+//!                             id
+//!                             name
+//!                             age
 //!                             email
 //!                         }
 //!                     }
 //!                 }
 //!             }
 //!         "#,
+//!         "variables": {
+//!             "minAge": 18,
+//!             "limit": 50
+//!         }
 //!     }),
-//!     supabase_rs::graphql::RootTypes::Query
+//!     RootTypes::Query
 //! );
 //!
-//! let response: Result<serde_json::Value, anyhow::Error> = request_graphql.send().await;
-//!
-//! match response {
-//!     Ok(response) => println!("{:#?}", response),
-//!     Err(error) => println!("{:#?}", error),
-//! }}
+//! let response = query_with_variables.send().await?;
+//! # Ok(())
+//! # }
 //! ```
 //!
+//! ### Complex Relational Queries
 //!
+//! ```rust,no_run
+//! # use supabase_rs::SupabaseClient;
+//! # use supabase_rs::graphql::{Request, RootTypes};
+//! # use serde_json::json;
+//! # async fn example() -> Result<(), Box<dyn std::error::Error>> {
+//! # let client = SupabaseClient::new("url".to_string(), "key".to_string())?;
+//! // Fetch users with their posts and comments in a single query
+//! let complex_query = Request::new(
+//!     client,
+//!     json!({
+//!         "query": r#"
+//!             {
+//!                 usersCollection(first: 5) {
+//!                     edges {
+//!                         node {
+//!                             id
+//!                             name
+//!                             email
+//!                             postsCollection(first: 3) {
+//!                                 edges {
+//!                                     node {
+//!                                         id
+//!                                         title
+//!                                         content
+//!                                         commentsCollection(first: 2) {
+//!                                             edges {
+//!                                                 node {
+//!                                                     id
+//!                                                     content
+//!                                                     author
+//!                                                 }
+//!                                             }
+//!                                         }
+//!                                     }
+//!                                 }
+//!                             }
+//!                         }
+//!                     }
+//!                 }
+//!             }
+//!         "#
+//!     }),
+//!     RootTypes::Query
+//! );
+//! # Ok(())
+//! # }
+//! ```
 //!
-//! ## Error Handling
-//! The GraphQL client returns a `Result<Value, Error>` where `Value` is the response from the Supabase API and `Error` is an error message in case of failure.
+//! ## 🔧 Error Handling
 //!
-//! ## GraphQL Query
-//! The GraphQL query should be in the following format:
-//! ```ignore
+//! GraphQL operations return detailed error information:
+//!
+//! ```rust,no_run
+//! # use supabase_rs::SupabaseClient;
+//! # use supabase_rs::graphql::{Request, RootTypes};
+//! # use serde_json::json;
+//! # async fn example() -> Result<(), Box<dyn std::error::Error>> {
+//! # let client = SupabaseClient::new("url".to_string(), "key".to_string())?;
+//! let request = Request::new(client, json!({"query": "invalid query"}), RootTypes::Query);
+//!
+//! match request.send().await {
+//!     Ok(response) => {
+//!         // Check for GraphQL errors in response
+//!         if let Some(errors) = response.get("errors") {
+//!             eprintln!("GraphQL errors: {:#?}", errors);
+//!         } else {
+//!             println!("Success: {:#?}", response["data"]);
+//!         }
+//!     },
+//!     Err(err) => {
+//!         eprintln!("Request failed: {}", err);
+//!     }
+//! }
+//! # Ok(())
+//! # }
+//! ```
+//!
+//! ## 📚 GraphQL Conventions
+//!
+//! ### Table Naming
+//! All Supabase tables in GraphQL end with `Collection`:
+//! - Database table: `users` → GraphQL: `usersCollection`
+//! - Database table: `posts` → GraphQL: `postsCollection`
+//!
+//! ### Query Structure
+//! ```graphql
 //! {
-//!    usersCollection(first: 1) {
-//!       edges {
-//!         node {
-//!          user_id,
-//!          username,
-//!          email
-//!      }
+//!   tableCollection(first: 10, filter: {...}) {
+//!     edges {
+//!       node {
+//!         # Your fields here
+//!       }
+//!     }
+//!     pageInfo {
+//!       hasNextPage
+//!       endCursor
+//!     }
 //!   }
 //! }
 //! ```
-//! *Note*: All tables in Supabase end with `Collection`. Ensure you append `Collection` to the table name.
 //!
-//! ## GraphQL Mutation
+//! ## 🚀 Migration from REST
 //!
-//! The GraphQL mutation should be in the following format:
+//! ### When to Use GraphQL
+//! - **Complex Relations**: Fetching nested data in single request
+//! - **Flexible Fields**: Dynamic field selection based on client needs
+//! - **Advanced Filtering**: Complex filter combinations
+//! - **Real-time Subscriptions**: Live data updates (when available)
 //!
+//! ### When to Stick with REST
+//! - **Simple CRUD**: Basic insert/update/delete operations
+//! - **Production Stability**: REST API is stable and well-tested
+//! - **Performance Predictability**: Known query performance characteristics
+//! - **Caching**: HTTP caching is simpler with REST endpoints
 pub mod client;
 pub mod error_types;
 pub mod parse;
@@ -94,32 +246,59 @@ pub struct Query {
     pub query: Value,
 }
 
-/// #### RootTypes
+/// GraphQL operation types for request classification.
 ///
-/// The root types for GraphQL operations.
+/// Defines the type of GraphQL operation being performed. This ensures proper
+/// routing and validation of requests to the Supabase GraphQL endpoint.
 ///
-/// - `Query`: Represents a query operation.
-/// - `Mutation`: Represents a mutation operation.
-/// - `Subscription`: Represents a subscription operation.
-/// - `Fragment`: Represents a fragment operation.
+/// # Operation Types
 ///
-/// *Note*: Only `Query` is supported at the moment.
+/// - **`Query`**: Read operations for data retrieval (✅ Supported)
+/// - **`Mutation`**: Write operations for data modification (🚧 Planned)
+/// - **`Subscription`**: Real-time data subscriptions (🚧 Planned)
+/// - **`Fragment`**: Reusable query fragments (🚧 Planned)
 ///
-/// ## Example
+/// # Current Support
 ///
-/// ```ignore
+/// > **Note**: Currently only `Query` operations are fully supported. Other types are
+/// > reserved for future implementation.
+///
+/// # Examples
+///
+/// ```rust,no_run
 /// use supabase_rs::graphql::RootTypes;
 ///
-/// let root_type: RootTypes = RootTypes::Query;
+/// // Specify operation type for request
+/// let operation_type = RootTypes::Query;
+/// println!("Using operation: {:?}", operation_type);
 ///
-/// println!("{:?}", root_type);
+/// // Use in request construction
+/// // let request = Request::new(client, query_json, RootTypes::Query);
 /// ```
 ///
+/// ## Future Operations
+///
+/// ```rust,no_run
+/// // These will be supported in future versions:
+/// 
+/// // Mutations for data modification
+/// // RootTypes::Mutation
+/// 
+/// // Subscriptions for real-time updates  
+/// // RootTypes::Subscription
+/// 
+/// // Fragments for query reuse
+/// // RootTypes::Fragment
+/// ```
 #[derive(Debug)]
 pub enum RootTypes {
+    /// Data retrieval operations (fully supported)
     Query,
+    /// Data modification operations (planned)
     Mutation,
+    /// Real-time data subscriptions (planned)
     Subscription,
+    /// Reusable query fragments (planned)
     Fragment,
 }
 
