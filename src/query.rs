@@ -86,6 +86,8 @@ pub struct Query {
     pub filters: Vec<Filter>,
     /// A vector of sorting criteria to be applied to the query results.
     pub sorts: Vec<Sort>,
+    /// Optional range for pagination (from, to)
+    pub range: Option<(usize, usize)>,
 }
 
 /// A `QueryBuilder` is used to construct and manage SQL queries for a specific table using a `SupabaseClient`.

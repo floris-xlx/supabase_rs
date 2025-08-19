@@ -42,6 +42,7 @@ pub enum HeadersTypes {
     ContentType,
     Prefer,
     ClientInfo,
+    Range,
 }
 
 impl HeadersTypes {
@@ -52,6 +53,7 @@ impl HeadersTypes {
             HeadersTypes::ContentType => "Content-Type",
             HeadersTypes::Prefer => "prefer",
             HeadersTypes::ClientInfo => "x_client_info",
+            HeadersTypes::Range => "Range",
         }
     }
 }

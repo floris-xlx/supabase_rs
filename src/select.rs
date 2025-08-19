@@ -126,7 +126,7 @@
 //! ```
 //!
 
-use crate::query::QueryBuilder;
+use crate::query::{Query, QueryBuilder};
 use crate::request::Headers;
 use crate::success::handle_response;
 use crate::SupabaseClient;
@@ -209,6 +209,69 @@ impl SupabaseClient {
 
         // create headers with default values
         let headers: Headers = Headers::with_defaults(&self.api_key, &self.api_key);
+
+        // convert headers to HeaderMap
+        let mut header_map: HeaderMap = HeaderMap::new();
+        for (key, value) in headers.get_headers() {
+            header_map.insert(
+                HeaderName::from_bytes(key.as_bytes()).map_err(|e| e.to_string())?,
+                HeaderValue::from_str(&value).map_err(|e| e.to_string())?,
+            );
+        }
+
+        // send the request
+        let response: Response = match self.client.get(&endpoint).headers(header_map).send().await {
+            Ok(response) => response,
+            Err(error) => return Err(error.to_string()),
+        };
+
+        // process the response
+        handle_response(response).await
+    }
+
+    /// Executes a query against a specified table with a Query object that can contain range information.
+    ///
+    /// # Arguments
+    /// * `table_name` - A string slice that holds the name of the table to be queried.
+    /// * `query` - A Query object containing parameters, filters, sorts, and optional range.
+    ///
+    /// # Returns
+    /// A `Result` which is either a vector of `Value` representing the records fetched from the database
+    /// or a `String` error message in case of failure.
+    ///
+    /// # Errors
+    /// This function will return an error if the HTTP request fails or if the server returns a non-success status code.
+    pub async fn execute_with_query(
+        &self,
+        table_name: &str,
+        query: &Query,
+    ) -> Result<Vec<Value>, String> {
+        // Build the client and the endpoint
+        let endpoint: String = self.endpoint(table_name);
+        let query_string = query.build();
+        let endpoint: String = format!("{endpoint}?{query_string}");
+
+        #[cfg(feature = "nightly")]
+        println!("\x1b[33mEndpoint: {}\x1b[0m", endpoint);
+
+        #[cfg(feature = "nightly")]
+        use crate::nightly::print_nightly_warning;
+        #[cfg(feature = "nightly")]
+        print_nightly_warning();
+
+        let endpoint: String = if endpoint.ends_with("?count=exact") {
+            endpoint.replace("?count=exact", "")
+        } else {
+            endpoint
+        };
+
+        // create headers with default values
+        let mut headers: Headers = Headers::with_defaults(&self.api_key, &self.api_key);
+        
+        // Add Range header if range is set
+        if let Some((from, to)) = query.get_range() {
+            headers.insert("Range", &format!("{}-{}", from, to));
+        }
 
         // convert headers to HeaderMap
         let mut header_map: HeaderMap = HeaderMap::new();

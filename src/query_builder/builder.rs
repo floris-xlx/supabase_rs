@@ -126,6 +126,45 @@ impl QueryBuilder {
         self
     }
 
+    /// Adds an offset to the query to skip a specified number of rows.
+    ///
+    /// # Arguments
+    /// * `offset` - The number of rows to skip from the beginning of the result set.
+    ///
+    /// # Returns
+    /// Returns the `QueryBuilder` instance to allow for method chaining.
+    pub fn offset(mut self, offset: usize) -> Self {
+        self.query.add_param("offset", &offset.to_string());
+        self
+    }
+
+    /// Adds a range to the query for pagination using PostgREST range syntax.
+    ///
+    /// # Arguments
+    /// * `from` - The starting index (0-based) of the range.
+    /// * `to` - The ending index (inclusive) of the range.
+    ///
+    /// # Returns
+    /// Returns the `QueryBuilder` instance to allow for method chaining.
+    ///
+    /// # Examples
+    /// ```rust,no_run
+    /// # use supabase_rs::SupabaseClient;
+    /// # async fn example(client: SupabaseClient) -> Result<(), String> {
+    /// // Get rows 10-19 (10 rows starting from index 10)
+    /// let rows = client
+    ///     .from("users")
+    ///     .range(10, 19)
+    ///     .execute()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub fn range(mut self, from: usize, to: usize) -> Self {
+        self.query.set_range(from, to);
+        self
+    }
+
     /// Adds a filter to the query to check if the column is null.
     ///
     /// # Arguments
@@ -180,7 +219,7 @@ impl QueryBuilder {
     /// Returns a `Result` containing either a vector of `Value` representing the fetched records, or a `String` error message.
     pub async fn execute(self) -> Result<Vec<Value>, String> {
         self.client
-            .execute(&self.table_name, self.query.build().as_str())
+            .execute_with_query(&self.table_name, &self.query)
             .await
     }
 }
@@ -256,6 +295,23 @@ impl Query {
     /// ```
     pub fn add_sort(&mut self, sort: Sort) {
         self.sorts.push(sort);
+    }
+
+    /// Sets the range for pagination.
+    ///
+    /// # Arguments
+    /// * `from` - The starting index (0-based) of the range.
+    /// * `to` - The ending index (inclusive) of the range.
+    pub fn set_range(&mut self, from: usize, to: usize) {
+        self.range = Some((from, to));
+    }
+
+    /// Gets the range if set.
+    ///
+    /// # Returns
+    /// Returns an `Option<(usize, usize)>` containing the range if set.
+    pub fn get_range(&self) -> Option<(usize, usize)> {
+        self.range
     }
 
     /// Builds and returns the query string from the current state of the query parameters.
