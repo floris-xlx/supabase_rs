@@ -364,6 +364,7 @@ pub mod nightly;
 pub mod realtime;
 pub mod storage;
 
+
 use errors::Result;
 
 /// A client structure for interacting with Supabase services.
