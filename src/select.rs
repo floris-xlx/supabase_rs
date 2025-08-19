@@ -1,23 +1,44 @@
-//! ## This module contains the `select()` function
+//! # Select Operations and Query Building
 //!
-//! ### Conditional filtering
-//! The `select()` function allows you to filter the rows you want to retrieve from the table.
-//! You can filter the rows based on the column values or their relationships.
+//! This module provides the core querying functionality for retrieving data from Supabase tables.
+//! It implements a fluent query builder pattern that allows for intuitive, chainable operations
+//! with comprehensive filtering, sorting, and pagination capabilities.
 //!
-//! ### Filter operators
-//! - [`eq`](#eq) - Equal to the column value
-//! - [`neq`](#neq) - Not equal to the column value
-//! - [`gt`](#gt) - Greater than the column value
-//! - [`lt`](#lt) - Less than the column value
-//! - [`gte`](#gte) - Greater than or equal to the column value
-//! - [`lte`](#lte) - Less than or equal to the column value
-//! - [`is_null`](#is_null) - Check if the column value is null
-//! - [`limit`](#limit) - Limit the number of rows to be returned
+//! ## 🎯 Core Concepts
 //!
+//! ### Query Builder Pattern
+//! The select operations use a fluent API that allows you to chain multiple operations:
+//! ```text
+//! client.select("table") -> .eq("column", "value") -> .limit(10) -> .execute()
+//! ```
 //!
-//! ### Usage
-//! First make sure you have initialized the Supabase Client
-//! [Initalizing the SupabaseClient](#lib)
+//! ### Performance Considerations
+//! - **Column Selection**: Use `.columns()` to fetch only needed fields
+//! - **Pagination**: Prefer `.range()` over `.offset()` for better performance
+//! - **Filtering**: Apply filters early to reduce data transfer
+//! - **Counting**: Use `.count()` sparingly as it's expensive on large tables
+//!
+//! ## 🔍 Available Filter Operations
+//!
+//! | Operator | Method | Description | Example |
+//! |----------|--------|-------------|---------|
+//! | `=` | `eq(column, value)` | Equal to | `.eq("status", "active")` |
+//! | `!=` | `neq(column, value)` | Not equal to | `.neq("deleted", "true")` |
+//! | `>` | `gt(column, value)` | Greater than | `.gt("age", "18")` |
+//! | `<` | `lt(column, value)` | Less than | `.lt("score", "100")` |
+//! | `>=` | `gte(column, value)` | Greater than or equal | `.gte("created_at", "2024-01-01")` |
+//! | `<=` | `lte(column, value)` | Less than or equal | `.lte("price", "50.00")` |
+//! | `IN` | `in_(column, values)` | Value in list | `.in_("category", &["tech", "science"])` |
+//! | `FTS` | `text_search(column, query)` | Full-text search | `.text_search("content", "rust")` |
+//!
+//! ## 📄 Pagination Methods
+//!
+//! | Method | Description | Performance | Use Case |
+//! |--------|-------------|-------------|----------|
+//! | `range(from, to)` | PostgREST range header | ✅ Fast | Recommended for pagination |
+//! | `limit(n)` | Limit number of results | ✅ Fast | Simple result limiting |
+//! | `offset(n)` | Skip n records | ⚠️ Slower | Use sparingly, prefer range |
+//! | `count()` | Count matching records | ❌ Expensive | Use only when necessary |
 //!
 //! This will return all `dog` rows where the value is `scooby` in the `animals` table
 //! ```rust,ignore

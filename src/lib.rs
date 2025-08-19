@@ -1,341 +1,411 @@
 //! # Supabase SDK for Rust
 //!
-//! This is an unofficial Rust SDK for [Supabase](https://supabase.io/), since there is no official SDK for Rust yet.
+//! An unofficial, lightweight Rust SDK for [Supabase](https://supabase.io/) that provides a clean,
+//! type-safe interface for interacting with Supabase's REST and GraphQL APIs.
 //!
-//! ## Features
-//! - [**`Insert`**](#insert): Add new rows to a table.
-//! - [**`Insert if unique`**](#insert-if-unique): Add a new row only if it does not violate a UNIQUE constraint.
-//! - [**`Update`**](#update): Modify existing rows in a table based on a unique identifier.
-//! - [**`Select`**](#select): Retrieve rows from a table with fluent filtering and sorting.
-//! - [**`Select with count`**](#select-with-count): Select rows from a table and count the number of rows that match the filter criteria.
-//! - [**`Select with filter`**](#select-with-filter): Select rows from a table based on a filter criteria.
-//! - [**`Select with filter and count`**](#selecting-with-filter-and-count): Select rows from a table based on a filter criteria and count the number of rows that match the filter criteria.
-//! - [**`Delete`**](#delete): Delete a row from a table based on a unique identifier.
+//! This crate focuses on developer experience with a fluent, chainable API design that feels natural
+//! in Rust while maintaining compatibility with Supabase's PostgREST conventions.
 //!
-//! ## GraphQL features
-//! - [**`Query request`**](#query-request): Runs a GraphQL query to supabase
+//! ## 🚀 Core Features
 //!
-//! ## Feature flags
-//! - **`storage`**: Enables the `Storage` module to interact with Supabase Storage.
-//! - **`nightly`**: Enables the nightly features.
-//! - **`rustls`**: Forces the client into using `rustls` over `OpenSSL`.
+//! ### Database Operations
+//! - **[`Insert`](insert)**: Add new rows with automatic ID generation and conflict handling
+//! - **[`Insert if unique`](insert)**: Conditional inserts with uniqueness validation
+//! - **[`Update`](update)**: Modify existing rows by ID or custom columns
+//! - **[`Upsert`](update)**: Insert or update with conflict resolution
+//! - **[`Select`](select)**: Retrieve data with advanced filtering and pagination
+//! - **[`Delete`](delete)**: Remove rows by ID or custom criteria
 //!
-//! ## Nightly Build
-//! - **`nightly`**: Enables the `GraphQL` module to interact with Supabase GraphQL API.
+//! ### Query Building
+//! - **Fluent API**: Chain filters, sorts, and pagination naturally
+//! - **Type Safety**: Leverage Rust's type system for compile-time guarantees
+//! - **Performance**: Built-in connection pooling and efficient query construction
 //!
-//! Nightly features are not stable and may break at any time without notice, so use with caution.
+//! ### Advanced Features
+//! - **[`Storage`](storage)**: File upload/download operations (feature-gated)
+//! - **[`GraphQL`](graphql)**: Advanced querying with GraphQL (experimental)
+//! - **[`Realtime`](realtime)**: Live data subscriptions (planned)
 //!
-//! Nightly WILL send a warning message, to disable the `nightly` warning message
+//! ## 🎯 Feature Flags
 //!
-//! disable it in your `.env` as such:
+//! | Feature | Description | Stability |
+//! |---------|-------------|-----------|
+//! | `storage` | File operations with Supabase Storage | ✅ Stable |
+//! | `rustls` | Use rustls instead of OpenSSL for TLS | ✅ Stable |
+//! | `nightly` | Experimental GraphQL support | ⚠️ Experimental |
+//!
+//! ### Feature Flag Details
+//!
+//! - **`storage`**: Enables the [`storage`] module for file upload/download operations
+//! - **`rustls`**: Forces the HTTP client to use `rustls` instead of OpenSSL (recommended for Alpine Linux)
+//! - **`nightly`**: Unlocks experimental GraphQL capabilities with detailed debugging
+//!
+//! ## ⚠️ Nightly Features
+//!
+//! Nightly features are experimental and may introduce breaking changes without notice.
+//! Use with caution in production environments.
+//!
+//! To disable nightly warning messages:
 //! ```env
 //! SUPABASE_RS_NO_NIGHTLY_MSG=true
 //! ```
 //!
-//! ## Cargo.toml
+//! ## 🏗️ Architecture Overview
+//!
+//! The SDK is built around a central [`SupabaseClient`] that manages:
+//! - HTTP connection pooling via [`reqwest::Client`]
+//! - Authentication headers and API key management
+//! - Endpoint URL construction and routing
+//! - Request/response serialization
+//!
+//! ### Module Organization
+//!
+//! ```text
+//! supabase_rs/
+//! ├── lib.rs           # Main client and public API
+//! ├── insert.rs        # Insert operations and bulk operations
+//! ├── update.rs        # Update and upsert operations
+//! ├── select.rs        # Query execution and response handling
+//! ├── delete.rs        # Delete operations
+//! ├── query_builder/   # Fluent query building
+//! │   ├── builder.rs   # QueryBuilder implementation
+//! │   ├── filter.rs    # Filter operations (eq, gt, lt, etc.)
+//! │   └── sort.rs      # Sorting and ordering
+//! ├── storage/         # File operations (feature-gated)
+//! ├── graphql/         # GraphQL support (experimental)
+//! ├── errors.rs        # Error types and handling
+//! └── request/         # HTTP request utilities
+//! ```
+//!
+//! ## 📦 Installation
+//!
+//! Add to your `Cargo.toml`:
 //! ```toml
 //! [dependencies]
-//! supabase-rs = "..."
+//! supabase-rs = "0.4.14"
 //!
-//! // With the [storage] feature
-//! supabase-rs = { version = "...", features = ["storage"] }
+//! # With optional features
+//! supabase-rs = { version = "0.4.14", features = ["storage", "rustls"] }
 //! ```
 //!
-//! ## Usage
-//! First make sure you have initialized the Supabase Client
-//! [Initializing the SupabaseClient](#initialize-the-supabase-client)
+//! ## 🚀 Quick Start
 //!
-//! ### Quickstart
 //! ```rust,no_run
 //! use supabase_rs::SupabaseClient;
-//!
-//! fn client() -> SupabaseClient {
-//!     SupabaseClient::new(
-//!         std::env::var("SUPABASE_URL").unwrap(),
-//!         std::env::var("SUPABASE_KEY").unwrap(),
-//!     ).unwrap()
-//! }
-//! ```
-//!
-//! ## Authentication
-//! The Supabase Client is initialized with the Supabase URL and the Supabase Key.
-//! Which are environment variables that can be set in a `.env` file under the following names or any other
-//! ```ignore
-//! SUPABASE_URL=
-//! SUPABASE_KEY=
-//! ```
-//!
-//! ## Examples
-//!
-//! ### Initialize the Supabase Client
-//!  ```rust,no_run
-//! use supabase_rs::SupabaseClient;
-//!
-//! use dotenv::dotenv;
-//! use std::env::var;
-//!
-//! async fn initialize_supabase_client() -> SupabaseClient {
-//!     dotenv().ok(); // Load the .env file
-//!
-//!     let supabase_client: SupabaseClient = SupabaseClient::new(
-//!         var("SUPABASE_URL").unwrap(),
-//!         var("SUPABASE_KEY").unwrap()
-//!         ).unwrap();
-//!
-//!         supabase_client
-//!    }
-//! ```
-//! This will initialize the Supabase Client with the Supabase URL and the Supabase Key, and return the Supabase Client to be passed to other methods.
-//!
-//! ### Insert
-//! This will insert a new row into the `test` table with the value `value_test` in the `dog` column.
-//!
-//! ```rust,no_run
-//! // i know the imports are self explanatory but it makes it easier for beginners:)
 //! use serde_json::json;
-//! use supabase_rs::SupabaseClient;
 //!
-//! // always pass an initialized SupabaseClient to the method
-//! let client = SupabaseClient::new(
-//!     "your_supabase_url".to_string(), "your_supabase_key".to_string()
-//! );
-//!
-//! async fn insert_example(
-//!    client: SupabaseClient
-//! ) -> () {
-//!     let insert_result = client
-//!         .insert(
-//!             "test",
-//!             json!({
-//!                 "dog": "value_test"
-//!             }),
-//!        ).await;
-//! }
-//! ```
-//!
-//! ### Insert if unique
-//! This will insert a new row into the `test` table with the value `value_test` in the `dog` column if the value is unique.
-//! It's a drop-in replacement for `insert` without relying on Supabase's unique constraints on the database.
-//!
-//! ```rust,no_run
-//! use serde_json::json;
-//! use supabase_rs::SupabaseClient;
-//!
-//! // always pass an initialized SupabaseClient to the method
-//! let client = SupabaseClient::new(
-//!     "your_supabase_url", "your_supabase_key"
-//! );
-//!
-//! async fn insert_example(
-//!    client: SupabaseClient
-//! ) -> Result<(), String> {
-//!     let insert_result = client
-//!         .insert_if_unique(
-//!             "test",
-//!             json!({
-//!                 "dog": "value_test"
-//!             }),
-//!        ).await;
-//! ```
-//!
-//! ### Update
-//! This will update the row in the `test` table with the value `value_test` in the `dog` column where the `id` is `1`.
-//!
-//! ```rust,no_run
-//! use serde_json::json;
-//! use supabase_rs::SupabaseClient;
-//!
-//! let client = SupabaseClient::new(
-//!    "your_supabase_url", "your_supabase_key"
-//! );
-//!
-//! async fn update_example(
-//!   client: SupabaseClient
-//! ) -> Result<(), String> {
-//!    let update_result = client
-//!       .update_with_column_name(
-//!          "table_name", // the table name
-//!          "column_name",    // the column name to filter by
-//!          "id", // the value to filter by (can be any value to use as key)
-//!          json!({
-//!            "dog": "value_test"  // the new value
-//!          }),
-//!      ).await;
-//! ```
-//!
-//! ### Select
-//! This will return all `dog` rows where the value is `scooby` in the `animals` table
-//!
-//! ```rust,no_run
-//! use supabase_rs::SupabaseClient;
-//!
-//! // always pass an initialized SupabaseClient to the method
-//! let client = SupabaseClient::new(
-//!    "your_supabase_url", "your_supabase_key"
-//! );
-//!
-//! async fn select_scooby(
-//!    supabase_client: SupabaseClient
-//! ) -> Result<(), String> {
-//!
-//! let data: Result<Vec<Value>, String> = supabase_client
-//!    .select("animals")
-//!    .eq("dog", "scooby")
-//!    .execute()
-//!    .await;
-//! ```
-//!
-//! ### Select on specific column
-//! This will return all the `dog` rows where the value is `scooby` in the `animals` table and only return the `dog` column.
-//!
-//! ```rust,no_run
-//! use supabase_rs::SupabaseClient;
-//!
-//! // always pass an initialized SupabaseClient to the method
-//! let client = SupabaseClient::new(
-//!    "your_supabase_url", "your_supabase_key"
-//! );
-//!
-//! async fn select_scooby(
-//!    supabase_client: SupabaseClient
-//! ) -> Result<(), String> {
-//!
-//! let data: Result<Vec<Value>, String> = supabase_client
-//!    .select("animals")
-//!    .columns(["dog"].to_vec())
-//!    .eq("dog", "scooby")
-//!    .execute()
-//!    .await;
-//! ```
-//!
-//! ### Select with Count
-//! <div class="warning">Counting is very expensive and will be alot slower, so only use it if you need it </div>
-//!
-//! This will return all `dog` rows where the value is `scooby` in the `animals` table and count the number of rows that match the filter criteria.
-//!
-//! ```rust,no_run
-//! use supabase_rs::SupabaseClient;
-//!
-//! // always pass an initialized SupabaseClient to the method
-//! let client = SupabaseClient::new(
-//!   "your_supabase_url", "your_supabase_key"
-//! );
-//!
-//! async fn select_scooby_with_count(
-//!   supabase_client: SupabaseClient
-//! ) -> Result<(), String> {
-//!  let data: Result<Vec<Value>, String> = supabase_client
-//!    .select("animals")
-//!    .count()
-//!    .execute()
-//!    .await;
-//! ```
-//!
-//! ### Select with Filter
-//! This will return all `dog` rows where the value is `scooby` in the `animals` table
-//!
-//! ```rust
-//! use supabase_rs::SupabaseClient;
-//!
-//! // always pass an initialized SupabaseClient to the method
-//! let client = SupabaseClient::new(
-//!   "your_supabase_url", "your_supabase_key"
-//! );
-//!
-//! async fn select_scooby_with_filter(
-//!  supabase_client: SupabaseClient
-//! ) -> Result<(), String> {
-//! let data: Result<Vec<Value>, String> = supabase_client
-//!     .select("animals")
-//!     .eq("dog", "scooby")
-//!     .execute()
-//!     .await;
-//! ```
-//!
-//! ### Selecting with Filter and Count
-//! <div class="warning">Counting is very expensive and will be alot slower, so only use it if you need it </div>
-//!
-//! This will return all `dog` rows where the value is `scooby` in the `animals` table and count the number of rows that match the filter criteria.
-//! ```rust,ignore
-//! use supabase_rs::SupabaseClient;
-//!
-//! // always pass an initialized SupabaseClient to the method
-//! let client = SupabaseClient::new(
-//!  "your_supabase_url", "your_supabase_key"
-//! );
-//!
-//! async fn select_scooby_with_filter_and_count(
-//! supabase_client: SupabaseClient
-//! ) -> Result<(), String> {
-//! let data: Result<Vec<Value>, String> = supabase_client
-//!     .select("animals")
-//!     .eq("dog", "scooby")
-//!     .count()
-//!     .execute()
-//!     .await;
-//! ```
-//!
-//! ### Delete
-//! This will delete the row in the `test` table where the `id` is `1`.
-//!
-//! ```rust,ignore
-//! // i know the imports are self explanatory but it makes it easier for beginners:)
-//! use supabase_rs::SupabaseClient;
-//!
-//! // always pass an initialized SupabaseClient to the method
-//! let client = SupabaseClient::new(
-//!   "your_supabase_url", "your_supabase_key"
-//! );
-//!
-//! async fn delete_example(
-//!  client: SupabaseClient
-//! ) -> Result<(), String> {
-//! let delete_result = client
-//!     .delete("test", "1")
-//!     .await;
-//! ```
-//!
-//! //! <div class="warning">Experimental features, Not ready for prod!</div>
-//!
-//!
-//! ### Get ID by Column, Cell values
-//! This will return the ID of the row in the specified table where the column matches the provided email.
-//!
-//! ```rust,ignore
 //! #[tokio::main]
-//! async fn main() {
-//!     // Initialize the Supabase Client
-//!     let supabase_client = SupabaseClient::new("your_supabase_url", "your_supabase_key");
+//! async fn main() -> Result<(), Box<dyn std::error::Error>> {
+//!     // Initialize client
+//!     let client = SupabaseClient::new(
+//!         std::env::var("SUPABASE_URL")?,
+//!         std::env::var("SUPABASE_KEY")?,
+//!     )?;
 //!
-//!     let email = "example@email.com".to_string();
-//!     let table_name = "users".to_string();
-//!     let column_name = "email".to_string();
-//!     match supabase_client.get_id(email, table_name, column_name).await {
-//!         Ok(id) => println!("Found ID: {}", id),
-//!         Err(e) => println!("Error: {}", e),
+//!     // Insert data
+//!     let id = client.insert("users", json!({
+//!         "name": "John Doe",
+//!         "email": "john@example.com"
+//!     })).await?;
+//!
+//!     // Query data
+//!     let users = client
+//!         .select("users")
+//!         .eq("name", "John Doe")
+//!         .limit(10)
+//!         .execute()
+//!         .await?;
+//!
+//!     println!("Found {} users", users.len());
+//!     Ok(())
+//! }
+//! ```
+//!
+//! ## 📚 Core Concepts
+//!
+//! ### Client Initialization
+//!
+//! The [`SupabaseClient`] is the main entry point for all operations. It's designed to be:
+//! - **Clone-friendly**: Cheap to clone, shares connection pool
+//! - **Thread-safe**: Can be used across async tasks
+//! - **Connection-pooled**: Reuses HTTP connections efficiently
+//!
+//! ### Query Builder Pattern
+//!
+//! The SDK uses a fluent query builder pattern for constructing complex queries:
+//!
+//! ```rust,no_run
+//! use supabase_rs::SupabaseClient;
+//! use serde_json::Value;
+//!
+//! # async fn example(client: SupabaseClient) -> Result<(), String> {
+//! let results: Vec<Value> = client
+//!     .from("posts")                    // Start with table
+//!     .columns(vec!["id", "title"])     // Select specific columns
+//!     .eq("status", "published")        // Add filters
+//!     .gte("created_at", "2024-01-01")  // Multiple filters
+//!     .order("created_at", false)       // Sort by date, newest first
+//!     .limit(20)                        // Limit results
+//!     .execute()                        // Execute query
+//!     .await?;
+//! # Ok(())
+//! # }
+//! ```
+//!
+//! ### Error Handling Philosophy
+//!
+//! The SDK uses `Result<T, String>` for most operations to provide clear error messages:
+//!
+//! ```rust,no_run
+//! # use supabase_rs::SupabaseClient;
+//! # use serde_json::json;
+//! # async fn example(client: SupabaseClient) -> Result<(), String> {
+//! match client.insert("users", json!({"email": "test@example.com"})).await {
+//!     Ok(id) => println!("Created user with ID: {}", id),
+//!     Err(err) => {
+//!         if err.contains("409") {
+//!             println!("User already exists");
+//!         } else {
+//!             println!("Unexpected error: {}", err);
+//!         }
 //!     }
 //! }
+//! # Ok(())
+//! # }
 //! ```
 //!
+//! ## 🔐 Authentication & Setup
 //!
-//! ## Different Operations
-//! - [Insert](./insert/index.html)
-//! - [Update](./update/index.html)
-//! - [Select](./select/index.html)
-//! - [Storage](./storage/index.html)
-//! - [Realtime](./realtime/index.html)
-//! - [Query](./query/index.html)
-//! - [Errors](./errors/index.html)
-//! - [Success](./success/index.html)
-//! - [Tests](./tests/index.html)
-//! - [GraphQL](./graphql/index.html)
+//! The SDK requires two pieces of information to connect to your Supabase project:
+//! - **Project URL**: Your unique Supabase project URL
+//! - **API Key**: Either your anon key (client-side) or service role key (server-side)
 //!
+//! ### Environment Configuration
 //!
-//! ## Update
-//! I'll be adding more methods and enriching the SDK over the next few weeks, for now!
+//! Set up your environment variables in a `.env` file:
+//! ```env
+//! SUPABASE_URL=https://your-project.supabase.co
+//! SUPABASE_KEY=your-anon-or-service-role-key
+//! ```
 //!
-//! ## Contributers
+//! ### Key Types and Usage
 //!
+//! | Key Type | Use Case | Permissions |
+//! |----------|----------|-------------|
+//! | **Anon Key** | Client-side apps | Respects RLS policies |
+//! | **Service Role** | Server-side apps | Bypasses RLS, full access |
+//!
+//! ## 📖 Complete Examples
+//!
+//! ### Client Initialization Patterns
+//!
+//! ```rust,no_run
+//! use supabase_rs::SupabaseClient;
+//! use dotenv::dotenv;
+//!
+//! // Basic initialization with error handling
+//! fn create_client() -> Result<SupabaseClient, Box<dyn std::error::Error>> {
+//!     dotenv().ok();
+//!     
+//!     let client = SupabaseClient::new(
+//!         std::env::var("SUPABASE_URL")?,
+//!         std::env::var("SUPABASE_KEY")?,
+//!     )?;
+//!     
+//!     Ok(client)
+//! }
+//!
+//! // For applications that need shared client instances
+//! use std::sync::Arc;
+//!
+//! fn create_shared_client() -> Arc<SupabaseClient> {
+//!     let client = SupabaseClient::new(
+//!         std::env::var("SUPABASE_URL").expect("SUPABASE_URL required"),
+//!         std::env::var("SUPABASE_KEY").expect("SUPABASE_KEY required"),
+//!     ).expect("Failed to create Supabase client");
+//!     
+//!     Arc::new(client)
+//! }
+//! ```
+//!
+//! ### Insert Operations
+//!
+//! ```rust,no_run
+//! use supabase_rs::SupabaseClient;
+//! use serde_json::json;
+//!
+//! # async fn example(client: SupabaseClient) -> Result<(), String> {
+//! // Basic insert with automatic ID generation
+//! let user_id = client.insert("users", json!({
+//!     "name": "Alice Johnson",
+//!     "email": "alice@example.com",
+//!     "age": 28
+//! })).await?;
+//!
+//! println!("Created user with ID: {}", user_id);
+//!
+//! // Insert with uniqueness check (prevents duplicates)
+//! let unique_id = client.insert_if_unique("users", json!({
+//!     "email": "unique@example.com",
+//!     "username": "unique_user"
+//! })).await?;
+//!
+//! // Bulk insert for multiple records
+//! use serde::Serialize;
+//!
+//! #[derive(Serialize)]
+//! struct NewUser {
+//!     name: String,
+//!     email: String,
+//! }
+//!
+//! let users = vec![
+//!     NewUser { name: "Bob".to_string(), email: "bob@example.com".to_string() },
+//!     NewUser { name: "Carol".to_string(), email: "carol@example.com".to_string() },
+//! ];
+//!
+//! client.bulk_insert("users", users).await?;
+//! # Ok(())
+//! # }
+//! ```
+//!
+//! ### Update & Upsert Operations
+//!
+//! ```rust,no_run
+//! # use supabase_rs::SupabaseClient;
+//! # use serde_json::json;
+//! # async fn example(client: SupabaseClient) -> Result<(), String> {
+//! // Update existing record by ID
+//! client.update("users", "123", json!({
+//!     "name": "Alice Smith",
+//!     "last_login": "2024-01-15T10:30:00Z"
+//! })).await?;
+//!
+//! // Update by custom column
+//! client.update_with_column_name(
+//!     "users",
+//!     "email",                    // Column to match
+//!     "alice@example.com",        // Value to match
+//!     json!({ "verified": true })
+//! ).await?;
+//!
+//! // Upsert (insert or update if exists)
+//! client.upsert("settings", "user_123", json!({
+//!     "theme": "dark",
+//!     "notifications": true
+//! })).await?;
+//! # Ok(())
+//! # }
+//! ```
+//!
+//! ### Query Operations
+//!
+//! ```rust,no_run
+//! # use supabase_rs::SupabaseClient;
+//! # use serde_json::Value;
+//! # async fn example(client: SupabaseClient) -> Result<(), String> {
+//! // Basic select with filtering
+//! let active_users: Vec<Value> = client
+//!     .select("users")
+//!     .eq("status", "active")
+//!     .order("created_at", false)     // Newest first
+//!     .limit(50)
+//!     .execute()
+//!     .await?;
+//!
+//! // Select specific columns (more efficient)
+//! let user_emails: Vec<Value> = client
+//!     .from("users")
+//!     .columns(vec!["id", "email", "name"])
+//!     .gte("age", "18")               // Adults only
+//!     .execute()
+//!     .await?;
+//!
+//! // Complex filtering with multiple conditions
+//! let filtered_posts: Vec<Value> = client
+//!     .select("posts")
+//!     .eq("published", "true")
+//!     .in_("category", &["tech", "science", "programming"])
+//!     .text_search("content", "rust programming")
+//!     .limit(10)
+//!     .execute()
+//!     .await?;
+//!
+//! // Pagination using range (recommended)
+//! let page_1: Vec<Value> = client
+//!     .from("articles")
+//!     .range(0, 24)                   // First 25 items (0-24 inclusive)
+//!     .order("published_at", false)
+//!     .execute()
+//!     .await?;
+//! # Ok(())
+//! # }
+//! ```
+//!
+//! ### Delete Operations
+//!
+//! ```rust,no_run
+//! # use supabase_rs::SupabaseClient;
+//! # async fn example(client: SupabaseClient) -> Result<(), String> {
+//! // Delete by ID
+//! client.delete("users", "123").await?;
+//!
+//! // Delete by custom column
+//! client.delete_without_defined_key("sessions", "token", "abc123").await?;
+//! # Ok(())
+//! # }
+//! ```
+//!
+//! ### Count Operations
+//!
+//! > **⚠️ Performance Warning**: Count operations can be expensive on large tables.
+//!
+//! ```rust,no_run
+//! # use supabase_rs::SupabaseClient;
+//! # async fn example(client: SupabaseClient) -> Result<(), String> {
+//! // Count all records (expensive)
+//! let total = client
+//!     .select("users")
+//!     .count()
+//!     .execute()
+//!     .await?;
+//!
+//! // Count with filters (more efficient)
+//! let active_count = client
+//!     .select("users")
+//!     .eq("status", "active")
+//!     .count()
+//!     .execute()
+//!     .await?;
+//! # Ok(())
+//! # }
+//! ```
+//!
+//! ## 🔗 Module Documentation
+//!
+//! For detailed documentation on specific functionality:
+//!
+//! - **[`insert`]** - Insert operations and bulk operations
+//! - **[`update`]** - Update and upsert operations  
+//! - **[`select`]** - Query execution and response handling
+//! - **[`delete`]** - Delete operations
+//! - **[`query_builder`]** - Fluent query building API
+//! - **[`storage`]** - File operations (requires `storage` feature)
+//! - **[`graphql`]** - GraphQL support (requires `nightly` feature)
+//! - **[`errors`]** - Error types and handling utilities
+//!
+//! ## 🚀 What's Next
+//!
+//! This SDK is actively maintained and continuously improved. Upcoming features include:
+//! - Enhanced Realtime subscriptions
+//! - Advanced authentication helpers
+//! - Improved type generation utilities
+//! - Performance optimizations
+//!
+//! ## 🤝 Contributing
+//!
+//! Contributions are welcome! Please check our [GitHub repository](https://github.com/floris-xlx/supabase_rs) 
+//! for contribution guidelines and open issues.
 
 const PKG_NAME: &'static str = env!("CARGO_PKG_NAME");
 const PKG_VERSION: &'static str = env!("CARGO_PKG_VERSION");
@@ -367,30 +437,70 @@ pub mod storage;
 
 use errors::Result;
 
-/// A client structure for interacting with Supabase services.
+/// The main client for interacting with Supabase services.
 ///
-/// This structure holds the necessary details to make requests to the Supabase API.
-/// It contains the base URL of the Supabase project and the API key for authentication.
+/// `SupabaseClient` provides a unified interface for all Supabase operations including
+/// database CRUD operations, file storage, and GraphQL queries. It manages HTTP connections,
+/// authentication, and request routing automatically.
 ///
-/// # Fields
-/// - `url`: The base URL of the Supabase project.
-/// - `api_key`: The API key used for authenticating requests to Supabase.
-/// - `client`: The underlying HTTP client used to perform requests.
+/// # Architecture
 ///
-/// # Concurrency
-/// `SupabaseClient` is `Clone` and cheap to clone. Internally it holds a `reqwest::Client`,
-/// which is already connection-pooled. Prefer cloning and reusing it across tasks.
+/// The client is built around several key components:
+/// - **Connection Pool**: Managed by an internal `reqwest::Client` for efficient HTTP reuse
+/// - **Authentication**: Automatic header management with API key and bearer token
+/// - **Endpoint Routing**: Smart URL construction for different Supabase services
+/// - **Error Handling**: Consistent error types across all operations
 ///
-/// # TLS
-/// If the `rustls` feature is enabled, requests use `rustls` instead of OpenSSL.
+/// # Thread Safety & Performance
+///
+/// - **Clone-friendly**: Cloning is cheap and shares the underlying connection pool
+/// - **Thread-safe**: Can be safely used across async tasks and threads
+/// - **Connection pooling**: Automatically reuses HTTP connections for better performance
+/// - **Memory efficient**: Minimal overhead per clone
+///
+/// # TLS Configuration
+///
+/// - **Default**: Uses the system's native TLS implementation (OpenSSL on most platforms)
+/// - **With `rustls` feature**: Uses rustls for TLS (recommended for Alpine Linux/Docker)
 ///
 /// # Examples
+///
+/// ## Basic Usage
 /// ```rust,no_run
-/// # use supabase_rs::SupabaseClient;
+/// use supabase_rs::SupabaseClient;
+///
+/// # fn main() -> Result<(), Box<dyn std::error::Error>> {
 /// let client = SupabaseClient::new(
 ///     "https://your-project.supabase.co".to_string(),
 ///     "your-secret-key".to_string(),
-/// ).unwrap();
+/// )?;
+/// # Ok(())
+/// # }
+/// ```
+///
+/// ## Multi-threaded Usage
+/// ```rust,no_run
+/// use supabase_rs::SupabaseClient;
+/// use std::sync::Arc;
+/// use tokio::task;
+///
+/// # async fn example() -> Result<(), Box<dyn std::error::Error>> {
+/// let client = Arc::new(SupabaseClient::new(
+///     std::env::var("SUPABASE_URL")?,
+///     std::env::var("SUPABASE_KEY")?,
+/// )?);
+///
+/// // Clone for use in another task
+/// let client_clone = Arc::clone(&client);
+/// let handle = task::spawn(async move {
+///     client_clone.select("users").execute().await
+/// });
+///
+/// // Original client can still be used
+/// let _users = client.select("posts").execute().await?;
+/// let _result = handle.await??;
+/// # Ok(())
+/// # }
 /// ```
 #[derive(Debug, Clone)]
 pub struct SupabaseClient {
@@ -400,27 +510,68 @@ pub struct SupabaseClient {
 }
 
 impl SupabaseClient {
-    /// Creates a new instance of `SupabaseClient` using the provided Supabase URL and private API key.
+    /// Creates a new `SupabaseClient` instance with the provided project URL and API key.
     ///
-    /// This function is crucial for setting up the client with the necessary credentials to interact with Supabase services.
-    /// The `supabase_url` should point to your Supabase project URL, and the `private_key` should be your secret API key.
+    /// This method initializes the HTTP client with appropriate TLS configuration based on
+    /// enabled features and sets up the authentication credentials for all subsequent requests.
+    ///
+    /// # Arguments
+    ///
+    /// * `supabase_url` - Your Supabase project URL (e.g., "https://your-project.supabase.co")
+    /// * `private_key` - Your Supabase API key (anon key for client-side, service role for server-side)
+    ///
+    /// # Returns
+    ///
+    /// Returns `Result<SupabaseClient, ErrorTypes>` where:
+    /// - `Ok(SupabaseClient)` - Successfully initialized client ready for use
+    /// - `Err(ErrorTypes)` - Initialization failed (typically due to HTTP client setup issues)
+    ///
+    /// # TLS Configuration
+    ///
+    /// - **Default**: Uses native TLS (OpenSSL on most platforms)
+    /// - **With `rustls` feature**: Uses rustls-tls for cross-platform compatibility
     ///
     /// # Examples
     ///
-    /// ```
-    /// # use supabase_rs::SupabaseClient;
+    /// ## Basic Initialization
+    /// ```rust,no_run
+    /// use supabase_rs::SupabaseClient;
+    ///
+    /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
     /// let client = SupabaseClient::new(
     ///     "https://your-project.supabase.co".to_string(),
-    ///     "your-secret-key".to_string(),
-    /// );
+    ///     "your-anon-or-service-key".to_string(),
+    /// )?;
+    /// # Ok(())
+    /// # }
     /// ```
-    /// ```rust
-    /// # use supabase_rs::SupabaseClient;
+    ///
+    /// ## With Environment Variables
+    /// ```rust,no_run
+    /// use supabase_rs::SupabaseClient;
+    /// use dotenv::dotenv;
+    ///
+    /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
+    /// dotenv().ok();
+    /// 
     /// let client = SupabaseClient::new(
-    ///     "https://example.supabase.co".to_string(),
-    ///     "service-role-or-anon-key".to_string(),
-    /// );
-    /// assert!(client.is_ok());
+    ///     std::env::var("SUPABASE_URL")?,
+    ///     std::env::var("SUPABASE_KEY")?,
+    /// )?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    ///
+    /// ## Error Handling
+    /// ```rust,no_run
+    /// use supabase_rs::SupabaseClient;
+    ///
+    /// # fn main() {
+    /// match SupabaseClient::new("invalid-url".to_string(), "key".to_string()) {
+    ///     Ok(client) => println!("Client created successfully"),
+    ///     Err(e) => eprintln!("Failed to create client: {:?}", e),
+    /// }
+    /// # }
     /// ```
     pub fn new(supabase_url: String, private_key: String) -> Result<Self> {
         #[cfg(feature = "rustls")]
