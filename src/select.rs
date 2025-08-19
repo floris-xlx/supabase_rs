@@ -40,112 +40,144 @@
 //! | `offset(n)` | Skip n records | ⚠️ Slower | Use sparingly, prefer range |
 //! | `count()` | Count matching records | ❌ Expensive | Use only when necessary |
 //!
-//! This will return all `dog` rows where the value is `scooby` in the `animals` table
-//! ```rust,ignore
+//! ## 📖 Usage Examples
+//!
+//! ### Basic Querying
+//!
+//! ```rust,no_run
 //! use supabase_rs::SupabaseClient;
-//! use dotenv::dotenv;
-//! use std::env::var;
 //! use serde_json::Value;
 //!
-//! async fn select_scooby(
-//!      supabase_client: SupabaseClient
-//! )-> Result<(), String>{
-//!     let data: Result<Vec<Value>, String> = supabase_client
-//!         .select("animals")
-//!         .eq("dog", "scooby")
-//!         .execute()
-//!     .await;
+//! # async fn example() -> Result<(), String> {
+//! # let client = SupabaseClient::new("url".to_string(), "key".to_string()).unwrap();
+//! // Simple select with filtering
+//! let users: Vec<Value> = client
+//!     .select("users")
+//!     .eq("status", "active")
+//!     .execute()
+//!     .await?;
 //!
-//! match data {
-//!    Ok(data) => {
-//!        println!("Data: {:?}", data);
-//!        Ok(())
-//!    },
-//!    Err(error) => {
-//!        println!("Error: {:?}", error);
-//!        Err(error)
-//!    }
+//! println!("Found {} active users", users.len());
+//! # Ok(())
+//! # }
+//! ```
+//!
+//! ### Advanced Filtering
+//!
+//! ```rust,no_run
+//! # use supabase_rs::SupabaseClient;
+//! # use serde_json::Value;
+//! # async fn example() -> Result<(), String> {
+//! # let client = SupabaseClient::new("url".to_string(), "key".to_string()).unwrap();
+//! // Complex filtering with multiple conditions
+//! let filtered_products: Vec<Value> = client
+//!     .select("products")
+//!     .gte("price", "10.00")              // Price >= $10
+//!     .lte("price", "100.00")             // Price <= $100
+//!     .neq("category", "discontinued")     // Not discontinued
+//!     .in_("brand", &["apple", "samsung", "google"])  // Specific brands
+//!     .text_search("description", "smartphone")        // Full-text search
+//!     .order("price", true)               // Sort by price ascending
+//!     .limit(50)                          // Limit results
+//!     .execute()
+//!     .await?;
+//! # Ok(())
+//! # }
+//! ```
+//!
+//! ### Column Selection and Pagination
+//!
+//! ```rust,no_run
+//! # use supabase_rs::SupabaseClient;
+//! # use serde_json::Value;
+//! # async fn example() -> Result<(), String> {
+//! # let client = SupabaseClient::new("url".to_string(), "key".to_string()).unwrap();
+//! // Select specific columns for efficiency
+//! let user_profiles: Vec<Value> = client
+//!     .from("users")
+//!     .columns(vec!["id", "name", "email", "avatar_url"])
+//!     .eq("verified", "true")
+//!     .range(0, 24)                       // Get first 25 records (0-24 inclusive)
+//!     .order("created_at", false)         // Newest first
+//!     .execute()
+//!     .await?;
+//!
+//! // Offset-based pagination (less efficient but sometimes needed)
+//! let page_2: Vec<Value> = client
+//!     .from("posts")
+//!     .columns(vec!["id", "title", "excerpt"])
+//!     .eq("published", "true")
+//!     .limit(10)
+//!     .offset(10)                         // Skip first 10 records
+//!     .execute()
+//!     .await?;
+//! # Ok(())
+//! # }
+//! ```
+//!
+//! ### Count Operations
+//!
+//! > **⚠️ Performance Warning**: Count operations can be expensive on large tables. Use judiciously.
+//!
+//! ```rust,no_run
+//! # use supabase_rs::SupabaseClient;
+//! # use serde_json::Value;
+//! # async fn example() -> Result<(), String> {
+//! # let client = SupabaseClient::new("url".to_string(), "key".to_string()).unwrap();
+//! // Count with filters (recommended)
+//! let active_user_count: Vec<Value> = client
+//!     .select("users")
+//!     .eq("status", "active")
+//!     .count()
+//!     .execute()
+//!     .await?;
+//!
+//! // Count all records (expensive on large tables)
+//! let total_users: Vec<Value> = client
+//!     .select("users")
+//!     .count()
+//!     .execute()
+//!     .await?;
+//! # Ok(())
+//! # }
+//! ```
+//!
+//! ## ⚡ Performance Tips
+//!
+//! 1. **Use Column Selection**: Only fetch columns you need
+//! 2. **Apply Filters Early**: Reduce data transfer with specific filters
+//! 3. **Prefer Range Over Offset**: Range-based pagination is more efficient
+//! 4. **Limit Results**: Always use reasonable limits to prevent large responses
+//! 5. **Index Your Filters**: Ensure filtered columns are indexed in your database
+//!
+//! ## 🔧 Error Handling
+//!
+//! All select operations return `Result<Vec<Value>, String>` for consistent error handling:
+//!
+//! ```rust,no_run
+//! # use supabase_rs::SupabaseClient;
+//! # use serde_json::Value;
+//! # async fn example() -> Result<(), String> {
+//! # let client = SupabaseClient::new("url".to_string(), "key".to_string()).unwrap();
+//! match client.select("users").eq("id", "123").execute().await {
+//!     Ok(users) => {
+//!         if users.is_empty() {
+//!             println!("No users found");
+//!         } else {
+//!             println!("Found {} users", users.len());
+//!         }
+//!     },
+//!     Err(error) => {
+//!         eprintln!("Query failed: {}", error);
+//!         // Handle specific error cases
+//!         if error.contains("401") {
+//!             eprintln!("Authentication failed");
+//!         }
+//!     }
 //! }
+//! # Ok(())
+//! # }
 //! ```
-//! ## Counting
-//! You can also count the number of rows that match the filter criteria and return it under `total_records_count`
-//!
-//! ### Counting with filtering
-//! ```rust,ignore
-//! let data: Result<Vec<Value>, String> = supabase_client
-//!    .select("animals")
-//!    .eq("dog", "scooby")
-//!    .count()
-//!    .execute()
-//!    .await;
-//! ```
-//!
-//! ### Counting without filtering
-//! ```rust,ignore
-//! let data: Result<Vec<Value>, String> = supabase_client
-//!    .select("animals")
-//!    .count()
-//!    .execute()
-//!    .await;
-//! ```
-//!
-//! ## Methods / Operators
-//!
-//! ### eq
-//! This method checks if the Column is equal to a value
-//! ```rust,ignore
-//! let data: Result<Vec<Value>, String> = supabase_client
-//!     .select("animals")
-//!     .eq("dog", "scooby")
-//!     .execute()
-//!     .await;
-//! ```
-//! ### neq
-//! This method checks if the Column is not equal to a value
-//! ```rust,ignore
-//! let data: Result<Vec<Value>, String> = supabase_client
-//!     .select("animals")
-//!     .neq("dog", "scooby")
-//!     .execute()
-//!     .await;
-//! ```
-//! ### gt
-//! This method checks if the Column is not equal to a value
-//! ```rust,ignore
-//! let data: Result<Vec<Value>, String> = supabase_client
-//!     .select("animals")
-//!     .gt("weight", "100")
-//!     .execute()
-//!     .await;
-//! ```
-//! ### lt
-//! This method checks if the Column is not equal to a value
-//! ```rust,ignore
-//! let data: Result<Vec<Value>, String> = supabase_client
-//!     .select("animals")
-//!     .lt("weight", "100")
-//!     .execute()
-//!     .await;
-//! ```
-//! ### gte
-//! This method checks if the Column is not equal to a value
-//! ```rust,ignore
-//! let data: Result<Vec<Value>, String> = supabase_client
-//!     .select("animals")
-//!     .gte("weight", "100")
-//!     .execute()
-//!     .await;
-//! ```
-//! ### lte
-//! This method checks if the Column is not equal to a value
-//! ```rust,ignore
-//! let data: Result<Vec<Value>, String> = supabase_client
-//!     .select("animals")
-//!     .lte("weight", "100")
-//!     .execute()
-//!     .await;
-//! ```
-//!
 
 use crate::query::{Query, QueryBuilder};
 use crate::request::Headers;

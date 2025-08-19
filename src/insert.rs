@@ -1,54 +1,163 @@
-//! ## Insert Operations
+//! # Insert Operations
 //!
-//! This module provides functionalities to insert new rows into a Supabase table.
-//! It leverages the Supabase REST API for performing these operations.
+//! This module provides comprehensive functionality for inserting new records into Supabase tables.
+//! It supports single inserts, bulk operations, and conditional inserts with automatic conflict detection.
 //!
-//! ## Features
+//! ## 🎯 Core Features
 //!
-//! - **Insert**: Add new rows to a table.
-//! - **Insert if Unique**: Add a new row only if it does not violate a UNIQUE constraint.
+//! - **[`insert`]**: Standard insert with automatic ID generation
+//! - **[`insert_if_unique`]**: Conditional insert that prevents duplicates
+//! - **[`bulk_insert`]**: Efficient bulk operations for multiple records
+//! - **[`insert_with_generated_id`]**: Insert with client-side ID generation
 //!
-//! ## Usage
+//! ## 🏗️ Operation Types
 //!
-//! Before using these operations, ensure you have a valid `SupabaseClient` instance.
-//! You can then use the `insert` or `insert_if_unique` methods provided by the client to perform the desired operation.
+//! | Method | ID Handling | Conflict Behavior | Performance | Use Case |
+//! |--------|-------------|-------------------|-------------|----------|
+//! | `insert` | Auto-generated or provided | Fails on conflict | ✅ Fast | Standard inserts |
+//! | `insert_if_unique` | Auto-generated | Checks uniqueness first | ⚠️ Slower | Prevent duplicates |
+//! | `bulk_insert` | Auto-generated or provided | Fails on any conflict | ✅ Fast | Multiple records |
+//! | `insert_with_generated_id` | Client-side random | Fails on conflict | ✅ Fast | Custom ID control |
 //!
-//! ### Insert Example
+//! ## 📊 Data Serialization
 //!
+//! All insert methods accept any type that implements `serde::Serialize`:
+//! - Raw JSON values (`serde_json::Value`)
+//! - Structs with `#[derive(Serialize)]`
+//! - Maps, vectors, and primitive types
+//! - Custom serializable types
+//!
+//! ## 🔧 Error Handling
+//!
+//! Insert operations return `Result<String, String>` where:
+//! - **Success**: `Ok(String)` contains the ID of the inserted record
+//! - **Failure**: `Err(String)` contains a descriptive error message
+//!
+//! ### Common Error Scenarios
+//! - **409 Conflict**: Duplicate entry violates unique constraint
+//! - **401 Unauthorized**: Invalid or missing API key
+//! - **403 Forbidden**: Insufficient permissions (check RLS policies)
+//! - **422 Unprocessable**: Invalid data format or missing required fields
+//!
+//! ## 📖 Usage Examples
+//!
+//! ### Basic Insert Operations
+//!
+//! ```rust,no_run
+//! use supabase_rs::SupabaseClient;
+//! use serde_json::json;
+//!
+//! # async fn example() -> Result<(), String> {
+//! # let client = SupabaseClient::new("url".to_string(), "key".to_string()).unwrap();
+//! // Simple insert with JSON
+//! let user_id = client.insert("users", json!({
+//!     "name": "Alice Johnson",
+//!     "email": "alice@example.com",
+//!     "age": 28,
+//!     "verified": false
+//! })).await?;
+//!
+//! println!("Created user with ID: {}", user_id);
+//! # Ok(())
+//! # }
 //! ```
-//! # use serde_json::json;
-//! # use supabase_rs::SupabaseClient;
-//! #[tokio::main]
-//! async fn main() {
-//!     let client = SupabaseClient::new(
-//!         "your_supabase_url".to_string(), "your_supabase_key".to_string()
-//!     ).unwrap();
-//!     let insert_result = client.insert(
-//!         "your_table_name", json!({"column_name": "value"})
-//!     ).await;
+//!
+//! ### Structured Data Insert
+//!
+//! ```rust,no_run
+//! use serde::Serialize;
+//! use supabase_rs::SupabaseClient;
+//!
+//! #[derive(Serialize)]
+//! struct User {
+//!     name: String,
+//!     email: String,
+//!     age: u32,
+//!     verified: bool,
 //! }
+//!
+//! # async fn example() -> Result<(), String> {
+//! # let client = SupabaseClient::new("url".to_string(), "key".to_string()).unwrap();
+//! let new_user = User {
+//!     name: "Bob Smith".to_string(),
+//!     email: "bob@example.com".to_string(),
+//!     age: 35,
+//!     verified: true,
+//! };
+//!
+//! let user_id = client.insert("users", new_user).await?;
+//! # Ok(())
+//! # }
 //! ```
 //!
-//! ### Insert if Unique Example
+//! ### Conditional Insert (Prevent Duplicates)
 //!
-//! ```
-//! # use serde_json::json;
+//! ```rust,no_run
 //! # use supabase_rs::SupabaseClient;
-//! #[tokio::main]
-//! async fn main() {
-//!     let client = SupabaseClient::new(
-//!         "your_supabase_url".to_string(), "your_supabase_key".to_string()
-//!     ).unwrap();
-//!     let unique_insert_result = client.insert_if_unique(
-//!         "your_table_name", json!({"unique_column_name": "unique_value"})
-//!     ).await;
+//! # use serde_json::json;
+//! # async fn example() -> Result<(), String> {
+//! # let client = SupabaseClient::new("url".to_string(), "key".to_string()).unwrap();
+//! // Insert only if no existing record matches ALL provided fields
+//! match client.insert_if_unique("users", json!({
+//!     "email": "unique@example.com",
+//!     "username": "unique_user"
+//! })).await {
+//!     Ok(id) => println!("Created unique user with ID: {}", id),
+//!     Err(err) if err.contains("409") => {
+//!         println!("User already exists with this email or username");
+//!     },
+//!     Err(err) => println!("Insert failed: {}", err),
 //! }
+//! # Ok(())
+//! # }
 //! ```
 //!
-//! ## Error Handling
+//! ### Bulk Insert Operations
 //!
-//! Both `insert` and `insert_if_unique` methods return a `Result<String, String>`, where `Ok(String)` contains the ID of the inserted row,
-//! and `Err(String)` contains an error message in case of failure.
+//! ```rust,no_run
+//! # use supabase_rs::SupabaseClient;
+//! # use serde_json::json;
+//! # async fn example() -> Result<(), String> {
+//! # let client = SupabaseClient::new("url".to_string(), "key".to_string()).unwrap();
+//! // Insert multiple records efficiently
+//! let users = vec![
+//!     json!({"name": "User 1", "email": "user1@example.com"}),
+//!     json!({"name": "User 2", "email": "user2@example.com"}),
+//!     json!({"name": "User 3", "email": "user3@example.com"}),
+//! ];
+//!
+//! client.bulk_insert("users", users).await?;
+//! println!("Successfully inserted multiple users");
+//! # Ok(())
+//! # }
+//! ```
+//!
+//! ## ⚡ Performance Considerations
+//!
+//! ### Choosing the Right Insert Method
+//!
+//! 1. **`insert`**: Fastest option, use when you're confident about data uniqueness
+//! 2. **`insert_if_unique`**: Slower due to pre-check query, use when duplicates are likely
+//! 3. **`bulk_insert`**: Most efficient for multiple records, single HTTP request
+//!
+//! ### Best Practices
+//!
+//! ```rust,no_run
+//! # use supabase_rs::SupabaseClient;
+//! # use serde_json::json;
+//! # async fn example() -> Result<(), String> {
+//! # let client = SupabaseClient::new("url".to_string(), "key".to_string()).unwrap();
+//! // ✅ Good: Batch multiple inserts
+//! let records = vec![/* ... multiple records ... */];
+//! client.bulk_insert("logs", records).await?;
+//!
+//! // ❌ Avoid: Individual inserts in loops
+//! // for record in records {
+//! //     client.insert("logs", record).await?; // Inefficient!
+//! // }
+//! # Ok(())
+//! # }
+//! ```
 
 use crate::request::headers::HeadersTypes;
 use crate::{generate_random_id, SupabaseClient};

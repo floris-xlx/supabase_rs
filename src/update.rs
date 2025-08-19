@@ -1,52 +1,158 @@
-//! ## Update and Upsert Operations
+//! # Update and Upsert Operations
 //!
-//! This module provides functionalities to update or upsert (update or insert) rows in a Supabase table.
-//! It leverages the Supabase REST API for performing these operations.
+//! This module provides comprehensive functionality for modifying existing records in Supabase tables.
+//! It supports standard updates, upserts (insert or update), and flexible column-based targeting.
 //!
-//! ## Features
+//! ## 🎯 Core Features
 //!
-//! - **Update**: Modify existing rows in a table based on a unique identifier.
-//! - **Upsert**: Insert a new row into a table if it does not exist, or update it if it does.
+//! - **[`update`]**: Modify existing records by ID
+//! - **[`update_with_column_name`]**: Update records using custom column matching
+//! - **[`upsert`]**: Insert new record or update if it exists
+//! - **[`upsert_without_defined_key`]**: Upsert with automatic conflict resolution
 //!
-//! ## Usage
+//! ## 🏗️ Operation Types
 //!
-//! Before using these operations, ensure you have a valid `SupabaseClient` instance.
-//! You can then use the `update` or `upsert` methods provided by the client to perform the desired operation.
+//! | Method | Targeting | Behavior | Return Type | Use Case |
+//! |--------|-----------|----------|-------------|----------|
+//! | `update` | By ID | Updates existing record | `Result<String, String>` | Standard updates |
+//! | `update_with_column_name` | By custom column | Updates matching record | `Result<String, String>` | Flexible targeting |
+//! | `upsert` | By ID | Insert or update | `Result<String, String>` | Idempotent operations |
+//! | `upsert_without_defined_key` | Auto-detect | Insert or update | `Result<(), String>` | Conflict resolution |
 //!
-//! ### Update Example
+//! ## 🔧 Conflict Resolution
 //!
+//! ### Update vs Upsert Decision Matrix
+//!
+//! | Scenario | Recommended Method | Reason |
+//! |----------|-------------------|---------|
+//! | Record definitely exists | `update` | Fastest, fails fast if missing |
+//! | Record may or may not exist | `upsert` | Handles both cases gracefully |
+//! | Bulk operations with mixed states | `upsert_without_defined_key` | Automatic conflict handling |
+//! | Need to update by non-ID field | `update_with_column_name` | Flexible targeting |
+//!
+//! ## 📖 Usage Examples
+//!
+//! ### Basic Update Operations
+//!
+//! ```rust,no_run
+//! use supabase_rs::SupabaseClient;
+//! use serde_json::json;
+//!
+//! # async fn example() -> Result<(), String> {
+//! # let client = SupabaseClient::new("url".to_string(), "key".to_string()).unwrap();
+//! // Update by ID (most common)
+//! let updated_id = client.update("users", "123", json!({
+//!     "name": "Alice Smith",
+//!     "last_login": "2024-01-15T10:30:00Z",
+//!     "login_count": 42
+//! })).await?;
+//!
+//! println!("Updated user with ID: {}", updated_id);
+//! # Ok(())
+//! # }
 //! ```
+//!
+//! ### Update by Custom Column
+//!
+//! ```rust,no_run
 //! # use supabase_rs::SupabaseClient;
-//! #[tokio::main]
-//! async fn main() {
-//!     let client = SupabaseClient::new(
-//!         "your_supabase_url".to_string(), "your_supabase_key".to_string()
-//!     ).unwrap();
-//!     let update_result = client.update(
-//!         "your_table_name", "row_id", serde_json::json!({"column_name": "new_value"})
-//!     ).await;
-//! }
+//! # use serde_json::json;
+//! # async fn example() -> Result<(), String> {
+//! # let client = SupabaseClient::new("url".to_string(), "key".to_string()).unwrap();
+//! // Update user by email instead of ID
+//! client.update_with_column_name(
+//!     "users",
+//!     "email",                    // Column to match on
+//!     "alice@example.com",        // Value to match
+//!     json!({
+//!         "verified": true,
+//!         "verification_date": "2024-01-15T10:30:00Z"
+//!     })
+//! ).await?;
+//!
+//! // Update session by token
+//! client.update_with_column_name(
+//!     "sessions",
+//!     "token",
+//!     "abc123xyz",
+//!     json!({ "last_accessed": "2024-01-15T10:30:00Z" })
+//! ).await?;
+//! # Ok(())
+//! # }
 //! ```
 //!
-//! ### Upsert Example
+//! ### Upsert Operations
 //!
-//! ```
+//! ```rust,no_run
 //! # use supabase_rs::SupabaseClient;
-//! #[tokio::main]
-//! async fn main() {
-//!     let client = SupabaseClient::new(
-//!         "your_supabase_url".to_string(), "your_supabase_key".to_string()
-//!     ).unwrap();
-//!     let upsert_result = client.upsert(
-//!         "your_table_name", "row_id", serde_json::json!({"column_name": "value"})
-//!     ).await;
-//! }
+//! # use serde_json::json;
+//! # async fn example() -> Result<(), String> {
+//! # let client = SupabaseClient::new("url".to_string(), "key".to_string()).unwrap();
+//! // Upsert with explicit ID
+//! let result_id = client.upsert("user_preferences", "user_123", json!({
+//!     "theme": "dark",
+//!     "language": "en",
+//!     "notifications": true
+//! })).await?;
+//!
+//! // Upsert without predefined key (uses Supabase's conflict resolution)
+//! client.upsert_without_defined_key("analytics", json!({
+//!     "user_id": "123",
+//!     "event": "page_view",
+//!     "timestamp": "2024-01-15T10:30:00Z",
+//!     "page": "/dashboard"
+//! })).await?;
+//! # Ok(())
+//! # }
 //! ```
 //!
-//! ## Error Handling
+//! ## ⚡ Performance Best Practices
 //!
-//! Both `update` and `upsert` methods return a `Result<(), String>`, where `Ok(())` indicates a successful operation,
-//! and `Err(String)` contains an error message in case of failure.
+//! ### Efficient Update Patterns
+//!
+//! ```rust,no_run
+//! # use supabase_rs::SupabaseClient;
+//! # use serde_json::json;
+//! # async fn example() -> Result<(), String> {
+//! # let client = SupabaseClient::new("url".to_string(), "key".to_string()).unwrap();
+//! // ✅ Good: Update only changed fields
+//! client.update("users", "123", json!({
+//!     "last_login": "2024-01-15T10:30:00Z"  // Only update what changed
+//! })).await?;
+//!
+//! // ✅ Good: Use upsert for idempotent operations
+//! client.upsert("settings", "user_123", json!({
+//!     "theme": "dark"  // Safe to run multiple times
+//! })).await?;
+//!
+//! // ⚠️ Consider: Batch updates when possible
+//! // For multiple updates, consider using transactions or bulk operations
+//! # Ok(())
+//! # }
+//! ```
+//!
+//! ## 🚨 Error Handling Strategies
+//!
+//! ```rust,no_run
+//! # use supabase_rs::SupabaseClient;
+//! # use serde_json::json;
+//! # async fn example() -> Result<(), String> {
+//! # let client = SupabaseClient::new("url".to_string(), "key".to_string()).unwrap();
+//! match client.update("users", "123", json!({"name": "New Name"})).await {
+//!     Ok(id) => println!("✅ Updated user {}", id),
+//!     Err(err) => {
+//!         if err.contains("404") {
+//!             println!("⚠️ User not found, consider using upsert");
+//!         } else if err.contains("403") {
+//!             println!("🚫 Permission denied, check RLS policies");
+//!         } else {
+//!             println!("❌ Update failed: {}", err);
+//!         }
+//!     }
+//! }
+//! # Ok(())
+//! # }
+//! ```
 use crate::request::headers::HeadersTypes;
 use crate::SupabaseClient;
 use reqwest::Response;
