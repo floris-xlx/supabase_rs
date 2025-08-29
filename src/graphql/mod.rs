@@ -32,7 +32,7 @@
 //!
 //! ```rust,no_run
 //! use supabase_rs::SupabaseClient;
-//! use supabase_rs::graphql::{Request, RootTypes};
+//! use supabase_rs::graphql::{request::Request, RootTypes};
 //! use serde_json::json;
 //!
 //! # async fn example() -> Result<(), Box<dyn std::error::Error>> {
@@ -75,7 +75,7 @@
 //!
 //! ```rust,no_run
 //! # use supabase_rs::SupabaseClient;
-//! # use supabase_rs::graphql::{Request, RootTypes};
+//! # use supabase_rs::graphql::{request::Request, RootTypes};
 //! # use serde_json::json;
 //! # async fn example() -> Result<(), Box<dyn std::error::Error>> {
 //! # let client = SupabaseClient::new("url".to_string(), "key".to_string())?;
@@ -116,7 +116,7 @@
 //!
 //! ```rust,no_run
 //! # use supabase_rs::SupabaseClient;
-//! # use supabase_rs::graphql::{Request, RootTypes};
+//! # use supabase_rs::graphql::{request::Request, RootTypes};
 //! # use serde_json::json;
 //! # async fn example() -> Result<(), Box<dyn std::error::Error>> {
 //! # let client = SupabaseClient::new("url".to_string(), "key".to_string())?;
@@ -168,7 +168,7 @@
 //!
 //! ```rust,no_run
 //! # use supabase_rs::SupabaseClient;
-//! # use supabase_rs::graphql::{Request, RootTypes};
+//! # use supabase_rs::graphql::{request::Request, RootTypes};
 //! # use serde_json::json;
 //! # async fn example() -> Result<(), Box<dyn std::error::Error>> {
 //! # let client = SupabaseClient::new("url".to_string(), "key".to_string())?;
