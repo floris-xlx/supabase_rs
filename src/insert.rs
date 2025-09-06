@@ -303,8 +303,8 @@ impl SupabaseClient {
                 Ok(text) => text,
                 Err(e) => return Err(format!("Failed to get response text: {}", e)),
             };
-            let id: String = match serde_json::from_str::<Value>(&res_text) {
-                Ok(json) => json["id"].to_string(),
+            let id: String = match serde_json::from_str::<Vec<Value>>(&res_text) {
+                Ok(json) => json[0]["id"].to_string(),
                 Err(e) => return Err(format!("Failed to parse response text: {}", e)),
             };
             Ok(id)
