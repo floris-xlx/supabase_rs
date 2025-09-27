@@ -148,7 +148,7 @@
 //! # async fn example() -> Result<(), String> {
 //! # let client = SupabaseClient::new("url".to_string(), "key".to_string()).unwrap();
 //! // ✅ Good: Batch multiple inserts
-//! let records = vec![/* ... multiple records ... */];
+//! let records = vec![json!({"name":"tom"})/* ... multiple records ... */];
 //! client.bulk_insert("logs", records).await?;
 //!
 //! // ❌ Avoid: Individual inserts in loops
@@ -215,6 +215,7 @@ impl SupabaseClient {
             )
             .header(HeadersTypes::ContentType, "application/json")
             .header(HeadersTypes::ClientInfo, &crate::client_info())
+            .header(HeadersTypes::AcceptProfile.as_str(), self.schema.as_str())
             .body(body.to_string())
             .send()
             .await
@@ -288,6 +289,7 @@ impl SupabaseClient {
             .header(HeadersTypes::ContentType, "application/json")
             .header(HeadersTypes::ClientInfo, &crate::client_info())
             .header(HeadersTypes::Prefer, "return=representation")
+            .header(HeadersTypes::AcceptProfile.as_str(), self.schema.as_str())
             .body(body.to_string())
             .send()
             .await
@@ -301,8 +303,8 @@ impl SupabaseClient {
                 Ok(text) => text,
                 Err(e) => return Err(format!("Failed to get response text: {}", e)),
             };
-            let id: String = match serde_json::from_str::<Value>(&res_text) {
-                Ok(json) => json["id"].to_string(),
+            let id: String = match serde_json::from_str::<Vec<Value>>(&res_text) {
+                Ok(json) => json[0]["id"].to_string(),
                 Err(e) => return Err(format!("Failed to parse response text: {}", e)),
             };
             Ok(id)
@@ -484,6 +486,7 @@ impl SupabaseClient {
             )
             .header(HeadersTypes::ContentType, "application/json")
             .header(HeadersTypes::ClientInfo, &crate::client_info())
+            .header(HeadersTypes::AcceptProfile.as_str(), self.schema.as_str())
             .body(body.to_string())
             .send()
             .await

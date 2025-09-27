@@ -509,6 +509,7 @@ use errors::Result;
 pub struct SupabaseClient {
     url: String,
     api_key: String,
+    schema: String,
     client: reqwest::Client,
 }
 
@@ -586,8 +587,14 @@ impl SupabaseClient {
         Ok(Self {
             url: supabase_url,
             api_key: private_key,
+            schema: "public".to_string(), // default schema
             client,
         })
+    }
+
+    pub fn schema(mut self, schema: &str) -> Self {
+        self.schema = schema.to_string();
+        self
     }
 
     /// Returns the base URL of the Supabase project and table.

@@ -43,6 +43,7 @@ pub enum HeadersTypes {
     Prefer,
     ClientInfo,
     Range,
+    AcceptProfile,
 }
 
 impl HeadersTypes {
@@ -54,6 +55,7 @@ impl HeadersTypes {
             HeadersTypes::Prefer => "prefer",
             HeadersTypes::ClientInfo => "x_client_info",
             HeadersTypes::Range => "Range",
+            HeadersTypes::AcceptProfile => "Accept-Profile",
         }
     }
 }

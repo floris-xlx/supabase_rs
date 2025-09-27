@@ -180,6 +180,7 @@
 //! ```
 
 use crate::query::{Query, QueryBuilder};
+use crate::request::headers::HeadersTypes;
 use crate::request::Headers;
 use crate::success::handle_response;
 use crate::SupabaseClient;
@@ -261,7 +262,9 @@ impl SupabaseClient {
         };
 
         // create headers with default values
-        let headers: Headers = Headers::with_defaults(&self.api_key, &self.api_key);
+        let mut headers: Headers = Headers::with_defaults(&self.api_key, &self.api_key);
+
+        headers.insert(HeadersTypes::AcceptProfile.as_str(), self.schema.as_str());
 
         // convert headers to HeaderMap
         let mut header_map: HeaderMap = HeaderMap::new();
@@ -317,6 +320,8 @@ impl SupabaseClient {
         if let Some((from, to)) = query.get_range() {
             headers.insert("Range", &format!("{}-{}", from, to));
         }
+
+        headers.insert(HeadersTypes::AcceptProfile.as_str(), self.schema.as_str());        
 
         // convert headers to HeaderMap
         let mut header_map: HeaderMap = HeaderMap::new();
