@@ -427,6 +427,9 @@ pub mod tests;
 pub mod type_gen;
 pub mod update;
 
+// Re-export commonly used types
+pub use success::SupabaseErrorResponse;
+
 pub mod graphql;
 pub mod nightly;
 

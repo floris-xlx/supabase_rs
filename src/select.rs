@@ -304,14 +304,6 @@ impl SupabaseClient {
         let query_string = query.build();
         let endpoint: String = format!("{endpoint}?{query_string}");
 
-        #[cfg(feature = "nightly")]
-        println!("\x1b[33mEndpoint: {}\x1b[0m", endpoint);
-
-        #[cfg(feature = "nightly")]
-        use crate::nightly::print_nightly_warning;
-        #[cfg(feature = "nightly")]
-        print_nightly_warning();
-
         let endpoint: String = if endpoint.ends_with("?count=exact") {
             endpoint.replace("?count=exact", "")
         } else {
@@ -320,7 +312,7 @@ impl SupabaseClient {
 
         // create headers with default values
         let mut headers: Headers = Headers::with_defaults(&self.api_key, &self.api_key);
-        
+
         // Add Range header if range is set
         if let Some((from, to)) = query.get_range() {
             headers.insert("Range", &format!("{}-{}", from, to));
