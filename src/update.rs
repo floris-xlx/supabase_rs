@@ -186,7 +186,7 @@ impl SupabaseClient {
             )
             .header(HeadersTypes::ContentType, "application/json")
             .header(HeadersTypes::ClientInfo, &crate::client_info())
-            .header(HeadersTypes::AcceptProfile.as_str(), self.schema.as_str())
+            .header(HeadersTypes::ContentProfile.as_str(), self.schema.as_str())
             .body(body.to_string())
             .send()
             .await
@@ -241,7 +241,7 @@ impl SupabaseClient {
             )
             .header(HeadersTypes::ContentType, "application/json")
             .header(HeadersTypes::ClientInfo, &crate::client_info())
-            .header(HeadersTypes::AcceptProfile.as_str(), self.schema.as_str())
+            .header(HeadersTypes::ContentProfile.as_str(), self.schema.as_str())
             .header(HeadersTypes::Prefer.as_str(), "resolution=merge-duplicates")
             .header(HeadersTypes::Prefer.as_str(), "return=representation")
             .body(body.to_string())
