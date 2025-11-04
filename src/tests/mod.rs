@@ -19,6 +19,8 @@ pub mod methods {
     pub mod update_with_column;
     pub mod upsert_numeric;
     pub mod upsert_string;
+    // Schema functionality tests
+    pub mod schema_tests;
     // New: pure unit tests
     pub mod unit_filters_and_sort;
     pub mod unit_query_build;

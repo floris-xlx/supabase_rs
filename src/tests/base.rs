@@ -29,6 +29,11 @@ mod methods {
         insert_if_unique_string::insert_if_unique_string as test_insert_if_unique_string,
         insert_numeric::insert_numeric as test_insert_numeric,
         insert_string::insert_string as test_insert_string, query::test_query,
+        schema_tests::{
+            run_all_schema_tests, test_custom_schema_zeus, test_default_schema,
+            test_schema_chaining, test_schema_with_delete, test_schema_with_insert,
+            test_schema_with_select, test_schema_with_update, test_schema_with_upsert,
+        },
         select::select as test_select, select_filter::select_filter as test_select_filter,
         select_stacked_queries::select_stacked_queries as test_select_stacked_queries,
         select_with_columns::select_with_columns as test_select_with_columns,
@@ -134,5 +139,61 @@ mod methods {
     #[tokio::test]
     async fn query() {
         test_query().await;
+    }
+
+    // Schema functionality tests
+
+    /// Tests that the default schema is set to "public"
+    #[tokio::test]
+    async fn schema_default() {
+        test_default_schema().await;
+    }
+
+    /// Tests that custom schema "zeus" can be set
+    #[tokio::test]
+    async fn schema_custom_zeus() {
+        test_custom_schema_zeus().await;
+    }
+
+    /// Tests that schema method is chainable and immutable
+    #[tokio::test]
+    async fn schema_chaining() {
+        test_schema_chaining().await;
+    }
+
+    /// Tests schema functionality with select operation (Accept-Profile header)
+    #[tokio::test]
+    async fn schema_with_select() {
+        test_schema_with_select().await;
+    }
+
+    /// Tests schema functionality with insert operation (Content-Profile header)
+    #[tokio::test]
+    async fn schema_with_insert() {
+        test_schema_with_insert().await;
+    }
+
+    /// Tests schema functionality with update operation (Content-Profile header)
+    #[tokio::test]
+    async fn schema_with_update() {
+        test_schema_with_update().await;
+    }
+
+    /// Tests schema functionality with upsert operation (Content-Profile header)
+    #[tokio::test]
+    async fn schema_with_upsert() {
+        test_schema_with_upsert().await;
+    }
+
+    /// Tests schema functionality with delete operation (Content-Profile header)
+    #[tokio::test]
+    async fn schema_with_delete() {
+        test_schema_with_delete().await;
+    }
+
+    /// Runs all schema tests in sequence
+    #[tokio::test]
+    async fn schema_all_tests() {
+        run_all_schema_tests().await;
     }
 }
