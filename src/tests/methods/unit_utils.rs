@@ -11,4 +11,3 @@ fn random_id_is_positive_and_varies() {
         assert!(a >= 0);
     }
 }
-

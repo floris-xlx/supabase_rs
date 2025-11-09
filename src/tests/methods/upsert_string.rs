@@ -7,8 +7,8 @@ pub async fn upsert_string() {
     async fn upsert_inner(supabase_client: SupabaseClient) -> Result<(), String> {
         // Usage example
 
-        let id: String = "8826759220049045588".to_string();
-        let email: String = "floris@xylex.ai".to_string();
+        let id: String = "8826759220049045588".to_owned();
+        let email: String = "floris@xylex.ai".to_owned();
 
         // Usage example
         let response_inner = supabase_client
@@ -43,5 +43,5 @@ pub async fn upsert_string() {
     };
     let response: Result<(), String> = upsert_inner(supabase_client).await;
 
-    assert!(response.is_ok());
+    response.expect("Upsert string operation should succeed");
 }
