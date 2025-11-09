@@ -7,7 +7,7 @@ pub async fn upsert_numeric() {
     async fn upsert_inner(supabase_client: SupabaseClient) -> Result<(), String> {
         // Usage example
 
-        let id: String = "8826759220049045588".to_string();
+        let id: String = "8826759220049045588".to_owned();
         let email: i64 = 1234;
 
         // Usage example
@@ -43,5 +43,5 @@ pub async fn upsert_numeric() {
     };
     let response: Result<(), String> = upsert_inner(supabase_client).await;
 
-    assert!(response.is_ok());
+    response.expect("Upsert numeric operation should succeed");
 }

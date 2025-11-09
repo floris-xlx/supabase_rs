@@ -16,7 +16,7 @@ impl QueryBuilder {
         QueryBuilder {
             client,
             query: Query::new(),
-            table_name: table_name.to_string(),
+            table_name: table_name.to_owned(),
         }
     }
 
@@ -251,7 +251,7 @@ impl Query {
     /// query.add_param("name", "John Doe");
     /// ```
     pub fn add_param(&mut self, key: &str, value: &str) {
-        let key_value_pair = (key.to_string(), value.to_string());
+        let key_value_pair = (key.to_owned(), value.to_owned());
         if !self.params.contains(&key_value_pair) {
             self.params.push(key_value_pair);
         }
