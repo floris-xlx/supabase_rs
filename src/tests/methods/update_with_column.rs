@@ -7,7 +7,7 @@ pub async fn update_with_column() {
     async fn update_inner(supabase_client: SupabaseClient) -> Result<(), String> {
         // Usage example
 
-        let id: String = "what da dog doing".to_string();
+        let id: String = "what da dog doing".to_owned();
 
         let updated_body: Value = json!({
             "dog4": "what da dog doing"
@@ -40,5 +40,5 @@ pub async fn update_with_column() {
     };
     let response: Result<(), String> = update_inner(supabase_client).await;
 
-    assert!(response.is_ok());
+    response.expect("Update with column operation should succeed");
 }
