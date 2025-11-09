@@ -404,11 +404,11 @@
 //!
 //! ## 🤝 Contributing
 //!
-//! Contributions are welcome! Please check our [GitHub repository](https://github.com/floris-xlx/supabase_rs) 
+//! Contributions are welcome! Please check our [GitHub repository](https://github.com/floris-xlx/supabase_rs)
 //! for contribution guidelines and open issues.
 
-const PKG_NAME: &'static str = env!("CARGO_PKG_NAME");
-const PKG_VERSION: &'static str = env!("CARGO_PKG_VERSION");
+const PKG_NAME: &str = env!("CARGO_PKG_NAME");
+const PKG_VERSION: &str = env!("CARGO_PKG_VERSION");
 
 use rand::prelude::ThreadRng;
 use rand::Rng;
@@ -436,7 +436,6 @@ pub mod nightly;
 // This is locked by feature flag `storage` & `realtime`
 pub mod realtime;
 pub mod storage;
-
 
 use errors::Result;
 
@@ -557,7 +556,7 @@ impl SupabaseClient {
     ///
     /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
     /// dotenv().ok();
-    /// 
+    ///
     /// let client = SupabaseClient::new(
     ///     std::env::var("SUPABASE_URL")?,
     ///     std::env::var("SUPABASE_KEY")?,

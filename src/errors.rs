@@ -122,23 +122,23 @@ pub enum ErrorTypes {
     /// Catch-all for unexpected errors that don't fit other categories
     #[error("Unknown error occurred")]
     UnknownError,
-    
+
     /// API key was not provided or is empty
     #[error("API key is missing - set SUPABASE_KEY environment variable")]
     ApiKeyMissing,
-    
+
     /// API key is invalid, expired, or lacks required permissions
     #[error("Authorization failed - verify API key and permissions")]
     AuthorizationFailed,
-    
+
     /// Query syntax is invalid or contains unsupported operations
     #[error("Invalid query - check syntax and parameters")]
     InvalidQuery,
-    
+
     /// HTTP client or network-related errors
     #[error("Network error: {0}")]
     ReqwestError(#[from] reqwest::Error),
-    
+
     /// Environment variable is missing or invalid
     #[error("Environment configuration error: {0}")]
     EnvironmentError(#[from] std::env::VarError),
@@ -187,7 +187,9 @@ pub async fn unknown_error() -> std::result::Result<(), Error> {
 /// # Returns
 /// Always returns `Err(anyhow::Error)` with API key missing guidance.
 pub async fn api_key_missing_error() -> std::result::Result<(), Error> {
-    Err(Error::msg("SUPABASE_RS: API key is missing - set SUPABASE_KEY environment variable"))
+    Err(Error::msg(
+        "SUPABASE_RS: API key is missing - set SUPABASE_KEY environment variable",
+    ))
 }
 
 /// Creates an authorization failed error result.
@@ -198,7 +200,9 @@ pub async fn api_key_missing_error() -> std::result::Result<(), Error> {
 /// # Returns
 /// Always returns `Err(anyhow::Error)` with authorization failure guidance.
 pub async fn authorization_failed_error() -> std::result::Result<(), Error> {
-    Err(Error::msg("SUPABASE_RS: Authorization failed - verify API key permissions and expiration"))
+    Err(Error::msg(
+        "SUPABASE_RS: Authorization failed - verify API key permissions and expiration",
+    ))
 }
 
 /// Creates an invalid query error result.
@@ -209,5 +213,7 @@ pub async fn authorization_failed_error() -> std::result::Result<(), Error> {
 /// # Returns
 /// Always returns `Err(anyhow::Error)` with query validation guidance.
 pub async fn invalid_query_error() -> std::result::Result<(), Error> {
-    Err(Error::msg("SUPABASE_RS: Invalid query - check syntax, parameters, and table/column names"))
+    Err(Error::msg(
+        "SUPABASE_RS: Invalid query - check syntax, parameters, and table/column names",
+    ))
 }
