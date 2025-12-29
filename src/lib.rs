@@ -577,7 +577,7 @@ impl SupabaseClient {
     /// }
     /// # }
     /// ```
-    pub fn new(supabase_url: String, private_key: String) -> Result<Self> {
+    pub fn new(supabase_url: impl Into<String>, private_key: impl Into<String>) -> Result<Self> {
         #[cfg(feature = "rustls")]
         let client = Client::builder().use_rustls_tls().build()?;
 
@@ -585,8 +585,8 @@ impl SupabaseClient {
         let client = Client::new();
 
         Ok(Self {
-            url: supabase_url,
-            api_key: private_key,
+            url: supabase_url.into(),
+            api_key: private_key.into(),
             schema: "public".to_string(), // default schema
             client,
         })
