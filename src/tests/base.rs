@@ -24,17 +24,20 @@
 mod methods {
     // import local method tests
     use crate::tests::methods::{
-        delete::delete as test_delete, insert::insert as test_insert,
+        delete::delete as test_delete,
+        insert::insert as test_insert,
         insert_if_unique_numeric::insert_if_unique_numeric as test_insert_if_unique_numeric,
         insert_if_unique_string::insert_if_unique_string as test_insert_if_unique_string,
         insert_numeric::insert_numeric as test_insert_numeric,
-        insert_string::insert_string as test_insert_string, query::test_query,
+        insert_string::insert_string as test_insert_string,
+        query::test_query,
         schema_tests::{
             run_all_schema_tests, test_custom_schema_zeus, test_default_schema,
             test_schema_chaining, test_schema_with_delete, test_schema_with_insert,
             test_schema_with_select, test_schema_with_update, test_schema_with_upsert,
         },
-        select::select as test_select, select_filter::select_filter as test_select_filter,
+        select::select as test_select,
+        select_filter::select_filter as test_select_filter,
         select_stacked_queries::select_stacked_queries as test_select_stacked_queries,
         select_with_columns::select_with_columns as test_select_with_columns,
         select_with_count::select_with_count as test_select_with_count,

@@ -18,4 +18,3 @@ async fn build_orders_params_and_filters() {
     assert!(s.contains("select=id,name"));
     assert!(s.contains("limit=10"));
 }
-

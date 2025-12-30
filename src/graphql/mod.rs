@@ -280,13 +280,13 @@ pub struct Query {
 ///
 /// ```rust,no_run
 /// // These will be supported in future versions:
-/// 
+///
 /// // Mutations for data modification
 /// // RootTypes::Mutation
-/// 
+///
 /// // Subscriptions for real-time updates  
 /// // RootTypes::Subscription
-/// 
+///
 /// // Fragments for query reuse
 /// // RootTypes::Fragment
 /// ```
