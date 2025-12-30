@@ -474,8 +474,8 @@ use errors::Result;
 ///
 /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
 /// let client = SupabaseClient::new(
-///     "https://your-project.supabase.co".to_string(),
-///     "your-secret-key".to_string(),
+///     "https://your-project.supabase.co",
+///     "your-secret-key",
 /// )?;
 /// # Ok(())
 /// # }
@@ -543,8 +543,8 @@ impl SupabaseClient {
     ///
     /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
     /// let client = SupabaseClient::new(
-    ///     "https://your-project.supabase.co".to_string(),
-    ///     "your-anon-or-service-key".to_string(),
+    ///     "https://your-project.supabase.co",
+    ///     "your-anon-or-service-key",
     /// )?;
     /// # Ok(())
     /// # }
@@ -571,7 +571,7 @@ impl SupabaseClient {
     /// use supabase_rs::SupabaseClient;
     ///
     /// # fn main() {
-    /// match SupabaseClient::new("invalid-url".to_string(), "key".to_string()) {
+    /// match SupabaseClient::new("invalid-url", "key") {
     ///     Ok(client) => println!("Client created successfully"),
     ///     Err(e) => eprintln!("Failed to create client: {:?}", e),
     /// }
