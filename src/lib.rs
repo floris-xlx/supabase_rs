@@ -404,7 +404,7 @@
 //!
 //! ## 🤝 Contributing
 //!
-//! Contributions are welcome! Please check our [GitHub repository](https://github.com/floris-xlx/supabase_rs) 
+//! Contributions are welcome! Please check our [GitHub repository](https://github.com/floris-xlx/supabase_rs)
 //! for contribution guidelines and open issues.
 
 const PKG_NAME: &'static str = env!("CARGO_PKG_NAME");
@@ -436,7 +436,6 @@ pub mod nightly;
 // This is locked by feature flag `storage` & `realtime`
 pub mod realtime;
 pub mod storage;
-
 
 use errors::Result;
 
@@ -474,8 +473,8 @@ use errors::Result;
 ///
 /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
 /// let client = SupabaseClient::new(
-///     "https://your-project.supabase.co".to_string(),
-///     "your-secret-key".to_string(),
+///     "https://your-project.supabase.co",
+///     "your-secret-key",
 /// )?;
 /// # Ok(())
 /// # }
@@ -543,8 +542,8 @@ impl SupabaseClient {
     ///
     /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
     /// let client = SupabaseClient::new(
-    ///     "https://your-project.supabase.co".to_string(),
-    ///     "your-anon-or-service-key".to_string(),
+    ///     "https://your-project.supabase.co",
+    ///     "your-anon-or-service-key",
     /// )?;
     /// # Ok(())
     /// # }
@@ -557,7 +556,7 @@ impl SupabaseClient {
     ///
     /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
     /// dotenv().ok();
-    /// 
+    ///
     /// let client = SupabaseClient::new(
     ///     std::env::var("SUPABASE_URL")?,
     ///     std::env::var("SUPABASE_KEY")?,
@@ -571,13 +570,13 @@ impl SupabaseClient {
     /// use supabase_rs::SupabaseClient;
     ///
     /// # fn main() {
-    /// match SupabaseClient::new("invalid-url".to_string(), "key".to_string()) {
+    /// match SupabaseClient::new("invalid-url", "key") {
     ///     Ok(client) => println!("Client created successfully"),
     ///     Err(e) => eprintln!("Failed to create client: {:?}", e),
     /// }
     /// # }
     /// ```
-    pub fn new(supabase_url: String, private_key: String) -> Result<Self> {
+    pub fn new(supabase_url: impl Into<String>, private_key: impl Into<String>) -> Result<Self> {
         #[cfg(feature = "rustls")]
         let client = Client::builder().use_rustls_tls().build()?;
 
@@ -585,8 +584,8 @@ impl SupabaseClient {
         let client = Client::new();
 
         Ok(Self {
-            url: supabase_url,
-            api_key: private_key,
+            url: supabase_url.into(),
+            api_key: private_key.into(),
             schema: "public".to_string(), // default schema
             client,
         })

@@ -10,9 +10,14 @@ async fn filter_display_works() {
 
 #[tokio::test]
 async fn sort_display_works() {
-    let asc = crate::query::Sort { column: "name".to_string(), order: crate::query::SortOrder::Ascending };
-    let desc = crate::query::Sort { column: "name".to_string(), order: crate::query::SortOrder::Descending };
+    let asc = crate::query::Sort {
+        column: "name".to_string(),
+        order: crate::query::SortOrder::Ascending,
+    };
+    let desc = crate::query::Sort {
+        column: "name".to_string(),
+        order: crate::query::SortOrder::Descending,
+    };
     assert_eq!(asc.to_string(), "name.asc");
     assert_eq!(desc.to_string(), "name.desc");
 }
-

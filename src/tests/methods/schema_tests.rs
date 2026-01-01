@@ -35,7 +35,7 @@ pub async fn test_custom_schema_zeus() {
 
     // Set custom schema to "zeus"
     let zeus_client = supabase_client.schema("zeus");
-    
+
     // Verify schema is set correctly
     assert_eq!(zeus_client.schema, "zeus");
     println!("✅ Custom schema 'zeus' is correctly set");
@@ -45,18 +45,15 @@ pub async fn test_custom_schema_zeus() {
 pub async fn test_schema_with_select() {
     async fn select_inner(supabase_client: SupabaseClient) -> Result<(), String> {
         // This should use Accept-Profile: zeus header
-        let response = supabase_client
-            .select("test")
-            .execute()
-            .await;
+        let response = supabase_client.select("test").execute().await;
 
         match response {
             Ok(_) => {
                 println!("✅ Select operation with zeus schema completed");
                 Ok(())
-            },
+            }
             Err(error) => {
-                // Even if the table doesn't exist in zeus schema, 
+                // Even if the table doesn't exist in zeus schema,
                 // we've verified the header is being sent
                 println!("ℹ️  Select with zeus schema attempted: {}", error);
                 Ok(()) // Consider this a success for header testing
@@ -88,15 +85,13 @@ pub async fn test_schema_with_insert() {
         });
 
         // This should use Content-Profile: zeus header
-        let response = supabase_client
-            .insert("test", test_data)
-            .await;
+        let response = supabase_client.insert("test", test_data).await;
 
         match response {
             Ok(_) => {
                 println!("✅ Insert operation with zeus schema completed");
                 Ok(())
-            },
+            }
             Err(error) => {
                 // Even if the table doesn't exist in zeus schema,
                 // we've verified the header is being sent
@@ -130,15 +125,13 @@ pub async fn test_schema_with_update() {
         });
 
         // This should use Content-Profile: zeus header
-        let response = supabase_client
-            .update("test", "1", test_data)
-            .await;
+        let response = supabase_client.update("test", "1", test_data).await;
 
         match response {
             Ok(_) => {
                 println!("✅ Update operation with zeus schema completed");
                 Ok(())
-            },
+            }
             Err(error) => {
                 // Even if the table doesn't exist in zeus schema,
                 // we've verified the header is being sent
@@ -180,7 +173,7 @@ pub async fn test_schema_with_upsert() {
             Ok(_) => {
                 println!("✅ Upsert operation with zeus schema completed");
                 Ok(())
-            },
+            }
             Err(error) => {
                 // Even if the table doesn't exist in zeus schema,
                 // we've verified the header is being sent
@@ -209,15 +202,13 @@ pub async fn test_schema_with_upsert() {
 pub async fn test_schema_with_delete() {
     async fn delete_inner(supabase_client: SupabaseClient) -> Result<(), String> {
         // This should use Content-Profile: zeus header
-        let response = supabase_client
-            .delete("test", "zeus_test_id")
-            .await;
+        let response = supabase_client.delete("test", "zeus_test_id").await;
 
         match response {
             Ok(_) => {
                 println!("✅ Delete operation with zeus schema completed");
                 Ok(())
-            },
+            }
             Err(error) => {
                 // Even if the table doesn't exist in zeus schema,
                 // we've verified the header is being sent

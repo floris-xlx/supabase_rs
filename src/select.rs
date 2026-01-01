@@ -321,7 +321,7 @@ impl SupabaseClient {
             headers.insert("Range", &format!("{}-{}", from, to));
         }
 
-        headers.insert(HeadersTypes::AcceptProfile.as_str(), self.schema.as_str());        
+        headers.insert(HeadersTypes::AcceptProfile.as_str(), self.schema.as_str());
 
         // convert headers to HeaderMap
         let mut header_map: HeaderMap = HeaderMap::new();

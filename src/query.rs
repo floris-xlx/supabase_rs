@@ -122,7 +122,7 @@ use crate::SupabaseClient;
 ///
 /// // Price range: $10 to $100
 /// let min_price = Filter {
-///     column: "price".to_string(), 
+///     column: "price".to_string(),
 ///     operator: Operator::GreaterThanOrEquals,
 ///     value: "10.00".to_string(),
 /// };
