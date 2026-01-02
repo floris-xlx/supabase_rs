@@ -189,7 +189,7 @@ pub async fn generate_supabase_types(
             let inner: &str = ty
                 .strip_prefix("Option<")
                 .and_then(|s| s.strip_suffix('>'))
-                .unwrap_or(&ty);
+                .unwrap_or(ty);
             if &field != col {
                 output.push_str(&format!("    #[serde(rename = \"{col}\")]\n"));
             }
@@ -257,7 +257,6 @@ pub async fn generate_supabase_types(
         lib_rs.read_to_string(&mut contents).unwrap();
         if !contents.contains("pub mod supabase_types;") {
             let mut lib_rs: File = OpenOptions::new()
-                .write(true)
                 .append(true)
                 .open("src/lib.rs")
                 .unwrap();
@@ -269,7 +268,6 @@ pub async fn generate_supabase_types(
         mod_rs.read_to_string(&mut contents).unwrap();
         if !contents.contains("pub mod supabase_types;") {
             let mut mod_rs: File = OpenOptions::new()
-                .write(true)
                 .append(true)
                 .open("src/mod.rs")
                 .unwrap();
@@ -284,6 +282,7 @@ pub async fn generate_supabase_types(
     let mut file: File = OpenOptions::new()
         .create(true)
         .write(true)
+        .truncate(true)
         .open("src/supabase_types.rs")
         .unwrap();
     file.write_all(output.as_bytes()).unwrap();
