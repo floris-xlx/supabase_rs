@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.1](https://github.com/floris-xlx/supabase_rs/compare/v0.5.0...v0.5.1) (2026-01-03)
+
+
+### Bug Fixes
+
+* Address clippy warnings across multiple modules ([12fecc9](https://github.com/floris-xlx/supabase_rs/commit/12fecc972a7d5faf01a6651cce0cff3b60ab0370))
+
 ## [0.4.0](https://github.com/floris-xlx/supabase_rs/compare/v0.3.5...v0.4.0) (2024-09-26)
 
 
