@@ -222,6 +222,36 @@ impl QueryBuilder {
             .execute_with_query(&self.table_name, &self.query)
             .await
     }
+
+    /// Executes the constructed query against the database.
+    /// Note: Results are not guaranteed deterministic unless you call order(...)).
+    ///
+    /// # Returns
+    /// - `Ok(Vec<Value>)` with the fetched records when the request succeeds.
+    /// - `Err(String)` with an error message when the request fails.
+    pub async fn first(self) -> Result<Option<Value>, String> {
+        // ask for 1 row for efficiency
+        let rows = self.limit(1).execute().await?;
+        Ok(rows.into_iter().next())
+    }
+
+    /// Executes the constructed query and returns the single matching row, or an error if there are 0 or >1 matches.
+    /// Note: Results are not guaranteed deterministic unless you call order(...)).
+    ///
+    /// # Returns
+    /// - Ok(Value) when exactly one row is found.
+    /// - Err(String) when no rows match.
+    /// - Err(String) when more than one row matches.
+    /// - Err(String) for other request failures.
+    pub async fn single(self) -> Result<Value, String> {
+        // ask for up to 2 rows to detect multiples
+        let rows = self.limit(2).execute().await?;
+        match rows.len() {
+            1 => Ok(rows.into_iter().next().unwrap()),
+            0 => Err("NotFound: no rows matched the query".into()),
+            _ => Err("MultipleRows: expected exactly one row but found multiple".into()),
+        }
+    }
 }
 
 impl Query {
