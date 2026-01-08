@@ -2,7 +2,8 @@
 //!
 //! It includes tests for various CRUD operations using the `SupabaseClient`.
 //! Each test is designed to interact with a Supabase database using the client's methods
-//! such as `insert`, `insert_if_unique`, `select`, and `select_filter`.
+//! such as `insert`, `insert_if_unique`, `select`, `select_filter`,
+//! as well as the crate helper methods `first` and `single`.
 //!
 //! ## Tests
 //!
@@ -15,6 +16,8 @@
 //! - `delete`: Tests the deletion of a row.
 //! - `upsert`: Tests the upsertion of a row.
 //! - `update`: Tests the update of a row.
+//! - `first`: Tests the crate helper method `.first()` for fetching the first row.
+//! - `single`: Tests the crate helper method `.single()` for fetching exactly one row.
 //!
 //! These tests ensure that the basic functionalities of interacting with a Supabase database
 //! are working as expected.
@@ -38,6 +41,8 @@ mod methods {
         },
         select::select as test_select,
         select_filter::select_filter as test_select_filter,
+        select_first::select_first as test_select_first,
+        select_single::select_single as test_select_single,
         select_stacked_queries::select_stacked_queries as test_select_stacked_queries,
         select_with_columns::select_with_columns as test_select_with_columns,
         select_with_count::select_with_count as test_select_with_count,
@@ -46,6 +51,17 @@ mod methods {
         upsert_string::upsert_string as test_upsert_string,
     };
 
+    /// Tests the `select_first` method of the crate.    
+    #[tokio::test]
+    async fn select_first() {
+        test_select_first().await;
+    }
+
+    /// Tests the `select_single` method of the crate.    
+    #[tokio::test]
+    async fn select_single() {
+        test_select_single().await;
+    }
     /// Tests the `insert` method of `SupabaseClient`.
     #[tokio::test]
     async fn insert() {
