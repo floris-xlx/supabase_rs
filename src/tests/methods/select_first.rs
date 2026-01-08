@@ -7,7 +7,6 @@ pub async fn select_first() {
     async fn select_first_inner(client: SupabaseClient) -> Result<(), String> {
         let res = client
             .select("test")
-            .gt("number", "0")
             .order("id", true) // make deterministic
             .first()
             .await;

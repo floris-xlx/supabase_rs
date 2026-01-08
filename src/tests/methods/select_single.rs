@@ -4,14 +4,11 @@ use crate::SupabaseClient;
 pub async fn select_single() {
     /// Tests that `.single()` returns exactly one row and fails if none or multiple exist.
     async fn select_single_inner(client: SupabaseClient) -> Result<(), String> {
-        // Insert/upsert a sentinel row to ensure exactly one match.
-        // Adjust field names/types to match your table schema.
         let sentinel = serde_json::json!({
-            "id": "test-single-sentinel",
-            "number": 9999999
+            "id": 0,
+            "number": "99999"
         });
 
-        // try upsert (assumes client has an upsert method)
         let _ = client.insert("test", &sentinel).await.map_err(|e| {
             eprintln!("\x1b[33mWarning: upsert failed: {:?}\x1b[0m", e);
             e
