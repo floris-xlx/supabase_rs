@@ -82,10 +82,10 @@
 //! Add to your `Cargo.toml`:
 //! ```toml
 //! [dependencies]
-//! supabase-rs = "0.4.14"
+//! supabase_rs = "0.4.14"
 //!
 //! # With optional features
-//! supabase-rs = { version = "0.4.14", features = ["storage", "rustls"] }
+//! supabase_rs = { version = "0.4.14", features = ["storage", "rustls"] }
 //! ```
 //!
 //! ## 🚀 Quick Start

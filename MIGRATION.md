@@ -50,10 +50,10 @@ This guide helps you migrate between different versions of `supabase_rs` and pro
    ```toml
    [dependencies]
    # Old
-   supabase-rs = "0.3"
+   supabase_rs = "0.3"
    
    # New
-   supabase-rs = "0.4.14"
+   supabase_rs = "0.4.14"
    ```
 
 2. **Update Client Creation**
@@ -89,10 +89,10 @@ This guide helps you migrate between different versions of `supabase_rs` and pro
 4. **Update Feature Flags** (if using)
    ```toml
    # Old
-   supabase-rs = { version = "0.3", features = ["storage"] }
+   supabase_rs = { version = "0.3", features = ["storage"] }
    
    # New
-   supabase-rs = { version = "0.4.14", features = ["storage", "rustls"] }
+   supabase_rs = { version = "0.4.14", features = ["storage", "rustls"] }
    ```
 
 #### New Features in v0.4.x
@@ -260,7 +260,7 @@ match client.operation().await {
 echo "🔄 Starting supabase_rs migration..."
 
 # Update Cargo.toml
-sed -i 's/supabase-rs = "0.3"/supabase-rs = "0.4.14"/' Cargo.toml
+sed -i 's/supabase_rs = "0.3"/supabase_rs = "0.4.14"/' Cargo.toml
 
 # Update imports (basic pattern replacement)
 find src -name "*.rs" -exec sed -i 's/SupabaseClient::new(/SupabaseClient::new(/g' {} \;
@@ -381,17 +381,17 @@ If you encounter issues during migration:
 
 ```toml
 # Pin to specific version for stability
-supabase-rs = "=0.4.14"
+supabase_rs = "=0.4.14"
 
 # Or use compatible versions
-supabase-rs = "~0.4.14"  # Accepts patch updates
+supabase_rs = "~0.4.14"  # Accepts patch updates
 ```
 
 ### 2. Feature Flag Management
 
 ```toml
 # Be explicit about feature requirements
-supabase-rs = { 
+supabase_rs = { 
     version = "0.4.14", 
     features = ["storage", "rustls"],
     default-features = false 
@@ -421,7 +421,7 @@ pub fn old_method() {
 ## 📚 Additional Resources
 
 - [CHANGELOG.md](CHANGELOG.md) - Detailed version history
-- [API Documentation](https://docs.rs/supabase-rs) - Complete API reference
+- [API Documentation](https://docs.rs/supabase_rs) - Complete API reference
 - [Examples](examples/) - Migration examples and patterns
 - [GitHub Issues](https://github.com/floris-xlx/supabase_rs/issues) - Known issues and solutions
 
