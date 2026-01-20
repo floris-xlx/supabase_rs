@@ -39,29 +39,29 @@ Add the crate to your project using Cargo:
 
 ```toml
 [dependencies]
-supabase-rs = "0.4.14"
+supabase_rs = "0.4.14"
 
 # With optional features
-supabase-rs = { version = "0.4.14", features = ["storage", "rustls"] }
+supabase_rs = { version = "0.4.14", features = ["storage", "rustls"] }
 ```
 
 ### Feature Combinations
 
 ```toml
 # Basic REST API only (default)
-supabase-rs = "0.4.14"
+supabase_rs = "0.4.14"
 
 # With Storage support
-supabase-rs = { version = "0.4.14", features = ["storage"] }
+supabase_rs = { version = "0.4.14", features = ["storage"] }
 
 # With rustls instead of OpenSSL (recommended for cross-platform)
-supabase-rs = { version = "0.4.14", features = ["rustls"] }
+supabase_rs = { version = "0.4.14", features = ["rustls"] }
 
 # With experimental GraphQL support (nightly)
-supabase-rs = { version = "0.4.14", features = ["nightly"] }
+supabase_rs = { version = "0.4.14", features = ["nightly"] }
 
 # All features enabled
-supabase-rs = { version = "0.4.14", features = ["storage", "rustls", "nightly"] }
+supabase_rs = { version = "0.4.14", features = ["storage", "rustls", "nightly"] }
 ```
 
 ### Environment Setup
@@ -916,7 +916,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 🔗 Links
 
-- [📖 API Documentation](https://docs.rs/supabase-rs)
+- [📖 API Documentation](https://docs.rs/supabase_rs)
 - [🐛 Issue Tracker](https://github.com/floris-xlx/supabase_rs/issues)
 - [🔄 Changelog](CHANGELOG.md)
 - [🌐 Supabase Documentation](https://supabase.io/docs)
