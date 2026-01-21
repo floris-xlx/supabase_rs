@@ -16,9 +16,9 @@ pub async fn init() -> Result<SupabaseClient> {
 pub async fn setup_rpc_functions() -> Result<()> {
     use std::fs;
     use tokio_postgres::{Config, NoTls};
-    
+
     dotenv().ok();
-    
+
     // Try to get database credentials from environment variables
     // Default to local Supabase credentials
     let db_host = var("SUPABASE_DB_HOST").unwrap_or_else(|_| "127.0.0.1".to_string());
@@ -26,14 +26,13 @@ pub async fn setup_rpc_functions() -> Result<()> {
     let db_user = var("SUPABASE_DB_USER").unwrap_or_else(|_| "postgres".to_string());
     let db_password = var("SUPABASE_DB_PASSWORD").unwrap_or_else(|_| "postgres".to_string());
     let db_name = var("SUPABASE_DB_NAME").unwrap_or_else(|_| "postgres".to_string());
-    
+
     // Read SQL file
-    let sql_content = fs::read_to_string("src/tests/setup_rpc.sql")
-        .map_err(|e| {
-            eprintln!("Failed to read SQL file: {}", e);
-            crate::errors::ErrorTypes::UnknownError
-        })?;
-    
+    let sql_content = fs::read_to_string("src/tests/setup_rpc.sql").map_err(|e| {
+        eprintln!("Failed to read SQL file: {}", e);
+        crate::errors::ErrorTypes::UnknownError
+    })?;
+
     // Connect to database
     let mut config = Config::new();
     config
@@ -42,26 +41,24 @@ pub async fn setup_rpc_functions() -> Result<()> {
         .user(&db_user)
         .password(&db_password)
         .dbname(&db_name);
-    
-    let (client, connection) = config.connect(NoTls).await
-        .map_err(|e| {
-            eprintln!("Failed to connect to database: {}", e);
-            crate::errors::ErrorTypes::UnknownError
-        })?;
-    
+
+    let (client, connection) = config.connect(NoTls).await.map_err(|e| {
+        eprintln!("Failed to connect to database: {}", e);
+        crate::errors::ErrorTypes::UnknownError
+    })?;
+
     // Spawn connection driver
     tokio::spawn(async move {
         if let Err(e) = connection.await {
             eprintln!("Database connection error: {}", e);
         }
     });
-    
+
     // Execute SQL
-    client.batch_execute(&sql_content).await
-        .map_err(|e| {
-            eprintln!("Failed to execute RPC setup SQL: {}", e);
-            crate::errors::ErrorTypes::UnknownError
-        })?;
-    
+    client.batch_execute(&sql_content).await.map_err(|e| {
+        eprintln!("Failed to execute RPC setup SQL: {}", e);
+        crate::errors::ErrorTypes::UnknownError
+    })?;
+
     Ok(())
 }

@@ -40,7 +40,14 @@ pub async fn generate_supabase_types(
     singularize_struct_name: bool,
     included_tables: &[&str],
 ) {
-    generate_supabase_types_with_schema(user, password, singularize_struct_name, included_tables, "public").await
+    generate_supabase_types_with_schema(
+        user,
+        password,
+        singularize_struct_name,
+        included_tables,
+        "public",
+    )
+    .await
 }
 
 /// Generates Rust types for Supabase tables and RPC functions with schema support.
@@ -305,10 +312,11 @@ pub async fn generate_supabase_types_with_schema(
         // In the future we could check pg_proc.proargdefaults to detect defaults
         let rust_type = base_rust_type.to_string();
 
-        rpc_definitions
-            .entry(routine_name)
-            .or_default()
-            .push((parameter_name, rust_type, parameter_mode));
+        rpc_definitions.entry(routine_name).or_default().push((
+            parameter_name,
+            rust_type,
+            parameter_mode,
+        ));
     }
 
     let mut output: String = String::new();
@@ -419,10 +427,10 @@ pub async fn generate_supabase_types_with_schema(
         for function in &functions {
             let parameters = &rpc_definitions[function];
             let struct_name = format!("{}Args", pascal_case(function));
-            
+
             output.push_str(&format!("    #[derive(Debug, Serialize, Clone)]\n"));
             output.push_str(&format!("    pub struct {} {{\n", struct_name));
-            
+
             for (param_name, rust_type, param_mode) in parameters {
                 let field = safe_field_name(param_name);
                 if &field != param_name {
@@ -436,7 +444,7 @@ pub async fn generate_supabase_types_with_schema(
             }
             output.push_str("    }\n\n");
         }
-        
+
         output.push_str("}\n\n");
     }
 

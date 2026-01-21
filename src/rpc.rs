@@ -284,7 +284,7 @@ impl RpcBuilder {
     pub async fn execute_void(self) -> Result<()> {
         let response = self.execute_request(true).await?;
         let status = response.status();
-        
+
         if status == 204 {
             Ok(())
         } else {
@@ -298,22 +298,24 @@ impl RpcBuilder {
     async fn execute_internal(self, single: bool) -> Result<Vec<Value>> {
         let response = self.execute_request(single).await?;
         let status = response.status();
-        
+
         if !status.is_success() {
             // For non-success responses, treat as error
             let _error_body = response.text().await.unwrap_or_default();
             return Err(crate::errors::ErrorTypes::UnknownError);
         }
-        
+
         // Parse response
-        handle_response(response).await.map_err(|_e| crate::errors::ErrorTypes::UnknownError)
+        handle_response(response)
+            .await
+            .map_err(|_e| crate::errors::ErrorTypes::UnknownError)
     }
 
     /// Internal method to execute the HTTP request.
     async fn execute_request(self, single: bool) -> Result<Response> {
         // Build endpoint URL
         let url = self.client.rpc_endpoint(&self.function_name);
-        
+
         // Build query string from filters
         let query_string = self.query.build();
         let endpoint = if query_string.is_empty() {
@@ -324,38 +326,43 @@ impl RpcBuilder {
 
         // create headers with default values
         let mut headers = Headers::with_defaults(&self.client.api_key, &self.client.api_key);
-        
+
         // Content-Type is always application/json for RPC
         headers.insert(HeadersTypes::ContentType.as_str(), "application/json");
-        
+
         // Handle schema headers
         if self.client.schema != "public" {
             headers.insert(HeadersTypes::ContentProfile.as_str(), &self.client.schema);
             headers.insert(HeadersTypes::AcceptProfile.as_str(), &self.client.schema);
         }
-        
+
         // Handle single object response if requested
         if single {
             headers.insert("Accept", "application/vnd.pgrst.object+json");
         }
-        
+
         // convert headers to HeaderMap
         let mut header_map = HeaderMap::new();
         for (key, value) in headers.get_headers() {
             header_map.insert(
-                HeaderName::from_bytes(key.as_bytes()).map_err(|_| crate::errors::ErrorTypes::UnknownError)?,
-                HeaderValue::from_str(&value).map_err(|_| crate::errors::ErrorTypes::UnknownError)?,
+                HeaderName::from_bytes(key.as_bytes())
+                    .map_err(|_| crate::errors::ErrorTypes::UnknownError)?,
+                HeaderValue::from_str(&value)
+                    .map_err(|_| crate::errors::ErrorTypes::UnknownError)?,
             );
         }
-        
+
         // send the request
-        let response = self.client.client.post(&endpoint)
+        let response = self
+            .client
+            .client
+            .post(&endpoint)
             .headers(header_map)
             .json(&self.params)
             .send()
             .await
             .map_err(crate::errors::ErrorTypes::ReqwestError)?;
-            
+
         Ok(response)
     }
 }

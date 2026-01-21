@@ -50,10 +50,10 @@ mod methods {
         upsert_numeric::upsert_numeric as test_upsert_numeric,
         upsert_string::upsert_string as test_upsert_string,
     };
-    
+
     #[cfg(feature = "rpc")]
     use crate::tests::methods::rpc::{
-        test_rpc, test_rpc_single, test_rpc_void, test_rpc_with_filters, test_rpc_type_generation,
+        test_rpc, test_rpc_single, test_rpc_type_generation, test_rpc_void, test_rpc_with_filters,
     };
 
     /// Tests the `select_first` method of the crate.    
